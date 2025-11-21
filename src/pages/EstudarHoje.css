@@ -1,0 +1,302 @@
+.estudar-hoje {
+  padding: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  color: #555;
+}
+
+/* Timer Section */
+.timer-section {
+  background: white;
+  border-radius: 20px;
+  padding: 3rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  text-align: center;
+}
+
+.timer-display {
+  margin-bottom: 2rem;
+}
+
+.timer-circle {
+  width: 280px;
+  height: 280px;
+  margin: 0 auto;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
+  position: relative;
+}
+
+.timer-circle::before {
+  content: '';
+  position: absolute;
+  inset: 12px;
+  border-radius: 50%;
+  background: white;
+}
+
+.timer-text {
+  font-size: 4rem;
+  font-weight: bold;
+  color: #333;
+  font-family: 'Courier New', monospace;
+  position: relative;
+  z-index: 1;
+}
+
+.timer-info {
+  margin-bottom: 2rem;
+}
+
+.timer-info p {
+  font-size: 1.1rem;
+  color: #666;
+  margin: 0.5rem 0;
+}
+
+.timer-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  flex-wrap: wrap;
+  margin-bottom: 1.5rem;
+}
+
+.btn {
+  padding: 1rem 2rem;
+  border: none;
+  border-radius: 12px;
+  font-size: 1.1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+.btn-start {
+  background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+  color: white;
+  min-width: 180px;
+}
+
+.btn-pause {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.btn-stop {
+  background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+  color: white;
+}
+
+.btn-reset {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  color: white;
+}
+
+.timer-presets {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.timer-presets button {
+  padding: 0.5rem 1.5rem;
+  border: 2px solid #667eea;
+  background: transparent;
+  color: #667eea;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.timer-presets button:hover {
+  background: #667eea;
+  color: white;
+}
+
+/* Registro Section */
+.registro-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.registro-section h2 {
+  font-size: 1.8rem;
+  margin-bottom: 2rem;
+  color: #333;
+  text-align: center;
+}
+
+.form-group {
+  margin-bottom: 1.5rem;
+}
+
+.form-group label {
+  display: block;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+.form-group textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-group small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.humor-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.humor-options button {
+  flex: 1;
+  min-width: 120px;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.humor-options button:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.humor-options button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+.btn-save {
+  width: 100%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 1.2rem;
+  margin-top: 1rem;
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+}
+
+/* Dicas Section */
+.dicas-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.dicas-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  text-align: center;
+}
+
+.dicas-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dicas-section li {
+  padding: 0.75rem 0;
+  font-size: 1.05rem;
+  color: #555;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dicas-section li:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .estudar-hoje {
+    padding: 1rem;
+  }
+
+  .timer-section {
+    padding: 2rem 1rem;
+  }
+
+  .timer-circle {
+    width: 220px;
+    height: 220px;
+  }
+
+  .timer-text {
+    font-size: 3rem;
+  }
+
+  .timer-controls {
+    flex-direction: column;
+  }
+
+  .btn {
+    width: 100%;
+  }
+
+  .humor-options {
+    flex-direction: column;
+  }
+
+  .humor-options button {
+    min-width: auto;
+  }
+}

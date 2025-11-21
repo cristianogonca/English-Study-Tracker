@@ -1,0 +1,467 @@
+.check-semanal {
+  padding: 2rem;
+  max-width: 1000px;
+  margin: 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  color: #555;
+}
+
+/* Form */
+.check-form {
+  background: white;
+  border-radius: 20px;
+  padding: 2.5rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+  margin-bottom: 2rem;
+}
+
+/* Semana Selector */
+.semana-selector {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.semana-selector label {
+  display: block;
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.semana-input {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.semana-input button {
+  padding: 0.75rem 1.5rem;
+  border: 2px solid #667eea;
+  background: white;
+  color: #667eea;
+  border-radius: 10px;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.semana-input button:hover {
+  background: #667eea;
+  color: white;
+}
+
+.semana-input input {
+  width: 100px;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  font-size: 1.5rem;
+  font-weight: bold;
+  text-align: center;
+}
+
+.semana-selector small {
+  display: block;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Form Sections */
+.form-section {
+  margin-bottom: 2.5rem;
+  padding-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.form-section:last-of-type {
+  border-bottom: none;
+}
+
+.form-section h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.form-section label {
+  display: block;
+  font-size: 1.05rem;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 1rem;
+}
+
+.form-section input[type="number"],
+.form-section textarea {
+  width: 100%;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-family: inherit;
+  transition: border-color 0.3s ease;
+}
+
+.form-section input:focus,
+.form-section textarea:focus {
+  outline: none;
+  border-color: #667eea;
+}
+
+.form-section textarea {
+  resize: vertical;
+}
+
+.form-section small {
+  display: block;
+  margin-top: 0.5rem;
+  color: #999;
+  font-size: 0.9rem;
+}
+
+/* Presença */
+.slider-container {
+  margin-bottom: 1rem;
+}
+
+.slider {
+  width: 100%;
+  height: 8px;
+  border-radius: 5px;
+  background: #e0e0e0;
+  outline: none;
+  -webkit-appearance: none;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  cursor: pointer;
+  border: none;
+}
+
+.slider-value {
+  text-align: center;
+  font-size: 2rem;
+  font-weight: bold;
+  color: #667eea;
+  margin-top: 0.5rem;
+}
+
+.presenca-bar,
+.meta-bar {
+  background: #f0f0f0;
+  border-radius: 12px;
+  height: 30px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.presenca-fill,
+.meta-fill {
+  background: linear-gradient(90deg, #11998e 0%, #38ef7d 100%);
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.meta-fill {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+}
+
+.meta-status {
+  margin-top: 1rem;
+  padding: 1rem;
+  border-radius: 10px;
+  font-weight: 600;
+  text-align: center;
+}
+
+.meta-status.success {
+  background: #d4edda;
+  color: #155724;
+}
+
+.meta-status.warning {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* Radio Options */
+.radio-options {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.radio-options button {
+  flex: 1;
+  min-width: 120px;
+  padding: 1rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.radio-options button:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.radio-options button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+/* Checkpoints */
+.checkpoints-section {
+  background: #f8f9fa;
+  padding: 2rem;
+  border-radius: 16px;
+}
+
+.checkpoints-desc {
+  color: #666;
+  margin-bottom: 1.5rem;
+}
+
+.checkpoint-item {
+  background: white;
+  padding: 1.5rem;
+  border-radius: 12px;
+  margin-bottom: 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+}
+
+.checkpoint-question {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+  font-size: 1.05rem;
+}
+
+.checkpoint-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.checkpoint-buttons {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.checkpoint-buttons button {
+  flex: 1;
+  min-width: 100px;
+  padding: 0.75rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.checkpoint-buttons button:hover {
+  transform: translateY(-2px);
+}
+
+.checkpoint-buttons button.active.green {
+  background: #d4edda;
+  border-color: #28a745;
+  color: #155724;
+}
+
+.checkpoint-buttons button.active.yellow {
+  background: #fff3cd;
+  border-color: #ffc107;
+  color: #856404;
+}
+
+.checkpoint-buttons button.active.red {
+  background: #f8d7da;
+  border-color: #dc3545;
+  color: #721c24;
+}
+
+.checkpoint-nota {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.checkpoint-nota label {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #555;
+  margin: 0;
+}
+
+.checkpoint-nota input {
+  width: 80px;
+  padding: 0.5rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  font-size: 1rem;
+  text-align: center;
+}
+
+/* Resumo */
+.resumo-section {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 2rem;
+  border-radius: 16px;
+  margin-bottom: 2rem;
+}
+
+.resumo-section h3 {
+  color: white;
+  text-align: center;
+  margin-bottom: 1.5rem;
+  font-size: 1.5rem;
+}
+
+.resumo-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+  gap: 1rem;
+}
+
+.resumo-item {
+  background: rgba(255, 255, 255, 0.2);
+  padding: 1rem;
+  border-radius: 12px;
+  text-align: center;
+  backdrop-filter: blur(10px);
+}
+
+.resumo-label {
+  display: block;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.resumo-value {
+  display: block;
+  color: white;
+  font-size: 1.5rem;
+  font-weight: bold;
+}
+
+/* Botão Salvar */
+.btn-save {
+  width: 100%;
+  padding: 1.25rem;
+  border: none;
+  border-radius: 12px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  font-size: 1.3rem;
+  font-weight: bold;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-save:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+}
+
+/* Dicas */
+.dicas-section {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.dicas-section h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+  text-align: center;
+}
+
+.dicas-section ul {
+  list-style: none;
+  padding: 0;
+}
+
+.dicas-section li {
+  padding: 0.75rem 0;
+  font-size: 1.05rem;
+  color: #555;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.dicas-section li:last-child {
+  border-bottom: none;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .check-semanal {
+    padding: 1rem;
+  }
+
+  .check-form {
+    padding: 1.5rem;
+  }
+
+  .radio-options,
+  .checkpoint-buttons {
+    flex-direction: column;
+  }
+
+  .radio-options button,
+  .checkpoint-buttons button {
+    min-width: auto;
+  }
+
+  .resumo-grid {
+    grid-template-columns: 1fr 1fr;
+  }
+}

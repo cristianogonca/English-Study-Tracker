@@ -1,0 +1,607 @@
+.cronograma {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.page-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  color: #555;
+}
+
+/* Estatísticas */
+.cronograma-stats {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+}
+
+.stat-icon {
+  font-size: 2.5rem;
+}
+
+.stat-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.stat-value {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #333;
+}
+
+.stat-label {
+  font-size: 0.9rem;
+  color: #999;
+}
+
+/* Fases Overview */
+.fases-overview {
+  background: white;
+  border-radius: 20px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fases-overview h2 {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.fases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.fase-card {
+  padding: 1.5rem;
+  border-radius: 16px;
+  border: 3px solid;
+  background: white;
+  transition: all 0.3s ease;
+}
+
+.fase-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.fase-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.fase-periodo {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.fase-metas {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.fase-progress-bar {
+  background: #f0f0f0;
+  border-radius: 10px;
+  height: 20px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.fase-progress-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.fase-progress-text {
+  text-align: center;
+  font-weight: bold;
+  color: #555;
+}
+
+/* View Controls */
+.view-controls {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 2rem;
+}
+
+.view-controls button {
+  padding: 1rem 2rem;
+  border: 2px solid #e0e0e0;
+  background: white;
+  border-radius: 12px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.view-controls button:hover {
+  border-color: #667eea;
+  transform: translateY(-2px);
+}
+
+.view-controls button.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-color: #667eea;
+}
+
+/* Mes Selector */
+.mes-selector {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  margin-bottom: 1.5rem;
+}
+
+.mes-selector h2 {
+  font-size: 2rem;
+  color: #333;
+  margin: 0;
+}
+
+.mes-selector button {
+  padding: 1rem 1.5rem;
+  border: 2px solid white;
+  background: rgba(255, 255, 255, 0.2);
+  color: white;
+  border-radius: 12px;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  backdrop-filter: blur(10px);
+}
+
+.mes-selector button:hover:not(:disabled) {
+  background: white;
+  color: #667eea;
+  transform: scale(1.1);
+}
+
+.mes-selector button:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+/* Mes Info */
+.mes-info {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 2rem;
+  margin-bottom: 2rem;
+}
+
+.fase-badge {
+  padding: 0.75rem 1.5rem;
+  border-radius: 12px;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.progresso-mes {
+  color: #333;
+  font-size: 1.2rem;
+}
+
+/* Calendário Grid */
+.calendario-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.dia-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 3px solid;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.dia-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.dia-card.concluido {
+  background: linear-gradient(135deg, rgba(17, 153, 142, 0.05) 0%, rgba(56, 239, 125, 0.05) 100%);
+}
+
+.dia-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.dia-numero {
+  font-weight: bold;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.dia-semana {
+  color: #999;
+  font-size: 0.9rem;
+}
+
+.dia-content {
+  margin-bottom: 1rem;
+}
+
+.dia-descricao {
+  color: #555;
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+}
+
+.dia-tarefas-count {
+  color: #999;
+  font-size: 0.85rem;
+}
+
+.dia-progress-bar {
+  background: #f0f0f0;
+  border-radius: 10px;
+  height: 15px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.dia-progress-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.dia-progress-text {
+  text-align: center;
+  font-weight: bold;
+  font-size: 0.9rem;
+  color: #555;
+}
+
+/* Visão Anual */
+.visao-anual {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.mes-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  border: 3px solid;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.mes-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
+}
+
+.mes-card h3 {
+  font-size: 1.5rem;
+  margin-bottom: 0.75rem;
+  color: #333;
+  text-align: center;
+}
+
+.mes-fase-badge {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  font-size: 0.9rem;
+  margin-bottom: 1rem;
+}
+
+.mes-stats {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+  font-size: 0.9rem;
+  color: #666;
+}
+
+.mes-progress-bar {
+  background: #f0f0f0;
+  border-radius: 10px;
+  height: 20px;
+  overflow: hidden;
+  margin-bottom: 0.5rem;
+}
+
+.mes-progress-fill {
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+.mes-progress-text {
+  text-align: center;
+  font-weight: bold;
+  color: #555;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+  padding: 2rem;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 24px;
+  padding: 2.5rem;
+  max-width: 700px;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: #f0f0f0;
+  border: none;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  font-size: 1.5rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.modal-close:hover {
+  background: #e0e0e0;
+  transform: scale(1.1);
+}
+
+.modal-content h2 {
+  font-size: 2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.modal-data {
+  color: #999;
+  margin-bottom: 1rem;
+}
+
+.modal-descricao {
+  font-size: 1.1rem;
+  color: #555;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: #f8f9fa;
+  border-radius: 12px;
+}
+
+.modal-fase {
+  margin-bottom: 2rem;
+  font-size: 1.1rem;
+}
+
+.modal-content h3 {
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+  color: #333;
+}
+
+.modal-tarefas {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-bottom: 2rem;
+}
+
+.tarefa-item {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+  border: 2px solid #e0e0e0;
+  transition: all 0.3s ease;
+}
+
+.tarefa-item.concluida {
+  background: linear-gradient(135deg, rgba(17, 153, 142, 0.1) 0%, rgba(56, 239, 125, 0.1) 100%);
+  border-color: #38ef7d;
+}
+
+.tarefa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
+.tarefa-tipo {
+  background: #667eea;
+  color: white;
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.tarefa-status {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: bold;
+}
+
+.status-concluida {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-em-progresso {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.status-pendente {
+  background: #f0f0f0;
+  color: #999;
+}
+
+.tarefa-item h4 {
+  font-size: 1.1rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.tarefa-item p {
+  color: #666;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+}
+
+.tarefa-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-size: 0.9rem;
+  color: #777;
+}
+
+.tarefa-dificuldade {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-weight: bold;
+}
+
+.dificuldade-facil {
+  background: #d4edda;
+  color: #155724;
+}
+
+.dificuldade-medio {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.dificuldade-dificil {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.modal-progress {
+  margin-top: 2rem;
+}
+
+.progress-bar-large {
+  background: #f0f0f0;
+  border-radius: 12px;
+  height: 40px;
+  overflow: hidden;
+  margin-top: 1rem;
+}
+
+.progress-fill-large {
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  font-size: 1.1rem;
+  transition: width 0.5s ease;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .cronograma {
+    padding: 1rem;
+  }
+
+  .fases-grid,
+  .calendario-grid,
+  .visao-anual {
+    grid-template-columns: 1fr;
+  }
+
+  .mes-selector {
+    gap: 1rem;
+  }
+
+  .mes-selector h2 {
+    font-size: 1.5rem;
+  }
+
+  .mes-info {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .modal-content {
+    padding: 1.5rem;
+    max-width: 100%;
+  }
+
+  .view-controls {
+    flex-direction: column;
+  }
+}

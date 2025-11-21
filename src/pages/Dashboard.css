@@ -1,0 +1,307 @@
+.dashboard {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.dashboard-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.dashboard-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.dashboard-header p {
+  font-size: 1.1rem;
+  opacity: 0.9;
+  color: #555;
+}
+
+.loading {
+  text-align: center;
+  padding: 4rem;
+  font-size: 1.5rem;
+  color: #333;
+}
+
+/* Stats Grid */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.stat-card {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.stat-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.stat-icon {
+  font-size: 3rem;
+  line-height: 1;
+}
+
+.stat-content {
+  flex: 1;
+}
+
+.stat-content h3 {
+  font-size: 0.75rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.stat-value {
+  font-size: 1.8rem;
+  font-weight: bold;
+  color: #333;
+  margin: 0;
+}
+
+.stat-subtitle {
+  font-size: 0.75rem;
+  color: #999;
+}
+
+/* Card colors */
+.stat-card.streak {
+  border-left: 4px solid #ff6b6b;
+}
+
+.stat-card.hours {
+  border-left: 4px solid #4ecdc4;
+}
+
+.stat-card.days {
+  border-left: 4px solid #45b7d1;
+}
+
+.stat-card.vocab {
+  border-left: 4px solid #96ceb4;
+}
+
+.stat-card.tasks {
+  border-left: 4px solid #ffa07a;
+}
+
+.stat-card.phase {
+  border-left: 4px solid #9b59b6;
+}
+
+/* Meta Semanal */
+.meta-semanal {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.meta-semanal h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.meta-content {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.meta-info p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+  color: #555;
+}
+
+.meta-info .realocado {
+  color: #ff6b6b;
+  font-weight: 600;
+}
+
+.progress-bar {
+  background: #f0f0f0;
+  border-radius: 12px;
+  height: 40px;
+  overflow: hidden;
+  position: relative;
+}
+
+.progress-fill {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-weight: bold;
+  transition: width 0.5s ease;
+}
+
+.status-badge {
+  padding: 0.75rem 1.5rem;
+  border-radius: 8px;
+  font-weight: 600;
+  text-align: center;
+  align-self: flex-start;
+}
+
+.status-badge.cumprida {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-badge.em_andamento {
+  background: #d1ecf1;
+  color: #0c5460;
+}
+
+.status-badge.atrasada {
+  background: #f8d7da;
+  color: #721c24;
+}
+
+.status-badge.realocada {
+  background: #fff3cd;
+  color: #856404;
+}
+
+/* Fases Progress */
+.fases-progress {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.fases-progress h2 {
+  font-size: 1.5rem;
+  margin-bottom: 1.5rem;
+  color: #333;
+}
+
+.fases-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1.5rem;
+}
+
+.fase-card {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: #f8f9fa;
+  border: 2px solid #e9ecef;
+  transition: all 0.3s ease;
+}
+
+.fase-card.active {
+  background: #e7f3ff;
+  border-color: #667eea;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
+}
+
+.fase-card h3 {
+  font-size: 1.2rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.fase-card p {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 1rem;
+}
+
+.fase-bar {
+  background: #e0e0e0;
+  border-radius: 8px;
+  height: 12px;
+  overflow: hidden;
+}
+
+.fase-fill {
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  height: 100%;
+  transition: width 0.5s ease;
+}
+
+/* Checks Info */
+.checks-info {
+  background: white;
+  border-radius: 16px;
+  padding: 2rem;
+  margin-bottom: 2rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.checks-info h2 {
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+  color: #333;
+}
+
+.checks-count {
+  font-size: 2rem;
+  font-weight: bold;
+  color: #667eea;
+  margin: 0;
+}
+
+/* Último Estudo */
+.ultimo-estudo {
+  background: white;
+  border-radius: 16px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  text-align: center;
+}
+
+.ultimo-estudo p {
+  margin: 0;
+  font-size: 1.1rem;
+  color: #666;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .dashboard {
+    padding: 1rem;
+  }
+
+  .dashboard-header h1 {
+    font-size: 2rem;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .stat-value {
+    font-size: 1.5rem;
+  }
+
+  .fases-grid {
+    grid-template-columns: 1fr;
+  }
+}
