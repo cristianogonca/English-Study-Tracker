@@ -78,7 +78,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  const configurar = (novaConfig: ConfigUsuario) => {
+  const configurar = async (novaConfig: ConfigUsuario) => {
     await SupabaseStudyService.salvarConfiguracao(novaConfig);
     // Gerar cronograma inicial COM A DATA DE INÍCIO
     const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio);
