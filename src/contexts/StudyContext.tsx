@@ -1,6 +1,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import StudyService from '../services/StudyService';
+import SupabaseStudyService from '../services/SupabaseStudyService';
 import AuthService from '../services/AuthService';
+import SupabaseAuthService from '../services/SupabaseAuthService';
 import { gerarCronogramaCompleto } from '../services/CronogramaGenerator';
 import {
   DiaEstudo,
@@ -38,46 +39,52 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   const [isConfigured, setIsConfigured] = useState(false);
 
   useEffect(() => {
-    // Só carregar dados se estiver logado
-    if (AuthService.estaLogado()) {
-      carregarDados();
-    }
+    const carregar = async () => {
+      const usuario = await SupabaseAuthService.getUsuarioAtual();
+      if (usuario) {
+        SupabaseStudyService.setUsuario(usuario.id);
+        console.log('[StudyProvider] Usuário logado, carregando dados Supabase...');
+        await carregarDados();
+      } else {
+        console.warn('[StudyProvider] Usuário não está logado.');
+      }
+    };
+    carregar();
   }, []);
 
   const carregarDados = () => {
+  const carregarDados = async () => {
     try {
-      const configSalva = StudyService.getConfig();
-      
+      const configSalva = await SupabaseStudyService.obterConfiguracao();
+      console.log('[StudyProvider] Config Supabase carregada:', configSalva);
       if (configSalva) {
         setConfig(configSalva);
         setIsConfigured(true);
-        
-        setCronograma(StudyService.getCronograma());
-        setEstatisticas(StudyService.calcularEstatisticas());
-        
-        setMetaSemanal(StudyService.getMetaAtual() || null);
-        
-        setChecks(StudyService.getChecks());
-        setPalavras(StudyService.getVocabulario());
-        setFases(StudyService.getFases());
+        setCronograma(await SupabaseStudyService.obterCronograma());
+        // estatisticas, metaSemanal, checks, palavras, fases devem ser implementados no SupabaseStudyService
+        // Exemplo:
+        // setEstatisticas(await SupabaseStudyService.obterEstatisticas());
+        // setMetaSemanal(await SupabaseStudyService.obterMetaSemanal());
+        // setChecks(await SupabaseStudyService.obterChecks());
+        // setPalavras(await SupabaseStudyService.obterVocabulario());
+        // setFases(await SupabaseStudyService.obterFases());
       } else {
+        console.warn('[StudyProvider] Nenhuma configuração encontrada no Supabase. Usuário não está configurado.');
         setIsConfigured(false);
       }
     } catch (error) {
-      // Usuário não autenticado ou erro ao carregar
+      console.error('[StudyProvider] Erro ao carregar dados do contexto Supabase:', error);
       setIsConfigured(false);
     }
   };
 
   const configurar = (novaConfig: ConfigUsuario) => {
-    StudyService.salvarConfig(novaConfig);
-    
+    await SupabaseStudyService.salvarConfiguracao(novaConfig);
     // Gerar cronograma inicial COM A DATA DE INÍCIO
     const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio);
-    StudyService.salvarCronograma(cronogramaInicial);
-    
+    await SupabaseStudyService.salvarCronograma(cronogramaInicial);
     // Inicializar fases
-    const fasesIniciais: Fase[] = [
+    // await SupabaseStudyService.salvarFases(fasesIniciais); // se implementado
       {
         id: 'fase-1',
         numero: 1,
@@ -122,7 +129,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const recarregar = () => {
-    carregarDados();
+    await carregarDados();
   };
 
   return (

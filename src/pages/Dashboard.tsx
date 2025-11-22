@@ -9,17 +9,27 @@ function Dashboard() {
 
   useEffect(() => {
     carregarDados();
+      // Log para depuração
+      console.log('[Dashboard] useEffect chamado');
   }, []);
 
   const carregarDados = () => {
     const estatisticas = StudyService.calcularEstatisticas();
     const meta = StudyService.getMetaAtual();
+      console.log('[Dashboard] Estatísticas carregadas:', estatisticas);
+      console.log('[Dashboard] Meta semanal carregada:', meta);
     
     setStats(estatisticas);
     setMetaAtual(meta || null);
   };
 
+      console.error('[Dashboard] stats está nulo ou inválido!');
   const handleReconfigurar = () => {
+      return <div className="loading" style={{color:'red',padding:'2rem'}}>
+        Erro ao carregar estatísticas do usuário.<br />
+        Tente reconfigurar ou entrar novamente.<br />
+        <button onClick={()=>window.location.reload()}>Recarregar</button>
+      </div>;
     if (confirm('⚠️ ATENÇÃO: Isso vai APAGAR todos os seus dados de estudo e voltar para a configuração inicial. Deseja continuar?')) {
       StudyService.limparTodosDados();
       window.location.href = '/setup';
