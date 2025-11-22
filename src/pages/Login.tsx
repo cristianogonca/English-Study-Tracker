@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import './Login.css';
 
@@ -7,6 +7,11 @@ export default function Login() {
   const [senha, setSenha] = useState('');
   const [erro, setErro] = useState('');
   const [carregando, setCarregando] = useState(false);
+
+  // Limpa erro ao montar componente
+  useEffect(() => {
+    setErro('');
+  }, []);
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();

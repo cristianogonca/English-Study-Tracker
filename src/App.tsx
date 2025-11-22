@@ -23,7 +23,7 @@ function AppRoutes() {
         const usuario = await SupabaseAuthService.getUsuarioAtual();
         setLogado(!!usuario);
       } catch (error) {
-        console.error('[App] Erro ao verificar auth:', error);
+        // Silencioso: erro esperado quando não logado
         setLogado(false);
       } finally {
         setCarregando(false);

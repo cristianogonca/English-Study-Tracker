@@ -155,7 +155,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
         setIsConfigured(false);
       }
     } catch (error) {
-      console.error('[StudyProvider] ERRO ao carregar dados:', error);
+      // Silencioso: erro esperado quando não há config ainda
       setConfig(null);
       setIsConfigured(false);
     } finally {

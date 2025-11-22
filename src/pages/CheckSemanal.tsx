@@ -56,7 +56,7 @@ function CheckSemanal() {
         setObservacoes('');
       }
     } catch (error) {
-      console.error('[CheckSemanal] Erro ao carregar check:', error);
+      // Silencioso: erro esperado quando não há check ainda
     }
   };
 

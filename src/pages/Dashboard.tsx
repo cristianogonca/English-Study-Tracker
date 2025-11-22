@@ -9,6 +9,7 @@ function Dashboard() {
   const navigate = useNavigate();
   const [stats, setStats] = useState<Estatisticas | null>(null);
   const [metaAtual, setMetaAtual] = useState<MetaSemanal | null>(null);
+  const [carregando, setCarregando] = useState(true);
   const jaCarregou = useRef(false);
 
   useEffect(() => {
@@ -19,6 +20,7 @@ function Dashboard() {
   }, []);
 
   const carregarDados = async () => {
+    setCarregando(true);
     try {
       // Buscar dados das tabelas
       const progressos = await SupabaseStudyService.obterProgressoTarefas();
@@ -107,7 +109,11 @@ function Dashboard() {
         status: minutosRealizadosSemana >= 420 ? 'cumprida' : 'em_andamento'
       });
     } catch (error) {
-      // Silencioso: valores zerados quando não há dados ainda
+      // Log apenas para debug - identifica problema real
+      if (progressos.length > 0 || palavras.length > 0 || checks.length > 0) {
+        console.warn('[Dashboard] Erro inesperado com dados existentes:', error);
+      }
+      // Valores zerados como fallback
       setStats({
         sequenciaAtual: 0,
         melhorSequencia: 0,
@@ -124,6 +130,8 @@ function Dashboard() {
         ultimoEstudo: null,
       });
       setMetaAtual(null);
+    } finally {
+      setCarregando(false);
     }
   };
 
@@ -188,7 +196,17 @@ function Dashboard() {
     }
   };
 
-  if (!stats) {
+  // Mostra loading enquanto carrega
+  if (carregando) {
+    return (
+      <div style={{ padding: '20px', textAlign: 'center' }}>
+        Carregando estatísticas...
+      </div>
+    );
+  }
+
+  // Só mostra erro se NÃO está carregando E stats é null
+  if (!carregando && !stats) {
     return (
       <div className="loading" style={{color:'red',padding:'2rem'}}>
         Erro ao carregar estatísticas do usuário.<br />
