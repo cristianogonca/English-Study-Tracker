@@ -1,6 +1,5 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 import SupabaseStudyService from '../services/SupabaseStudyService';
-import AuthService from '../services/AuthService';
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import { gerarCronogramaCompleto } from '../services/CronogramaGenerator';
 import {
@@ -37,64 +36,88 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   const [palavras, setPalavras] = useState<PalavraNova[]>([]);
   const [fases, setFases] = useState<Fase[]>([]);
   const [isConfigured, setIsConfigured] = useState(false);
-  const [carregandoConfig, setCarregandoConfig] = useState(true);
+  const [carregando, setCarregando] = useState(true);
+  const [usuarioLogado, setUsuarioLogado] = useState(false);
 
   useEffect(() => {
+    console.log('[StudyProvider] useEffect iniciado');
     const carregar = async () => {
-      const usuario = await SupabaseAuthService.getUsuarioAtual();
-      if (usuario) {
-        SupabaseStudyService.setUsuario(usuario.id);
-        console.log('[StudyProvider] Usuário logado, carregando dados Supabase...');
-        await carregarDados();
-      } else {
-        console.warn('[StudyProvider] Usuário não está logado.');
+      try {
+        console.log('[StudyProvider] Chamando SupabaseAuthService.getUsuarioAtual()...');
+        const usuario = await SupabaseAuthService.getUsuarioAtual();
+        console.log('[StudyProvider] Usuário retornado:', usuario);
+        
+        if (usuario) {
+          console.log('[StudyProvider] Usuário logado detectado:', usuario.id);
+          setUsuarioLogado(true);
+          SupabaseStudyService.setUsuario(usuario.id);
+          console.log('[StudyProvider] Iniciando carregamento de dados...');
+          await carregarDados();
+        } else {
+          console.log('[StudyProvider] Nenhum usuário logado.');
+          setUsuarioLogado(false);
+          setCarregando(false);
+        }
+      } catch (error) {
+        console.error('[StudyProvider] ERRO ao verificar usuário:', error);
+        setUsuarioLogado(false);
+        setCarregando(false);
       }
     };
     carregar();
   }, []);
 
   const carregarDados = async () => {
+    console.log('[StudyProvider] carregarDados() iniciado');
     try {
+      console.log('[StudyProvider] Buscando configuração no Supabase...');
       const configSalva = await SupabaseStudyService.obterConfiguracao();
-      console.log('[StudyProvider] Config Supabase carregada:', configSalva);
+      console.log('[StudyProvider] Config retornada:', configSalva);
+      
       if (configSalva) {
+        console.log('[StudyProvider] Config válida encontrada, setando estado...');
         setConfig(configSalva);
         setIsConfigured(true);
-        setCronograma(await SupabaseStudyService.obterCronograma());
-        // estatisticas, metaSemanal, checks, palavras, fases devem ser implementados no SupabaseStudyService
+        console.log('[StudyProvider] Buscando cronograma...');
+        const cronogramaCarregado = await SupabaseStudyService.obterCronograma();
+        console.log('[StudyProvider] Cronograma carregado:', cronogramaCarregado.length, 'dias');
+        setCronograma(cronogramaCarregado);
       } else {
-        console.warn('[StudyProvider] Nenhuma configuração encontrada no Supabase. Usuário não está configurado. Redirecionando para setup.');
+        console.log('[StudyProvider] Nenhuma config encontrada, usuário precisa fazer setup');
         setConfig(null);
         setIsConfigured(false);
-        // Redireciona para /setup se não houver configuração
-        if (window.location.pathname !== '/setup') {
-          window.location.replace('/setup');
-        }
       }
     } catch (error) {
-      console.error('[StudyProvider] Erro ao carregar dados do contexto Supabase:', error);
+      console.error('[StudyProvider] ERRO ao carregar dados:', error);
       setConfig(null);
       setIsConfigured(false);
-      if (window.location.pathname !== '/setup') {
-        window.location.replace('/setup');
-      }
     } finally {
-      setCarregandoConfig(false);
+      console.log('[StudyProvider] Finalizando carregamento, setando carregando=false');
+      setCarregando(false);
     }
   };
 
   const configurar = async (novaConfig: ConfigUsuario) => {
+    console.log('[StudyProvider] configurar() chamado com:', novaConfig);
     await SupabaseStudyService.salvarConfiguracao(novaConfig);
-    // Gerar cronograma inicial COM A DATA DE INÍCIO
     const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio);
     await SupabaseStudyService.salvarCronograma(cronogramaInicial);
     await carregarDados();
   };
 
   const recarregar = async () => {
+    console.log('[StudyProvider] recarregar() chamado');
     await carregarDados();
   };
 
+  console.log('[StudyProvider] Estado atual - carregando:', carregando, 'usuarioLogado:', usuarioLogado, 'isConfigured:', isConfigured);
+
+  if (carregando && usuarioLogado) {
+    console.log('[StudyProvider] Renderizando loading...');
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Carregando configuração...</div>;
+  }
+
+  console.log('[StudyProvider] Renderizando children');
   return (
     <StudyContext.Provider
       value={{
@@ -110,8 +133,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
         recarregar
       }}
     >
-      {/* Só mostra o fallback se estiver logado, senão renderiza children normalmente */}
-      {(carregandoConfig && isConfigured) ? <div>Carregando configuração...</div> : children}
+      {children}
     </StudyContext.Provider>
   );
 };
