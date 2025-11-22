@@ -239,9 +239,9 @@
   background: white;
   border-radius: 20px;
   padding: 2rem;
-  max-width: 500px;
+  max-width: 700px;
   width: 90%;
-  max-height: 80vh;
+  max-height: 85vh;
   overflow-y: auto;
   box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
 }
@@ -323,6 +323,74 @@
 
 .tarefas-lista {
   margin-bottom: 1rem;
+  max-height: 400px;
+  overflow-y: auto;
+}
+
+.tarefa-card {
+  background: #f9fafb;
+  border: 2px solid #e5e7eb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+}
+
+.tarefa-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.8rem;
+}
+
+.tarefa-badge {
+  padding: 0.3rem 0.8rem;
+  border-radius: 20px;
+  color: white;
+  font-size: 0.8rem;
+  font-weight: 600;
+  text-transform: lowercase;
+}
+
+.tarefa-campo {
+  margin-bottom: 0.8rem;
+}
+
+.tarefa-campo label {
+  display: block;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: #374151;
+  margin-bottom: 0.3rem;
+}
+
+.tarefa-campo input,
+.tarefa-campo textarea,
+.tarefa-campo select {
+  width: 100%;
+  padding: 0.6rem;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  transition: all 0.2s ease;
+}
+
+.tarefa-campo input:focus,
+.tarefa-campo textarea:focus,
+.tarefa-campo select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.tarefa-campo textarea {
+  resize: vertical;
+  font-family: inherit;
+}
+
+.tarefa-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.8rem;
 }
 
 .tarefa-item {
@@ -348,19 +416,19 @@
 }
 
 .btn-remover-tarefa {
-  background: #e74c3c;
+  background: #ef4444;
   color: white;
   border: none;
   border-radius: 6px;
-  padding: 0.6rem 0.8rem;
+  padding: 0.5rem 0.7rem;
   cursor: pointer;
-  font-size: 1.2rem;
+  font-size: 1.1rem;
   transition: all 0.3s ease;
   flex-shrink: 0;
 }
 
 .btn-remover-tarefa:hover {
-  background: #c0392b;
+  background: #dc2626;
   transform: scale(1.1);
 }
 

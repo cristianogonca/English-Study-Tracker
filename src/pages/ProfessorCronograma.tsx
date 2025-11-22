@@ -21,7 +21,6 @@ export default function ProfessorCronograma() {
     tempoTotal: 60,
     tarefas: [] as Tarefa[]
   });
-  const [editandoTarefa, setEditandoTarefa] = useState<number | null>(null);
 
   useEffect(() => {
     carregarDados();
@@ -57,6 +56,32 @@ export default function ProfessorCronograma() {
   };
 
   const diasDoMes = cronograma.filter(dia => dia.mes === mesAtual);
+
+  const getTipoColor = (tipo: TipoConteudo): string => {
+    const cores: Record<TipoConteudo, string> = {
+      [TipoConteudo.GRAMATICA]: '#6366f1',
+      [TipoConteudo.VOCABULARIO]: '#8b5cf6',
+      [TipoConteudo.LISTENING]: '#ec4899',
+      [TipoConteudo.SPEAKING]: '#f59e0b',
+      [TipoConteudo.READING]: '#10b981',
+      [TipoConteudo.WRITING]: '#3b82f6',
+      [TipoConteudo.REVISAO]: '#6b7280'
+    };
+    return cores[tipo] || '#6b7280';
+  };
+
+  const getTipoLabel = (tipo: TipoConteudo): string => {
+    const labels: Record<TipoConteudo, string> = {
+      [TipoConteudo.GRAMATICA]: 'gramática',
+      [TipoConteudo.VOCABULARIO]: 'vocabulário',
+      [TipoConteudo.LISTENING]: 'listening',
+      [TipoConteudo.SPEAKING]: 'speaking',
+      [TipoConteudo.READING]: 'reading',
+      [TipoConteudo.WRITING]: 'writing',
+      [TipoConteudo.REVISAO]: 'revisão'
+    };
+    return labels[tipo] || tipo;
+  };
 
   const abrirEdicao = (dia: DiaEstudo) => {
     console.log('🔍 [ProfessorCronograma] Abrindo edição do dia:', dia);
