@@ -62,21 +62,22 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
         setIsConfigured(true);
         setCronograma(await SupabaseStudyService.obterCronograma());
         // estatisticas, metaSemanal, checks, palavras, fases devem ser implementados no SupabaseStudyService
-        // Exemplo:
-        // setEstatisticas(await SupabaseStudyService.obterEstatisticas());
-        // setMetaSemanal(await SupabaseStudyService.obterMetaSemanal());
-        // setChecks(await SupabaseStudyService.obterChecks());
-        // setPalavras(await SupabaseStudyService.obterVocabulario());
-        // setFases(await SupabaseStudyService.obterFases());
       } else {
-        console.warn('[StudyProvider] Nenhuma configuração encontrada no Supabase. Usuário não está configurado.');
+        console.warn('[StudyProvider] Nenhuma configuração encontrada no Supabase. Usuário não está configurado. Redirecionando para setup.');
         setConfig(null);
         setIsConfigured(false);
+        // Redireciona para /setup se não houver configuração
+        if (window.location.pathname !== '/setup') {
+          window.location.replace('/setup');
+        }
       }
     } catch (error) {
       console.error('[StudyProvider] Erro ao carregar dados do contexto Supabase:', error);
       setConfig(null);
       setIsConfigured(false);
+      if (window.location.pathname !== '/setup') {
+        window.location.replace('/setup');
+      }
     } finally {
       setCarregandoConfig(false);
     }
