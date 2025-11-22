@@ -9,8 +9,8 @@ function Navigation() {
 
   useEffect(() => {
     async function fetchSessao() {
-      const s = await SupabaseAuthService.obterSessao();
-      setSessao(s?.user || null);
+      const user = await SupabaseAuthService.getUsuarioAtual();
+      setSessao(user || null);
     }
     fetchSessao();
   }, []);
@@ -39,7 +39,7 @@ function Navigation() {
   const handleLogout = async () => {
     if (confirm('Deseja realmente sair?')) {
       await SupabaseAuthService.logout();
-      window.location.href = '/login';
+      window.location.href = '/';
     }
   };
 
@@ -71,14 +71,14 @@ function Navigation() {
               onClick={() => setMenuAberto(!menuAberto)}
             >
               <span className="user-avatar">👤</span>
-              <span className="user-name">{sessao.nome}</span>
+              <span className="user-name">{sessao.user_metadata?.nome || sessao.email}</span>
               <span className="menu-arrow">{menuAberto ? '▲' : '▼'}</span>
             </button>
             
             {menuAberto && (
               <div className="user-dropdown">
                 <div className="dropdown-header">
-                  <strong>{sessao.nome}</strong>
+                  <strong>{sessao.user_metadata?.nome || sessao.email}</strong>
                   <small>{sessao.email}</small>
                 </div>
                 <div className="dropdown-divider"></div>
