@@ -1,10 +1,11 @@
-import { Link, useLocation } from 'react-router-dom';
+import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useState, useRef, useEffect } from 'react';
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import './Navigation.css';
 
 function Navigation() {
   const location = useLocation();
+  const navigate = useNavigate();
   const [sessao, setSessao] = useState<any>(null);
 
   useEffect(() => {
@@ -38,8 +39,14 @@ function Navigation() {
 
   const handleLogout = async () => {
     if (confirm('Deseja realmente sair?')) {
-      await SupabaseAuthService.logout();
-      window.location.href = '/login';
+      try {
+        await SupabaseAuthService.logout();
+        navigate('/login', { replace: true });
+        window.location.reload();
+      } catch (error) {
+        console.error('[Navigation] Erro no logout:', error);
+        alert('Erro ao fazer logout. Tente novamente.');
+      }
     }
   };
 
