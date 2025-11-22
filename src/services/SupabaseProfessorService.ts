@@ -1,5 +1,6 @@
 import { supabase } from '../lib/supabase';
 import { AlunoView, GuiaEstudosMes, DiaEstudo } from '../types';
+import { GUIA_BASE_12_MESES } from './GuiaBase';
 
 export class SupabaseProfessorService {
   
@@ -57,7 +58,9 @@ export class SupabaseProfessorService {
       throw new Error('Não foi possível buscar cronograma do aluno');
     }
     
-    return (data || []).map(dia => ({
+    console.log('🔍 [SupabaseProfessorService] Dados brutos do banco:', data?.slice(0, 3));
+    
+    const resultado = (data || []).map(dia => ({
       id: dia.id,
       numero: dia.dia_numero,
       mes: dia.mes,
@@ -69,6 +72,10 @@ export class SupabaseProfessorService {
       concluido: dia.concluido || false,
       tituloSemana: dia.titulo_semana
     }));
+    
+    console.log('✅ [SupabaseProfessorService] Dados mapeados:', resultado.slice(0, 3));
+    
+    return resultado;
   }
 
   /**
@@ -210,26 +217,22 @@ export class SupabaseProfessorService {
   }
 
   /**
-   * Criar guia inicial completo para um aluno (12 meses vazios)
+   * Criar guia inicial completo para um aluno (12 meses com conteúdo rico)
    */
   async criarGuiaInicial(userId: string): Promise<void> {
-    const guiaInicial: Array<Omit<GuiaEstudosMes, 'id' | 'criado_em' | 'atualizado_em'>> = [];
-
-    for (let mes = 1; mes <= 12; mes++) {
-      guiaInicial.push({
-        user_id: userId,
-        mes,
-        titulo: `Mês ${mes}`,
-        objetivos: [],
-        gramatica: [],
-        vocabulario: [],
-        listening: [],
-        speaking: [],
-        reading: [],
-        writing: [],
-        check_final: []
-      });
-    }
+    const guiaInicial = GUIA_BASE_12_MESES.map(mes => ({
+      user_id: userId,
+      mes: mes.mes,
+      titulo: mes.titulo,
+      objetivos: mes.objetivos,
+      gramatica: mes.gramatica,
+      vocabulario: mes.vocabulario,
+      listening: mes.listening,
+      speaking: mes.speaking,
+      reading: mes.reading,
+      writing: mes.writing,
+      check_final: mes.checkFinal
+    }));
 
     const { error } = await supabase
       .from('guia_estudos')

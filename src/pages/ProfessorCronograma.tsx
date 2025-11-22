@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { professorService } from '../services/SupabaseProfessorService';
-import { DiaEstudo, AlunoView } from '../types';
+import { DiaEstudo, AlunoView, Tarefa, TipoConteudo, NivelDificuldade } from '../types';
 import './ProfessorCronograma.css';
 
 export default function ProfessorCronograma() {
@@ -18,8 +18,10 @@ export default function ProfessorCronograma() {
   const [diaEditando, setDiaEditando] = useState<DiaEstudo | null>(null);
   const [formData, setFormData] = useState({
     tituloSemana: '',
-    tempoTotal: 60
+    tempoTotal: 60,
+    tarefas: [] as Tarefa[]
   });
+  const [editandoTarefa, setEditandoTarefa] = useState<number | null>(null);
 
   useEffect(() => {
     carregarDados();
@@ -44,6 +46,8 @@ export default function ProfessorCronograma() {
 
       setAluno(alunoData);
       setCronograma(cronogramaData);
+      console.log('✅ [ProfessorCronograma] Cronograma carregado:', cronogramaData.length, 'dias');
+      console.log('📋 Exemplo de dia com tarefas:', cronogramaData.find(d => d.tarefas && d.tarefas.length > 0));
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
       setErro('Erro ao carregar dados do aluno');
@@ -55,16 +59,49 @@ export default function ProfessorCronograma() {
   const diasDoMes = cronograma.filter(dia => dia.mes === mesAtual);
 
   const abrirEdicao = (dia: DiaEstudo) => {
+    console.log('🔍 [ProfessorCronograma] Abrindo edição do dia:', dia);
+    console.log('📋 Tarefas do dia:', dia.tarefas);
     setDiaEditando(dia);
     setFormData({
       tituloSemana: dia.tituloSemana || '',
-      tempoTotal: dia.tempoTotal
+      tempoTotal: dia.tempoTotal,
+      tarefas: dia.tarefas || []
     });
   };
 
   const fecharEdicao = () => {
     setDiaEditando(null);
-    setFormData({ tituloSemana: '', tempoTotal: 60 });
+    setFormData({ tituloSemana: '', tempoTotal: 60, tarefas: [] });
+  };
+
+  const adicionarTarefa = () => {
+    const novaTarefa: Tarefa = {
+      id: `temp-${Date.now()}`,
+      titulo: '',
+      descricao: '',
+      tipo: TipoConteudo.GRAMATICA,
+      nivel: NivelDificuldade.BASICO,
+      duracaoEstimada: 30,
+      ordem: formData.tarefas.length + 1
+    };
+    
+    setFormData({
+      ...formData,
+      tarefas: [...formData.tarefas, novaTarefa]
+    });
+  };
+
+  const removerTarefa = (index: number) => {
+    setFormData({
+      ...formData,
+      tarefas: formData.tarefas.filter((_, i) => i !== index)
+    });
+  };
+
+  const atualizarTarefa = (index: number, campo: keyof Tarefa, valor: any) => {
+    const novasTarefas = [...formData.tarefas];
+    novasTarefas[index] = { ...novasTarefas[index], [campo]: valor };
+    setFormData({ ...formData, tarefas: novasTarefas });
   };
 
   const salvarEdicao = async () => {
@@ -75,14 +112,15 @@ export default function ProfessorCronograma() {
       
       await professorService.atualizarDiaCronograma(diaEditando.id, {
         tituloSemana: formData.tituloSemana,
-        tempoTotal: formData.tempoTotal
+        tempoTotal: formData.tempoTotal,
+        tarefas: formData.tarefas
       });
 
       // Atualizar no estado local
       setCronograma(prev => 
         prev.map(dia => 
           dia.id === diaEditando.id 
-            ? { ...dia, ...formData }
+            ? { ...dia, tituloSemana: formData.tituloSemana, tempoTotal: formData.tempoTotal, tarefas: formData.tarefas }
             : dia
         )
       );
@@ -152,6 +190,11 @@ export default function ProfessorCronograma() {
               {dia.data && (
                 <p className="dia-data">{new Date(dia.data).toLocaleDateString('pt-BR')}</p>
               )}
+              {dia.tarefas && dia.tarefas.length > 0 && (
+                <div className="dia-tarefas-preview">
+                  <p className="tarefas-count">📋 {dia.tarefas.length} tarefa{dia.tarefas.length !== 1 ? 's' : ''}</p>
+                </div>
+              )}
             </div>
 
             <button
@@ -188,6 +231,85 @@ export default function ProfessorCronograma() {
                 min="15"
                 max="240"
               />
+            </div>
+
+            <div className="form-group">
+              <label>Tarefas do Dia:</label>
+              <div className="tarefas-lista">
+                {formData.tarefas.map((tarefa, index) => (
+                  <div key={tarefa.id || index} className="tarefa-card">
+                    <div className="tarefa-header">
+                      <span className="tarefa-badge" style={{ backgroundColor: getTipoColor(tarefa.tipo) }}>
+                        {getTipoLabel(tarefa.tipo)}
+                      </span>
+                      <button
+                        type="button"
+                        className="btn-remover-tarefa"
+                        onClick={() => removerTarefa(index)}
+                        title="Remover tarefa"
+                      >
+                        🗑️
+                      </button>
+                    </div>
+
+                    <div className="tarefa-campo">
+                      <label>Título:</label>
+                      <input
+                        type="text"
+                        value={tarefa.titulo}
+                        onChange={(e) => atualizarTarefa(index, 'titulo', e.target.value)}
+                        placeholder="Ex: Alfabeto e Pronúncia"
+                      />
+                    </div>
+
+                    <div className="tarefa-campo">
+                      <label>Descrição:</label>
+                      <textarea
+                        value={tarefa.descricao}
+                        onChange={(e) => atualizarTarefa(index, 'descricao', e.target.value)}
+                        placeholder="Ex: Estudar o alfabeto inglês e pronúncia básica"
+                        rows={2}
+                      />
+                    </div>
+
+                    <div className="tarefa-row">
+                      <div className="tarefa-campo">
+                        <label>Tipo:</label>
+                        <select
+                          value={tarefa.tipo}
+                          onChange={(e) => atualizarTarefa(index, 'tipo', e.target.value as TipoConteudo)}
+                        >
+                          <option value={TipoConteudo.GRAMATICA}>Gramática</option>
+                          <option value={TipoConteudo.VOCABULARIO}>Vocabulário</option>
+                          <option value={TipoConteudo.LISTENING}>Listening</option>
+                          <option value={TipoConteudo.SPEAKING}>Speaking</option>
+                          <option value={TipoConteudo.READING}>Reading</option>
+                          <option value={TipoConteudo.WRITING}>Writing</option>
+                          <option value={TipoConteudo.REVISAO}>Revisão</option>
+                        </select>
+                      </div>
+
+                      <div className="tarefa-campo">
+                        <label>Duração (min):</label>
+                        <input
+                          type="number"
+                          value={tarefa.duracaoEstimada}
+                          onChange={(e) => atualizarTarefa(index, 'duracaoEstimada', parseInt(e.target.value) || 30)}
+                          min="5"
+                          max="120"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              <button
+                type="button"
+                className="btn-adicionar-tarefa"
+                onClick={adicionarTarefa}
+              >
+                + Adicionar Tarefa
+              </button>
             </div>
 
             <div className="modal-actions">

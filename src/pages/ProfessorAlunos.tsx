@@ -104,14 +104,14 @@ export default function ProfessorAlunos() {
                   </span>
                 </div>
 
-                <div className="stat">
+                <div className="stat-item">
                   <span className="stat-label">Meta Diária:</span>
-                  <span className="stat-value">{aluno.meta_diaria || 0}h</span>
+                  <span className="stat-value">{aluno.horas_semanais ? Math.round(aluno.horas_semanais / 7 * 10) / 10 : 0}h</span>
                 </div>
 
-                <div className="stat">
+                <div className="stat-item">
                   <span className="stat-label">Meta Semanal:</span>
-                  <span className="stat-value">{aluno.meta_semanal || 0}h</span>
+                  <span className="stat-value">{aluno.horas_semanais || 0}h</span>
                 </div>
 
                 <div className="stat">
