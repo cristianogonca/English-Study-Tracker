@@ -15,7 +15,14 @@ import Navigation from './components/Navigation';
 function AppRoutes() {
   const { isConfigured } = useStudy();
   const [logado, setLogado] = useState(false);
-  const [carregando, setCarregando] = useState(true);
+  const [carregandoAuth, setCarregandoAuth] = useState(true);
+  const [carregandoContexto, setCarregandoContexto] = useState(true);
+
+  // Detecta carregamento do contexto
+  const studyContext = useStudy();
+  useEffect(() => {
+    setCarregandoContexto(studyContext === undefined || studyContext === null);
+  }, [studyContext]);
 
   useEffect(() => {
     const verificarAuth = async () => {
@@ -26,14 +33,15 @@ function AppRoutes() {
         console.error('[App] Erro ao verificar auth:', error);
         setLogado(false);
       } finally {
-        setCarregando(false);
+        setCarregandoAuth(false);
       }
     };
     verificarAuth();
   }, []);
 
-  if (carregando) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Carregando...</div>;
+  // Mostra loading global se contexto ou auth estiver carregando
+  if (carregandoAuth || carregandoContexto) {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Carregando contexto...</div>;
   }
 
   return (
@@ -58,6 +66,7 @@ function AppRoutes() {
           !isConfigured ? <Navigate to="/setup" /> :
           <CheckSemanal />
         } />
+        <Route path="/check" element={<Navigate to="/check-semanal" />} />
         <Route path="/vocabulario" element={
           !logado ? <Navigate to="/login" /> :
           !isConfigured ? <Navigate to="/setup" /> :

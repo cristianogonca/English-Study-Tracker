@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import SupabaseStudyService from '../services/SupabaseStudyService';
 import { gerarCronogramaCompleto } from '../services/CronogramaGenerator';
+import { supabase } from '../lib/supabase';
 import {
   DiaEstudo,
   Estatisticas,
@@ -9,7 +10,8 @@ import {
   MetaSemanal,
   CheckSemanal,
   PalavraNova,
-  Fase
+  Fase,
+  NivelDificuldade
 } from '../types';
 
 interface StudyContextType {
@@ -43,29 +45,89 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     const carregar = async () => {
       try {
         const usuario = await SupabaseAuthService.getUsuarioAtual();
-        if (usuario) {
-          setUsuarioLogado(true);
-          SupabaseStudyService.setUsuario(usuario.id);
-          // Sempre buscar config do Supabase ao logar
-          const configSalva = await SupabaseStudyService.obterConfiguracao();
-          if (configSalva) {
-            setConfig(configSalva);
-            setIsConfigured(true);
-            const cronogramaCarregado = await SupabaseStudyService.obterCronograma();
-            setCronograma(cronogramaCarregado);
+        const userId = usuario?.id;
+        // Diagnóstico: compara user_id logado com user_ids do Supabase
+        try {
+          const { data: allConfigs, error: allConfigsError } = await supabase
+            .from('user_configs')
+            .select('user_id, nome');
+          console.log('[Diagnóstico] Usuário logado:', usuario);
+          console.log('[Diagnóstico] user_id do usuário logado:', userId);
+          if (allConfigsError) {
+            console.error('[Diagnóstico] Erro ao buscar user_configs:', allConfigsError);
+          } else if (allConfigs && allConfigs.length > 0) {
+            console.log('[Diagnóstico] user_ids presentes em user_configs:');
+            allConfigs.forEach((row: any) => {
+              console.log(`user_id: ${row.user_id} | nome: ${row.nome}`);
+            });
+            const found = allConfigs.some((row: any) => row.user_id === userId);
+            if (found) {
+              console.log('[Diagnóstico] Configuração encontrada para o usuário logado!');
+            } else {
+              console.warn('[Diagnóstico] NÃO há configuração para o usuário logado.');
+            }
           } else {
-            setConfig(null);
+            console.warn('[Diagnóstico] Nenhum registro encontrado em user_configs.');
+          }
+        } catch (diagError) {
+          console.error('[Diagnóstico] Erro ao executar diagnóstico:', diagError);
+        }
+
+        if (userId) {
+          setUsuarioLogado(true);
+          SupabaseStudyService.setUsuario(userId);
+          // Busca config apenas por user_id
+          const { data, error } = await supabase
+            .from('user_configs')
+            .select('*')
+            .eq('user_id', userId)
+            .single();
+          if (data && !error) {
+            setConfig({
+              nome: data.nome,
+              metaDiaria: data.meta_diaria,
+              metaSemanal: data.meta_semanal,
+              diasEstudo: data.dias_estudo,
+              dataInicio: data.data_inicio,
+              nivelInicial: data.nivel_inicial,
+            });
+            setIsConfigured(true);
+            setCronograma(await SupabaseStudyService.obterCronograma());
+            setPalavras(await SupabaseStudyService.obterVocabulario());
+            setChecks(await SupabaseStudyService.obterChecks());
+            setFases(await SupabaseStudyService.obterFases());
+          } else {
+            setConfig({
+              nome: '',
+              metaDiaria: 0,
+              metaSemanal: 0,
+              diasEstudo: [],
+              dataInicio: '',
+              nivelInicial: NivelDificuldade.BASICO,
+            });
             setIsConfigured(false);
+            setCronograma([]);
+            setPalavras([]);
+            setChecks([]);
+            setFases([]);
           }
         } else {
           setUsuarioLogado(false);
           setConfig(null);
           setIsConfigured(false);
+          setCronograma([]);
+          setPalavras([]);
+          setChecks([]);
+          setFases([]);
         }
       } catch (error) {
         setUsuarioLogado(false);
         setConfig(null);
         setIsConfigured(false);
+        setCronograma([]);
+        setPalavras([]);
+        setChecks([]);
+        setFases([]);
       } finally {
         setCarregando(false);
       }

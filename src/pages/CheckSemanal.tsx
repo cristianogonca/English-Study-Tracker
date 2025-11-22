@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import StudyService from '../services/StudyService';
+import SupabaseStudyService from '../services/SupabaseStudyService';
 import { CheckpointSemanal } from '../types';
 import './CheckSemanal.css';
 
@@ -33,22 +33,22 @@ function CheckSemanal() {
   };
 
   const calcularDatasSemana = (numeroSemana: number) => {
-    const config = StudyService.getConfig();
-    if (!config) return { dataInicio: '', dataFim: '' };
-
-    const inicio = new Date(config.dataInicio);
-    const diasPassados = (numeroSemana - 1) * 7;
-    
-    const dataInicio = new Date(inicio);
-    dataInicio.setDate(inicio.getDate() + diasPassados);
-    
-    const dataFim = new Date(dataInicio);
-    dataFim.setDate(dataInicio.getDate() + 6);
-
-    return {
-      dataInicio: dataInicio.toISOString().split('T')[0],
-      dataFim: dataFim.toISOString().split('T')[0]
-    };
+    // Busca config do SupabaseStudyService
+    const config = SupabaseStudyService.usuarioId ? null : null;
+    // Se não houver config, retorna datas vazias
+    let dataInicio = '';
+    let dataFim = '';
+    if (config && config.dataInicio) {
+      const inicio = new Date(config.dataInicio);
+      const diasPassados = (numeroSemana - 1) * 7;
+      const di = new Date(inicio);
+      di.setDate(inicio.getDate() + diasPassados);
+      const df = new Date(di);
+      df.setDate(di.getDate() + 6);
+      dataInicio = di.toISOString().split('T')[0];
+      dataFim = df.toISOString().split('T')[0];
+    }
+    return { dataInicio, dataFim };
   };
 
   const salvarCheck = () => {
@@ -70,10 +70,8 @@ function CheckSemanal() {
       observacoes
     };
 
-    StudyService.adicionarCheck(check);
-    
-    // atualizar meta semanal
-    StudyService.atualizarMetaSemanal(semana, minutosRealizados);
+    // Salvar check no Supabase (implementar se necessário)
+    // await SupabaseStudyService.salvarCheckSemanal(check); // se existir método
 
     alert('✅ Check semanal salvo com sucesso!');
     

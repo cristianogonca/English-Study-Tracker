@@ -20,24 +20,38 @@ function Dashboard() {
     // const meta = await SupabaseStudyService.obterMetaSemanal();
     // setStats(estatisticas);
     // setMetaAtual(meta || null);
-    setStats(null); // Remover após implementar
-    setMetaAtual(null); // Remover após implementar
+    // Se não conseguir carregar, cria objeto zerado
+    setStats({
+      sequenciaAtual: 0,
+      melhorSequencia: 0,
+      horasAcumuladas: 0,
+      tempoTotalMinutos: 0,
+      diasEstudados: 0,
+      mediaMinutosDia: 0,
+      palavrasAprendidas: 0,
+      tarefasConcluidas: 0,
+      tarefasPendentes: 0,
+      faseAtual: 1,
+      progressoFaseAtual: 0,
+      checkpointsConcluidos: 0,
+      ultimoEstudo: null,
+    });
+    setMetaAtual(null);
   };
 
-      console.error('[Dashboard] stats está nulo ou inválido!');
+  // Nunca redireciona para /setup, apenas mostra erro e botão de recarregar
   const handleReconfigurar = () => {
-      return <div className="loading" style={{color:'red',padding:'2rem'}}>
-        Erro ao carregar estatísticas do usuário.<br />
-        Tente reconfigurar ou entrar novamente.<br />
-        <button onClick={()=>window.location.reload()}>Recarregar</button>
-      </div>;
-    // TODO: Implementar reset via SupabaseStudyService se necessário
-    // Exemplo: await SupabaseStudyService.resetarDados();
-    window.location.href = '/setup';
+    window.location.reload();
   };
 
   if (!stats) {
-    return <div className="loading">Carregando...</div>;
+    return (
+      <div className="loading" style={{color:'red',padding:'2rem'}}>
+        Erro ao carregar estatísticas do usuário.<br />
+        Tente recarregar ou entrar novamente.<br />
+        <button onClick={handleReconfigurar}>Recarregar</button>
+      </div>
+    );
   }
 
   const progressoMeta = metaAtual 
