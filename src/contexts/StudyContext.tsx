@@ -52,7 +52,6 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     carregar();
   }, []);
 
-  const carregarDados = () => {
   const carregarDados = async () => {
     try {
       const configSalva = await SupabaseStudyService.obterConfiguracao();
@@ -83,52 +82,10 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     // Gerar cronograma inicial COM A DATA DE INÍCIO
     const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio);
     await SupabaseStudyService.salvarCronograma(cronogramaInicial);
-    // Inicializar fases
-    // await SupabaseStudyService.salvarFases(fasesIniciais); // se implementado
-      {
-        id: 'fase-1',
-        numero: 1,
-        nome: 'Básico',
-        descricao: 'Fundamentos da língua inglesa',
-        nivel: 'basico' as any,
-        mesInicio: 1,
-        mesFim: 4,
-        horasTotal: 120,
-        concluida: false,
-        progresso: 0
-      },
-      {
-        id: 'fase-2',
-        numero: 2,
-        nome: 'Intermediário',
-        descricao: 'Fluência e narrativa complexa',
-        nivel: 'intermediario' as any,
-        mesInicio: 5,
-        mesFim: 8,
-        horasTotal: 120,
-        concluida: false,
-        progresso: 0
-      },
-      {
-        id: 'fase-3',
-        numero: 3,
-        nome: 'Avançado',
-        descricao: 'Proficiência e refinamento',
-        nivel: 'avancado' as any,
-        mesInicio: 9,
-        mesFim: 12,
-        horasTotal: 125,
-        concluida: false,
-        progresso: 0
-      }
-    ];
-    
-    StudyService.salvarFases(fasesIniciais);
-    
-    carregarDados();
+    await carregarDados();
   };
 
-  const recarregar = () => {
+  const recarregar = async () => {
     await carregarDados();
   };
 
