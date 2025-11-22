@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import StudyService from '../services/StudyService';
+import SupabaseStudyService from '../services/SupabaseStudyService';
 import { PalavraNova } from '../types';
 import './Vocabulario.css';
 
@@ -28,52 +28,69 @@ function Vocabulario() {
     carregarPalavras();
   }, []);
 
-  const carregarPalavras = () => {
-    const todasPalavras = StudyService.getVocabulario();
-    setPalavras(todasPalavras);
+  const carregarPalavras = async () => {
+    try {
+      const todasPalavras = await SupabaseStudyService.obterVocabulario();
+      setPalavras(todasPalavras);
+    } catch (error) {
+      setPalavras([]);
+    }
   };
 
-  const adicionarPalavra = (e: React.FormEvent) => {
+  const adicionarPalavra = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!novaPalavra.palavra || !novaPalavra.traducao) {
       alert('⚠️ Preencha palavra e tradução!');
       return;
     }
-
-    StudyService.adicionarPalavra({
-      ...novaPalavra,
-      dataAprendida: new Date().toISOString(),
-      vezesRevisada: 0
-    } as any);
-
-    setNovaPalavra({
-      palavra: '',
-      traducao: '',
-      exemplo: '',
-      nivel: 'basico'
-    });
-
-    carregarPalavras();
-    alert('✅ Palavra adicionada com sucesso!');
-  };
-
-  const marcarRevisada = (palavraId: string, acertou: boolean) => {
-    StudyService.marcarPalavraRevisada(palavraId, acertou);
-    carregarPalavras();
-  };
-
-  const resetarPalavra = (palavraId: string) => {
-    if (confirm('Resetar acertos e erros desta palavra?')) {
-      StudyService.resetarPalavra(palavraId);
-      carregarPalavras();
+    try {
+      await SupabaseStudyService.salvarPalavra({
+        ...novaPalavra,
+        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        dataAprendida: new Date().toISOString(),
+        revisada: false,
+        acertos: 0,
+        erros: 0
+      });
+      setNovaPalavra({
+        palavra: '',
+        traducao: '',
+        exemplo: '',
+        nivel: 'basico'
+      });
+      await carregarPalavras();
+      alert('✅ Palavra adicionada com sucesso!');
+    } catch (error) {
+      alert('Erro ao adicionar palavra!');
     }
   };
 
-  const deletarPalavra = (palavraId: string) => {
+  const marcarRevisada = async (palavraId: string, acertou: boolean) => {
+    try {
+      if (acertou) {
+        await SupabaseStudyService.incrementarAcertos(palavraId);
+      } else {
+        await SupabaseStudyService.incrementarErros(palavraId);
+      }
+      await carregarPalavras();
+    } catch (error) {}
+  };
+
+  const resetarPalavra = async (palavraId: string) => {
+    if (confirm('Resetar acertos e erros desta palavra?')) {
+      try {
+        await SupabaseStudyService.resetarPalavra(palavraId);
+        await carregarPalavras();
+      } catch (error) {}
+    }
+  };
+
+  const deletarPalavra = async (palavraId: string) => {
     if (confirm('⚠️ Deletar esta palavra permanentemente?')) {
-      StudyService.deletarPalavra(palavraId);
-      carregarPalavras();
+      try {
+        await SupabaseStudyService.deletarPalavra(palavraId);
+        await carregarPalavras();
+      } catch (error) {}
     }
   };
 

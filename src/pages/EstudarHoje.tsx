@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import StudyService from '../services/StudyService';
+import SupabaseStudyService from '../services/SupabaseStudyService';
 import { RegistroDiario } from '../types';
 import './EstudarHoje.css';
 
@@ -40,27 +40,29 @@ function EstudarHoje() {
     return () => clearInterval(intervalo);
   }, [ativo, pausado, minutos, segundos]);
 
-  const iniciarTimer = () => {
+  const iniciarTimer = async () => {
     if (!ativo) {
-      // iniciar nova sessao
-      const id = StudyService.iniciarSessao();
-      setSessaoId(id);
+      // TODO: Implementar iniciarSessao via SupabaseStudyService
+      // const id = await SupabaseStudyService.iniciarSessao();
+      // setSessaoId(id);
       setAtivo(true);
       setPausado(false);
     }
   };
 
-  const pausarTimer = () => {
+  const pausarTimer = async () => {
     setPausado(!pausado);
     if (!pausado && sessaoId) {
-      StudyService.adicionarPausa(sessaoId);
+      // TODO: Implementar adicionarPausa via SupabaseStudyService
+      // await SupabaseStudyService.adicionarPausa(sessaoId);
       setPausas(pausas + 1);
     }
   };
 
-  const pararTimer = () => {
+  const pararTimer = async () => {
     if (sessaoId) {
-      StudyService.finalizarSessao(sessaoId, conteudoEstudado);
+      // TODO: Implementar finalizarSessao via SupabaseStudyService
+      // await SupabaseStudyService.finalizarSessao(sessaoId, conteudoEstudado);
     }
     setAtivo(false);
     setPausado(false);
@@ -69,13 +71,14 @@ function EstudarHoje() {
     setSessaoId(null);
   };
 
-  const reiniciarTimer = () => {
+  const reiniciarTimer = async () => {
     setMinutos(25);
     setSegundos(0);
     setAtivo(false);
     setPausado(false);
     if (sessaoId) {
-      StudyService.finalizarSessao(sessaoId);
+      // TODO: Implementar finalizarSessao via SupabaseStudyService
+      // await SupabaseStudyService.finalizarSessao(sessaoId);
       setSessaoId(null);
     }
   };
@@ -86,15 +89,13 @@ function EstudarHoje() {
     audio.play().catch(() => console.log('Alarme silencioso'));
   };
 
-  const salvarRegistro = () => {
+  const salvarRegistro = async () => {
     const hoje = new Date().toISOString().split('T')[0];
-    const sessoes = StudyService.getSessoes().filter(s => 
-      s.concluida && s.dataInicio.split('T')[0] === hoje
-    );
-    
-    const minutosEstudados = sessoes.reduce((acc, s) => acc + s.duracao, 0);
-    
-    const registro: Omit<RegistroDiario, 'id'> = {
+    // TODO: Buscar sessoes do dia via SupabaseStudyService
+    // const sessoes = await SupabaseStudyService.obterSessoesDoDia(hoje);
+    // const minutosEstudados = sessoes.reduce((acc, s) => acc + s.duracao, 0);
+    const minutosEstudados = 0; // Remover após implementar
+    const registro = {
       data: hoje,
       minutosEstudados,
       conteudoEstudado: conteudoEstudado.split(',').map(c => c.trim()).filter(c => c),
@@ -103,15 +104,13 @@ function EstudarHoje() {
       observacoes,
       humor
     };
-
-    StudyService.adicionarRegistro(registro);
-    
+    // TODO: Salvar registro via SupabaseStudyService
+    // await SupabaseStudyService.salvarRegistro(registro);
     // limpar form
     setConteudoEstudado('');
     setDificuldades('');
     setObservacoes('');
     setHumor('bom');
-
     alert('✅ Registro diário salvo com sucesso!');
   };
 

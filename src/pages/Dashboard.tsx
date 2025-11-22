@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import StudyService from '../services/StudyService';
+import SupabaseStudyService from '../services/SupabaseStudyService';
 import { Estatisticas, MetaSemanal } from '../types';
 import './Dashboard.css';
 
@@ -9,18 +9,19 @@ function Dashboard() {
 
   useEffect(() => {
     carregarDados();
-      // Log para depuração
-      console.log('[Dashboard] useEffect chamado');
+    // Log para depuração
+    console.log('[Dashboard] useEffect chamado');
   }, []);
 
-  const carregarDados = () => {
-    const estatisticas = StudyService.calcularEstatisticas();
-    const meta = StudyService.getMetaAtual();
-      console.log('[Dashboard] Estatísticas carregadas:', estatisticas);
-      console.log('[Dashboard] Meta semanal carregada:', meta);
-    
-    setStats(estatisticas);
-    setMetaAtual(meta || null);
+  const carregarDados = async () => {
+    // TODO: Implementar cálculo de estatísticas e meta semanal via SupabaseStudyService
+    // Exemplo:
+    // const estatisticas = await SupabaseStudyService.obterEstatisticas();
+    // const meta = await SupabaseStudyService.obterMetaSemanal();
+    // setStats(estatisticas);
+    // setMetaAtual(meta || null);
+    setStats(null); // Remover após implementar
+    setMetaAtual(null); // Remover após implementar
   };
 
       console.error('[Dashboard] stats está nulo ou inválido!');
@@ -30,10 +31,9 @@ function Dashboard() {
         Tente reconfigurar ou entrar novamente.<br />
         <button onClick={()=>window.location.reload()}>Recarregar</button>
       </div>;
-    if (confirm('⚠️ ATENÇÃO: Isso vai APAGAR todos os seus dados de estudo e voltar para a configuração inicial. Deseja continuar?')) {
-      StudyService.limparTodosDados();
-      window.location.href = '/setup';
-    }
+    // TODO: Implementar reset via SupabaseStudyService se necessário
+    // Exemplo: await SupabaseStudyService.resetarDados();
+    window.location.href = '/setup';
   };
 
   if (!stats) {

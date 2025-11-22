@@ -24,7 +24,7 @@ class SupabaseStudyService {
   // ============================================
   async salvarConfiguracao(config: ConfigUsuario): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.salvarConfig(config);
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -49,7 +49,7 @@ class SupabaseStudyService {
 
   async obterConfiguracao(): Promise<ConfigUsuario | null> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.getConfig();
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -80,7 +80,7 @@ class SupabaseStudyService {
   // ============================================
   async salvarCronograma(cronograma: DiaEstudo[]): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.salvarCronograma(cronograma);
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -117,7 +117,7 @@ class SupabaseStudyService {
 
   async obterCronograma(): Promise<DiaEstudo[]> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.getCronograma();
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -149,8 +149,7 @@ class SupabaseStudyService {
 
   async atualizarDia(dia: DiaEstudo): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      // Fallback: não implementado no StudyService
-      return;
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -176,8 +175,7 @@ class SupabaseStudyService {
   // ============================================
   async salvarPalavra(palavra: PalavraNova): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      // Fallback: não implementado no StudyService
-      return;
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -205,7 +203,7 @@ class SupabaseStudyService {
 
   async obterVocabulario(): Promise<PalavraNova[]> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.getVocabulario();
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -317,7 +315,7 @@ class SupabaseStudyService {
 
   async resetarPalavra(palavraId: string): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.resetarPalavra(palavraId);
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -340,7 +338,7 @@ class SupabaseStudyService {
 
   async deletarPalavra(palavraId: string): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.deletarPalavra(palavraId);
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -362,8 +360,7 @@ class SupabaseStudyService {
   // ============================================
   async salvarCheckSemanal(check: CheckSemanal): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      // Fallback: não implementado no StudyService
-      return;
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -387,7 +384,7 @@ class SupabaseStudyService {
 
   async obterChecks(): Promise<CheckSemanal[]> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.getChecks();
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -424,8 +421,7 @@ class SupabaseStudyService {
   // ============================================
   async salvarProgressoTarefa(progresso: ProgressoTarefa): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      // Fallback: não implementado no StudyService
-      return;
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -449,8 +445,7 @@ class SupabaseStudyService {
 
   async obterProgressoTarefas(): Promise<ProgressoTarefa[]> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      // Fallback: não implementado no StudyService
-      return [];
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -479,7 +474,7 @@ class SupabaseStudyService {
   // ============================================
   async salvarFases(fases: Fase[]): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.salvarFases(fases);
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
@@ -509,8 +504,7 @@ class SupabaseStudyService {
 
   async obterFases(): Promise<Fase[]> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      // Fallback: não implementado no StudyService
-      return [];
+      throw new Error('Supabase não configurado ou usuário não definido');
     }
 
     try {
