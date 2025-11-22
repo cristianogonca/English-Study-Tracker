@@ -37,6 +37,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   const [palavras, setPalavras] = useState<PalavraNova[]>([]);
   const [fases, setFases] = useState<Fase[]>([]);
   const [isConfigured, setIsConfigured] = useState(false);
+  const [carregandoConfig, setCarregandoConfig] = useState(true);
 
   useEffect(() => {
     const carregar = async () => {
@@ -69,11 +70,15 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
         // setFases(await SupabaseStudyService.obterFases());
       } else {
         console.warn('[StudyProvider] Nenhuma configuração encontrada no Supabase. Usuário não está configurado.');
+        setConfig(null);
         setIsConfigured(false);
       }
     } catch (error) {
       console.error('[StudyProvider] Erro ao carregar dados do contexto Supabase:', error);
+      setConfig(null);
       setIsConfigured(false);
+    } finally {
+      setCarregandoConfig(false);
     }
   };
 
@@ -104,7 +109,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
         recarregar
       }}
     >
-      {children}
+      {carregandoConfig ? <div>Carregando configuração...</div> : children}
     </StudyContext.Provider>
   );
 };
