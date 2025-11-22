@@ -109,7 +109,8 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
         recarregar
       }}
     >
-      {carregandoConfig ? <div>Carregando configuração...</div> : children}
+      {/* Só mostra o fallback se estiver logado, senão renderiza children normalmente */}
+      {(carregandoConfig && isConfigured) ? <div>Carregando configuração...</div> : children}
     </StudyContext.Provider>
   );
 };
