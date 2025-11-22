@@ -1,4 +1,4 @@
-import { DiaEstudo, Tarefa, TipoConteudo, NivelDificuldade, StatusTarefa } from '../types';
+import { DiaEstudo, Tarefa, TipoConteudo, NivelDificuldade } from '../types';
 
 // gerador de cronograma completo de 365 dias
 export function gerarCronogramaCompleto(dataInicio: string = new Date().toISOString().split('T')[0]): DiaEstudo[] {

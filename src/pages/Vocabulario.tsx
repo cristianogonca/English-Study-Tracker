@@ -309,8 +309,8 @@ function Vocabulario() {
 
                 <div className="word-stats">
                   <span>📅 {new Date(palavra.dataAprendida).toLocaleDateString('pt-BR')}</span>
-                  <span>🔄 Revisões: {palavra.vezesRevisada}</span>
-                  {palavra.vezesRevisada > 0 && (
+                  <span>🔄 Revisões: {palavra.acertos + palavra.erros}</span>
+                  {(palavra.acertos + palavra.erros) > 0 && (
                     <span>
                       ✅ {palavra.acertos} | ❌ {palavra.erros}
                     </span>

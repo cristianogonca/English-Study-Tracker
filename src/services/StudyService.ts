@@ -11,7 +11,7 @@ import {
   ConfigUsuario,
   NivelDificuldade,
   StatusTarefa,
-  Tarefa
+  // ...existing code...
 } from '../types';
 import AuthService from './AuthService';
 
@@ -430,7 +430,7 @@ class StudyService {
     const progresso = this.getProgresso();
     const vocabulario = this.getVocabulario();
     const checks = this.getChecks();
-    const config = this.getConfig();
+    // ...existing code...
     
     // dias estudados
     const diasEstudados = registros.length;

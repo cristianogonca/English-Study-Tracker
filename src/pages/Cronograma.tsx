@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import StudyService from '../services/StudyService';
-import { DiaEstudo, Fase, ProgressoTarefa, Tarefa } from '../types';
+import { DiaEstudo, Fase, ProgressoTarefa } from '../types';
 import './Cronograma.css';
 
 function Cronograma() {

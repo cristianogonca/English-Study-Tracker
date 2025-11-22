@@ -18,7 +18,7 @@ function EstudarHoje() {
   const [humor, setHumor] = useState<'otimo' | 'bom' | 'regular' | 'ruim'>('bom');
 
   useEffect(() => {
-    let intervalo: number;
+    let intervalo: any;
 
     if (ativo && !pausado) {
       intervalo = setInterval(() => {

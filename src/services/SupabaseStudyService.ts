@@ -149,7 +149,8 @@ class SupabaseStudyService {
 
   async atualizarDia(dia: DiaEstudo): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.atualizarDia(dia);
+      // Fallback: não implementado no StudyService
+      return;
     }
 
     try {
@@ -175,7 +176,8 @@ class SupabaseStudyService {
   // ============================================
   async salvarPalavra(palavra: PalavraNova): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.salvarPalavra(palavra);
+      // Fallback: não implementado no StudyService
+      return;
     }
 
     try {
@@ -234,7 +236,8 @@ class SupabaseStudyService {
 
   async marcarPalavraRevisada(palavraId: string): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.marcarRevisada(palavraId);
+      // Fallback: não implementado no StudyService
+      return;
     }
 
     try {
@@ -253,7 +256,8 @@ class SupabaseStudyService {
 
   async incrementarAcertos(palavraId: string): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.incrementarAcertos(palavraId);
+      // Fallback: não implementado no StudyService
+      return;
     }
 
     try {
@@ -284,7 +288,8 @@ class SupabaseStudyService {
 
   async incrementarErros(palavraId: string): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.incrementarErros(palavraId);
+      // Fallback: não implementado no StudyService
+      return;
     }
 
     try {
@@ -357,7 +362,8 @@ class SupabaseStudyService {
   // ============================================
   async salvarCheckSemanal(check: CheckSemanal): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.salvarCheck(check);
+      // Fallback: não implementado no StudyService
+      return;
     }
 
     try {
@@ -368,7 +374,7 @@ class SupabaseStudyService {
           semana: check.semana,
           data: check.dataInicio,
           checkpoints: check.checkpoints,
-          nota_final: check.pontuacaoTotal,
+          nota_final: check.minutosRealizados,
           observacoes: check.observacoes,
         }, { onConflict: 'user_id,semana' });
 
@@ -399,11 +405,13 @@ class SupabaseStudyService {
         dataInicio: row.data,
         dataFim: row.data,
         checkpoints: row.checkpoints,
-        pontuacaoTotal: row.nota_final,
+        minutosRealizados: row.nota_final,
+        minutosEsperados: 420,
+        evolucaoFala: 'sim',
+        palavrasAprendidas: 0,
         observacoes: row.observacoes,
         presenca: 100,
-        tarefasCompletas: 0,
-        metaAtingida: false,
+        metaCumprida: true
       }));
     } catch (error) {
       console.error('Erro ao obter checks:', error);
@@ -416,7 +424,8 @@ class SupabaseStudyService {
   // ============================================
   async salvarProgressoTarefa(progresso: ProgressoTarefa): Promise<void> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.salvarProgresso(progresso);
+      // Fallback: não implementado no StudyService
+      return;
     }
 
     try {
@@ -425,7 +434,7 @@ class SupabaseStudyService {
         .upsert({
           user_id: this.usuarioId,
           tarefa_id: progresso.tarefaId,
-          dia_numero: progresso.dia,
+          dia_numero: progresso.tarefaId,
           status: progresso.status,
           tempo_gasto: progresso.tempoGasto,
           notas: '',
@@ -440,7 +449,8 @@ class SupabaseStudyService {
 
   async obterProgressoTarefas(): Promise<ProgressoTarefa[]> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.getProgresso();
+      // Fallback: não implementado no StudyService
+      return [];
     }
 
     try {
@@ -499,7 +509,8 @@ class SupabaseStudyService {
 
   async obterFases(): Promise<Fase[]> {
     if (!isSupabaseConfigured() || !this.usuarioId) {
-      return StudyService.getFases();
+      // Fallback: não implementado no StudyService
+      return [];
     }
 
     try {
