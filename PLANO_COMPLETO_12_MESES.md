@@ -17,7 +17,7 @@
 | **1** | 1-4 | 120h | Básico | Fundamentos e estrutura básica |
 | **2** | 5-8 | 120h | Intermediário | Fluência e narrativa complexa |
 | **3** | 9-12 | 125h | Avançado | Proficiência e refinamento |
-
+ 
 ---
 
 ## 🟢 FASE 1 – BÁSICO (Meses 1-4, 120 horas)
@@ -41,6 +41,7 @@
 - Plural
 - Introdução ao Simple Present
 - Estrutura básica de frase (S + V + C)
+
 
 **Atividade Prática com GPT:**
 ```
