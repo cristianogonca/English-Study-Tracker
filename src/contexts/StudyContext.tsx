@@ -2,6 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import SupabaseStudyService from '../services/SupabaseStudyService';
 import { gerarCronogramaCompleto } from '../services/CronogramaGenerator';
+import { gerarFases } from '../services/FasesGenerator';
 import { supabase } from '../lib/supabase';
 import {
   DiaEstudo,
@@ -23,6 +24,7 @@ interface StudyContextType {
   palavras: PalavraNova[];
   fases: Fase[];
   isConfigured: boolean;
+  carregando: boolean;
   configurar: (config: ConfigUsuario) => void;
   recarregar: () => void;
 }
@@ -39,50 +41,49 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   const [fases, setFases] = useState<Fase[]>([]);
   const [isConfigured, setIsConfigured] = useState(false);
   const [carregando, setCarregando] = useState(true);
-  const [usuarioLogado, setUsuarioLogado] = useState(false);
 
   useEffect(() => {
     const carregar = async () => {
       try {
         const usuario = await SupabaseAuthService.getUsuarioAtual();
         const userId = usuario?.id;
-        // Diagnóstico: compara user_id logado com user_ids do Supabase
-        try {
-          const { data: allConfigs, error: allConfigsError } = await supabase
-            .from('user_configs')
-            .select('user_id, nome');
-          console.log('[Diagnóstico] Usuário logado:', usuario);
-          console.log('[Diagnóstico] user_id do usuário logado:', userId);
-          if (allConfigsError) {
-            console.error('[Diagnóstico] Erro ao buscar user_configs:', allConfigsError);
-          } else if (allConfigs && allConfigs.length > 0) {
-            console.log('[Diagnóstico] user_ids presentes em user_configs:');
-            allConfigs.forEach((row: any) => {
-              console.log(`user_id: ${row.user_id} | nome: ${row.nome}`);
-            });
-            const found = allConfigs.some((row: any) => row.user_id === userId);
-            if (found) {
-              console.log('[Diagnóstico] Configuração encontrada para o usuário logado!');
-            } else {
-              console.warn('[Diagnóstico] NÃO há configuração para o usuário logado.');
-            }
-          } else {
-            console.warn('[Diagnóstico] Nenhum registro encontrado em user_configs.');
-          }
-        } catch (diagError) {
-          console.error('[Diagnóstico] Erro ao executar diagnóstico:', diagError);
-        }
 
         if (userId) {
-          setUsuarioLogado(true);
           SupabaseStudyService.setUsuario(userId);
           // Busca config apenas por user_id
           const { data, error } = await supabase
             .from('user_configs')
             .select('*')
             .eq('user_id', userId)
-            .single();
+            .maybeSingle(); // não causa erro 406 se não existir
           if (data && !error) {
+            // Buscar cronograma primeiro (validação + regeneração se necessário)
+            const cronogramaCarregado = await SupabaseStudyService.obterCronograma();
+            const dia1 = cronogramaCarregado.find(d => d.numero === 1);
+            const dataInicioFormatada = data.data_inicio;
+            
+            let cronogramaFinal = cronogramaCarregado;
+            let fasesFinal = await SupabaseStudyService.obterFases();
+            
+            if (cronogramaCarregado.length === 0 || !dia1 || !dia1.data || dia1.data.split('T')[0] !== dataInicioFormatada) {
+              console.log('[StudyProvider] Cronograma inválido ou desatualizado. Regenerando...');
+              const cronogramaNovo = gerarCronogramaCompleto(dataInicioFormatada);
+              await SupabaseStudyService.salvarCronograma(cronogramaNovo);
+              
+              const fasesNovas = gerarFases();
+              await SupabaseStudyService.salvarFases(fasesNovas);
+              
+              cronogramaFinal = cronogramaNovo;
+              fasesFinal = fasesNovas;
+            }
+            
+            // Buscar todos os dados em paralelo
+            const [palavrasCarregadas, checksCarregados] = await Promise.all([
+              SupabaseStudyService.obterVocabulario(),
+              SupabaseStudyService.obterChecks()
+            ]);
+            
+            // Atualizar estados DEPOIS de tudo carregado
             setConfig({
               nome: data.nome,
               metaDiaria: data.meta_diaria,
@@ -92,10 +93,10 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
               nivelInicial: data.nivel_inicial,
             });
             setIsConfigured(true);
-            setCronograma(await SupabaseStudyService.obterCronograma());
-            setPalavras(await SupabaseStudyService.obterVocabulario());
-            setChecks(await SupabaseStudyService.obterChecks());
-            setFases(await SupabaseStudyService.obterFases());
+            setCronograma(cronogramaFinal);
+            setFases(fasesFinal);
+            setPalavras(palavrasCarregadas);
+            setChecks(checksCarregados);
           } else {
             setConfig({
               nome: '',
@@ -112,7 +113,6 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
             setFases([]);
           }
         } else {
-          setUsuarioLogado(false);
           setConfig(null);
           setIsConfigured(false);
           setCronograma([]);
@@ -121,7 +121,6 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
           setFases([]);
         }
       } catch (error) {
-        setUsuarioLogado(false);
         setConfig(null);
         setIsConfigured(false);
         setCronograma([]);
@@ -168,9 +167,20 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
   const configurar = async (novaConfig: ConfigUsuario) => {
     console.log('[StudyProvider] configurar() chamado com:', novaConfig);
     await SupabaseStudyService.salvarConfiguracao(novaConfig);
+    
     const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio);
     await SupabaseStudyService.salvarCronograma(cronogramaInicial);
-    await carregarDados();
+    
+    const fasesIniciais = gerarFases();
+    await SupabaseStudyService.salvarFases(fasesIniciais);
+    
+    // Atualizar estados locais diretamente (não recarregar tudo)
+    setConfig(novaConfig);
+    setIsConfigured(true);
+    setCronograma(cronogramaInicial);
+    setFases(fasesIniciais);
+    setPalavras([]);
+    setChecks([]);
   };
 
   const recarregar = async () => {
@@ -178,14 +188,6 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     await carregarDados();
   };
 
-  console.log('[StudyProvider] Estado atual - carregando:', carregando, 'usuarioLogado:', usuarioLogado, 'isConfigured:', isConfigured);
-
-  if (carregando && usuarioLogado) {
-    console.log('[StudyProvider] Renderizando loading...');
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Carregando configuração...</div>;
-  }
-
-  console.log('[StudyProvider] Renderizando children');
   return (
     <StudyContext.Provider
       value={{
@@ -197,6 +199,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
         palavras,
         fases,
         isConfigured,
+        carregando,
         configurar,
         recarregar
       }}

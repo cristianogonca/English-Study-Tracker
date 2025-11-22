@@ -5,7 +5,12 @@ export function gerarCronogramaCompleto(dataInicio: string = new Date().toISOStr
   console.log('🗓️ Gerando cronograma com data de início:', dataInicio);
   const cronograma: DiaEstudo[] = [];
   let diaNumero = 1;
-  const dataBase = new Date(dataInicio);
+  
+  // Parse correto da data (formato YYYY-MM-DD)
+  const [ano, mes, dia] = dataInicio.split('-').map(Number);
+  const dataBase = new Date(ano, mes - 1, dia);
+  dataBase.setHours(0, 0, 0, 0);
+  
   console.log('📅 Data base convertida:', dataBase.toLocaleDateString('pt-BR'));
 
   // MES 1 - FUNDAMENTOS ABSOLUTOS

@@ -49,7 +49,6 @@ const SupabaseAuthService = {
   },
 
   async getUsuarioAtual() {
-    console.log('[SupabaseAuth] getUsuarioAtual() chamado');
     try {
       const { data: { user }, error } = await supabase.auth.getUser();
       
@@ -58,7 +57,6 @@ const SupabaseAuthService = {
         return null;
       }
       
-      console.log('[SupabaseAuth] Usuário atual:', user?.id || 'nenhum');
       return user;
     } catch (error) {
       console.error('[SupabaseAuth] EXCEÇÃO ao buscar usuário:', error);
@@ -67,14 +65,12 @@ const SupabaseAuthService = {
   },
 
   async obterSessao() {
-    console.log('[SupabaseAuth] obterSessao() chamado');
     try {
       const { data: { session }, error } = await supabase.auth.getSession();
       if (error) {
         console.error('[SupabaseAuth] Erro ao buscar sessão:', error);
         return null;
       }
-      console.log('[SupabaseAuth] Sessão atual:', session?.user?.id || 'nenhuma');
       return session;
     } catch (error) {
       console.error('[SupabaseAuth] EXCEÇÃO ao buscar sessão:', error);

@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudy } from '../contexts/StudyContext';
 import { ConfigUsuario, DiaSemana, NivelDificuldade } from '../types';
-import AuthService from '../services/AuthService';
+import SupabaseAuthService from '../services/SupabaseAuthService';
 import './Setup.css';
 
 function Setup() {
@@ -32,10 +32,10 @@ function Setup() {
     }
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
     if (confirm('Deseja sair sem configurar? Você precisará configurar quando voltar.')) {
-      AuthService.logout();
-      window.location.href = '/login';
+      await SupabaseAuthService.logout();
+      window.location.href = '/';
     }
   };
 

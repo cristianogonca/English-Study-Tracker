@@ -46,7 +46,6 @@ function Vocabulario() {
     try {
       await SupabaseStudyService.salvarPalavra({
         ...novaPalavra,
-        id: `${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
         dataAprendida: new Date().toISOString(),
         revisada: false,
         acertos: 0,

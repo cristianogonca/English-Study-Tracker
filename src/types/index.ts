@@ -62,13 +62,16 @@ export interface DiaEstudo {
 
 // progresso do usuario numa tarefa
 export interface ProgressoTarefa {
-  id: string;
+  id?: string;
   tarefaId: string;
+  dia?: number;
+  diaNumero?: number;
   status: StatusTarefa;
   dataInicio?: string;
   dataConclusao?: string;
   tempoGasto: number;
   observacoes?: string;
+  notas?: string;
   avaliacao?: number; // 1-5, quao dificil foi
 }
 
@@ -98,7 +101,7 @@ export interface RegistroDiario {
 
 // palavra nova aprendida
 export interface PalavraNova {
-  id: string;
+  id?: string;
   palavra: string;
   traducao: string;
   exemplo?: string;
@@ -118,7 +121,7 @@ export interface CheckpointSemanal {
 
 // check semanal
 export interface CheckSemanal {
-  id: string;
+  id?: string;
   semana: number;
   dataInicio: string;
   dataFim: string;

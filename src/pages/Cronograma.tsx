@@ -1,38 +1,49 @@
 import { useState, useEffect } from 'react';
-import StudyService from '../services/StudyService';
+import { useStudy } from '../contexts/StudyContext';
+import SupabaseStudyService from '../services/SupabaseStudyService';
 import { DiaEstudo, Fase, ProgressoTarefa } from '../types';
 import './Cronograma.css';
 
 function Cronograma() {
+  const { cronograma: cronogramaContext, fases: fasesContext } = useStudy();
   const [cronograma, setCronograma] = useState<DiaEstudo[]>([]);
   const [fases, setFases] = useState<Fase[]>([]);
+  const [progressos, setProgressos] = useState<ProgressoTarefa[]>([]);
   const [mesAtual, setMesAtual] = useState(1);
   const [diaSelecionado, setDiaSelecionado] = useState<DiaEstudo | null>(null);
   const [visualizacao, setVisualizacao] = useState<'mes' | 'ano'>('mes');
 
   useEffect(() => {
     carregarDados();
-  }, []);
+  }, [cronogramaContext, fasesContext]);
 
-  const carregarDados = () => {
-    const todosCronograma = StudyService.getCronograma();
-    setCronograma(todosCronograma);
-
-    const todasFases = StudyService.getFases();
-    setFases(todasFases);
+  const carregarDados = async () => {
+    setCronograma(cronogramaContext);
+    setFases(fasesContext);
+    
+    try {
+      const progressosDados = await SupabaseStudyService.obterProgressoTarefas();
+      setProgressos(progressosDados);
+    } catch (error) {
+      console.error('[Cronograma] Erro ao carregar progressos:', error);
+    }
   };
 
   const diasDoMes = cronograma.filter(dia => dia.mes === mesAtual);
 
   const calcularProgressoDia = (dia: DiaEstudo): number => {
-    if (dia.tarefas.length === 0) return 0;
-    const progressos = StudyService.getProgresso();
-    const tarefasDoDia = dia.tarefas.map((t: any) => t.id);
-    const progressosDia = progressos.filter((p: ProgressoTarefa) => 
-      tarefasDoDia.includes(p.tarefaId)
-    );
-    const concluidas = progressosDia.filter((p: ProgressoTarefa) => p.status === 'concluida').length;
-    return Math.round((concluidas / dia.tarefas.length) * 100);
+    // Busca progresso pelo número do dia
+    const progressoDia = progressos.find(p => p.diaNumero === dia.numero);
+    
+    if (progressoDia && progressoDia.tempoGasto > 0) {
+      // Calcula % baseado na meta diária (60 minutos = 100%)
+      const metaDiaria = 60;
+      const percentual = Math.min(Math.round((progressoDia.tempoGasto / metaDiaria) * 100), 100);
+      console.log(`[Cronograma] Dia ${dia.numero} - Tempo: ${progressoDia.tempoGasto}min = ${percentual}%`);
+      return percentual;
+    }
+    
+    return 0;
   };
 
   const calcularProgressoMes = (mes: number): number => {
@@ -309,8 +320,7 @@ function Cronograma() {
             <h3>📋 Tarefas do Dia</h3>
             <div className="modal-tarefas">
               {diaSelecionado.tarefas.map((tarefa, index) => {
-                const todosProgressos = StudyService.getProgresso();
-                const progresso = todosProgressos.find((p: ProgressoTarefa) => p.tarefaId === tarefa.id);
+                const progresso = progressos.find((p: ProgressoTarefa) => p.tarefaId === tarefa.id);
 
                 return (
                   <div

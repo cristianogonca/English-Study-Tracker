@@ -13,7 +13,7 @@ import Cronograma from './pages/Cronograma';
 import Navigation from './components/Navigation';
 
 function AppRoutes() {
-  const { isConfigured } = useStudy();
+  const { isConfigured, carregando: carregandoConfig } = useStudy();
   const [logado, setLogado] = useState(false);
   const [carregando, setCarregando] = useState(true);
 
@@ -33,7 +33,11 @@ function AppRoutes() {
   }, []);
 
   if (carregando) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Carregando...</div>;
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Verificando autenticação...</div>;
+  }
+
+  if (carregandoConfig) {
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Carregando configurações...</div>;
   }
 
   return (

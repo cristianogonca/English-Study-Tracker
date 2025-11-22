@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useStudy } from '../contexts/StudyContext';
 import SupabaseStudyService from '../services/SupabaseStudyService';
 import { CheckpointSemanal } from '../types';
 import './CheckSemanal.css';
 
 function CheckSemanal() {
+  const { config } = useStudy();
   const [semana, setSemana] = useState(1);
   const [presenca, setPresenca] = useState(100);
   const [minutosRealizados, setMinutosRealizados] = useState(0);
@@ -20,6 +22,88 @@ function CheckSemanal() {
     { pergunta: 'Escrevi algo em inglês?', resposta: 'sim', nota: 0 }
   ]);
 
+  useEffect(() => {
+    carregarCheck();
+  }, [semana]);
+
+  const carregarCheck = async () => {
+    try {
+      // 1. Buscar check salvo (se existir)
+      const checks = await SupabaseStudyService.obterChecks();
+      const checkDaSemana = checks.find(c => c.semana === semana);
+      
+      // 2. Calcular minutos reais da semana no banco
+      const minutosReaisDaSemana = await calcularMinutosDaSemana(semana);
+      
+      // 3. Calcular palavras aprendidas na semana
+      const palavrasReaisDaSemana = await calcularPalavrasDaSemana(semana);
+      
+      if (checkDaSemana) {
+        setPresenca(checkDaSemana.presenca || 100);
+        setMinutosRealizados(checkDaSemana.minutosRealizados || minutosReaisDaSemana);
+        setEvolucaoFala(checkDaSemana.evolucaoFala || 'sim');
+        setPalavrasAprendidas(checkDaSemana.palavrasAprendidas || palavrasReaisDaSemana);
+        setObservacoes(checkDaSemana.observacoes || '');
+        if (checkDaSemana.checkpoints && checkDaSemana.checkpoints.length > 0) {
+          setCheckpoints(checkDaSemana.checkpoints);
+        }
+      } else {
+        // Se não existe check salvo, usa os valores reais do banco
+        setMinutosRealizados(minutosReaisDaSemana);
+        setPalavrasAprendidas(palavrasReaisDaSemana);
+        setPresenca(100);
+        setEvolucaoFala('sim');
+        setObservacoes('');
+      }
+    } catch (error) {
+      console.error('[CheckSemanal] Erro ao carregar check:', error);
+    }
+  };
+
+  const calcularMinutosDaSemana = async (numeroSemana: number): Promise<number> => {
+    try {
+      // Calcular dias da semana (dia 1 + 7*(semana-1) até dia 1 + 7*semana - 1)
+      const diaInicio = 1 + (numeroSemana - 1) * 7;
+      const diaFim = diaInicio + 6;
+      
+      // Buscar progressos da semana
+      const progressos = await SupabaseStudyService.obterProgressoTarefas();
+      const progressosDaSemana = progressos.filter(p => 
+        p.diaNumero >= diaInicio && p.diaNumero <= diaFim
+      );
+      
+      const minutosTotal = progressosDaSemana.reduce((acc, p) => acc + (p.tempoGasto || 0), 0);
+      return minutosTotal;
+    } catch (error) {
+      console.error('[CheckSemanal] Erro ao calcular minutos da semana:', error);
+      return 0;
+    }
+  };
+
+  const calcularPalavrasDaSemana = async (numeroSemana: number): Promise<number> => {
+    try {
+      if (!config || !config.dataInicio) return 0;
+      
+      // Calcular datas da semana
+      const { dataInicio, dataFim } = calcularDatasSemana(numeroSemana);
+      
+      // Buscar vocabulário
+      const palavras = await SupabaseStudyService.obterVocabulario();
+      
+      // Filtrar palavras aprendidas nesta semana
+      const palavrasDaSemana = palavras.filter(p => {
+        if (!p.dataAprendida) return false;
+        const dataPalavra = p.dataAprendida.split('T')[0]; // YYYY-MM-DD
+        return dataPalavra >= dataInicio && dataPalavra <= dataFim;
+      });
+      
+      return palavrasDaSemana.length;
+    } catch (error) {
+      console.error('[CheckSemanal] Erro ao calcular palavras da semana:', error);
+      return 0;
+    }
+  };
+
   const atualizarCheckpoint = (index: number, resposta: 'sim' | 'nao' | 'parcial') => {
     const novosCheckpoints = [...checkpoints];
     novosCheckpoints[index].resposta = resposta;
@@ -33,11 +117,10 @@ function CheckSemanal() {
   };
 
   const calcularDatasSemana = (numeroSemana: number) => {
-    // Busca config do SupabaseStudyService
-    const config = SupabaseStudyService.usuarioId ? null : null;
-    // Se não houver config, retorna datas vazias
-    let dataInicio = '';
-    let dataFim = '';
+    // Se não houver config, usa data atual
+    let dataInicio = new Date().toISOString().split('T')[0];
+    let dataFim = new Date().toISOString().split('T')[0];
+    
     if (config && config.dataInicio) {
       const inicio = new Date(config.dataInicio);
       const diasPassados = (numeroSemana - 1) * 7;
@@ -48,10 +131,11 @@ function CheckSemanal() {
       dataInicio = di.toISOString().split('T')[0];
       dataFim = df.toISOString().split('T')[0];
     }
+    
     return { dataInicio, dataFim };
   };
 
-  const salvarCheck = () => {
+  const salvarCheck = async () => {
     const { dataInicio, dataFim } = calcularDatasSemana(semana);
     const metaMinutos = 420; // 7 horas
     const metaCumprida = minutosRealizados >= metaMinutos;
@@ -70,25 +154,28 @@ function CheckSemanal() {
       observacoes
     };
 
-    // Salvar check no Supabase (implementar se necessário)
-    // await SupabaseStudyService.salvarCheckSemanal(check); // se existir método
-
-    alert('✅ Check semanal salvo com sucesso!');
-    
-    // limpar form
-    setSemana(semana + 1);
-    setPresenca(100);
-    setMinutosRealizados(0);
-    setEvolucaoFala('sim');
-    setPalavrasAprendidas(0);
-    setObservacoes('');
-    setCheckpoints([
-      { pergunta: 'Dominei a gramática da semana?', resposta: 'sim', nota: 0 },
-      { pergunta: 'Pratiquei listening pelo menos 2x?', resposta: 'sim', nota: 0 },
-      { pergunta: 'Gravei speaking pelo menos 1x?', resposta: 'sim', nota: 0 },
-      { pergunta: 'Li textos em inglês esta semana?', resposta: 'sim', nota: 0 },
-      { pergunta: 'Escrevi algo em inglês?', resposta: 'sim', nota: 0 }
-    ]);
+    try {
+      await SupabaseStudyService.salvarCheckSemanal(check);
+      alert('✅ Check semanal salvo com sucesso!');
+      
+      // limpar form
+      setSemana(semana + 1);
+      setPresenca(100);
+      setMinutosRealizados(0);
+      setEvolucaoFala('sim');
+      setPalavrasAprendidas(0);
+      setObservacoes('');
+      setCheckpoints([
+        { pergunta: 'Dominei a gramática da semana?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Pratiquei listening pelo menos 2x?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Gravei speaking pelo menos 1x?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Li textos em inglês esta semana?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Escrevi algo em inglês?', resposta: 'sim', nota: 0 }
+      ]);
+    } catch (error) {
+      console.error('Erro ao salvar check:', error);
+      alert('❌ Erro ao salvar check semanal!');
+    }
   };
 
   const progressoPresenca = presenca;
@@ -158,10 +245,10 @@ function CheckSemanal() {
             <input
               type="number"
               value={minutosRealizados}
-              onChange={(e) => setMinutosRealizados(Number(e.target.value))}
+              readOnly
               min="0"
               placeholder="Ex: 420"
-              required
+              style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
             />
             <small>Meta: 420 minutos (7 horas/semana)</small>
             
@@ -223,10 +310,10 @@ function CheckSemanal() {
             <input
               type="number"
               value={palavrasAprendidas}
-              onChange={(e) => setPalavrasAprendidas(Number(e.target.value))}
+              readOnly
               min="0"
               placeholder="Ex: 50"
-              required
+              style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
             />
             <small>Meta recomendada: 30-50 palavras/semana</small>
           </div>

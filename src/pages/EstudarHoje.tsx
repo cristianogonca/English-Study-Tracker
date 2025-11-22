@@ -1,9 +1,11 @@
 import { useState, useEffect } from 'react';
+import { useStudy } from '../contexts/StudyContext';
 import SupabaseStudyService from '../services/SupabaseStudyService';
 import { RegistroDiario } from '../types';
 import './EstudarHoje.css';
 
 function EstudarHoje() {
+  const { config } = useStudy();
   const [minutos, setMinutos] = useState(25);
   const [segundos, setSegundos] = useState(0);
   const [ativo, setAtivo] = useState(false);
@@ -90,11 +92,41 @@ function EstudarHoje() {
   };
 
   const salvarRegistro = async () => {
+    if (!config) {
+      alert('❌ Configuração não carregada');
+      return;
+    }
+
     const hoje = new Date().toISOString().split('T')[0];
-    // TODO: Buscar sessoes do dia via SupabaseStudyService
-    // const sessoes = await SupabaseStudyService.obterSessoesDoDia(hoje);
-    // const minutosEstudados = sessoes.reduce((acc, s) => acc + s.duracao, 0);
-    const minutosEstudados = 0; // Remover após implementar
+    
+    // Calcular dia correto baseado na data de início
+    const hojeParsed = new Date();
+    hojeParsed.setHours(0, 0, 0, 0);
+    
+    // Parse correto da data de início (format: YYYY-MM-DD)
+    const [ano, mes, dia] = config.dataInicio.split('-').map(Number);
+    const dataInicio = new Date(ano, mes - 1, dia); // mes - 1 porque Date usa 0-11
+    dataInicio.setHours(0, 0, 0, 0);
+    
+    const diffTime = hojeParsed.getTime() - dataInicio.getTime();
+    const diffDays = Math.floor(diffTime / (1000 * 60 * 60 * 24));
+    const diaNumero = diffDays + 1; // dia 1 = dataInicio
+
+    console.log('[EstudarHoje] Debug cálculo dia:');
+    console.log('  - config.dataInicio:', config.dataInicio);
+    console.log('  - hoje:', hoje);
+    console.log('  - hojeParsed:', hojeParsed);
+    console.log('  - dataInicio parsed:', dataInicio);
+    console.log('  - diffTime (ms):', diffTime);
+    console.log('  - diffDays:', diffDays);
+    console.log('  - diaNumero calculado:', diaNumero);
+
+    // Calcula tempo estudado baseado no timer Pomodoro
+    // Se o timer está rodando, conta o tempo decorrido
+    // Por padrão, um Pomodoro completo é 25 minutos
+    const tempoTotal = 25 - minutos + (segundos > 0 ? 1 : 0);
+    const minutosEstudados = Math.max(tempoTotal, 0);
+    
     const registro = {
       data: hoje,
       minutosEstudados,
@@ -104,14 +136,28 @@ function EstudarHoje() {
       observacoes,
       humor
     };
-    // TODO: Salvar registro via SupabaseStudyService
-    // await SupabaseStudyService.salvarRegistro(registro);
-    // limpar form
-    setConteudoEstudado('');
-    setDificuldades('');
-    setObservacoes('');
-    setHumor('bom');
-    alert('✅ Registro diário salvo com sucesso!');
+    
+    try {
+      console.log('[EstudarHoje] Salvando registro diário para dia', diaNumero);
+      await SupabaseStudyService.salvarProgressoTarefa({
+        tarefaId: `registro_${hoje}`,
+        diaNumero: diaNumero,
+        status: 'concluida',
+        tempoGasto: minutosEstudados,
+        notas: `${observacoes}\nConteúdo: ${conteudoEstudado}\nDificuldades: ${dificuldades}\nHumor: ${humor}`
+      });
+      console.log('[EstudarHoje] Registro salvo com sucesso!');
+      
+      // limpar form
+      setConteudoEstudado('');
+      setDificuldades('');
+      setObservacoes('');
+      setHumor('bom');
+      alert('✅ Registro diário salvo com sucesso!');
+    } catch (error) {
+      console.error('Erro ao salvar registro:', error);
+      alert('❌ Erro ao salvar registro diário!');
+    }
   };
 
   const formatarTempo = (min: number, seg: number) => {

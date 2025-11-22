@@ -1,5 +1,4 @@
 import { supabase, isSupabaseConfigured } from '../lib/supabase';
-import StudyService from './StudyService';
 import type {
   ConfigUsuario,
   DiaEstudo,
@@ -179,22 +178,31 @@ class SupabaseStudyService {
     }
 
     try {
-      const { error } = await supabase
-        .from('vocabulario')
-        .upsert({
-          id: palavra.id,
-          user_id: this.usuarioId,
-          palavra: palavra.palavra,
-          traducao: palavra.traducao,
-          exemplo: palavra.exemplo,
-          nivel: palavra.nivel,
-          data_aprendida: palavra.dataAprendida,
-          revisada: palavra.revisada,
-          acertos: palavra.acertos,
-          erros: palavra.erros,
-        }, { onConflict: 'id' });
-
-      if (error) throw error;
+      const dados: any = {
+        user_id: this.usuarioId,
+        palavra: palavra.palavra,
+        traducao: palavra.traducao,
+        exemplo: palavra.exemplo,
+        nivel: palavra.nivel,
+        data_aprendida: palavra.dataAprendida,
+        revisada: palavra.revisada,
+        acertos: palavra.acertos,
+        erros: palavra.erros,
+      };
+      
+      // Se tem id, é update (upsert), senão é insert
+      if (palavra.id) {
+        dados.id = palavra.id;
+        const { error } = await supabase
+          .from('vocabulario')
+          .upsert(dados, { onConflict: 'id' });
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('vocabulario')
+          .insert(dados);
+        if (error) throw error;
+      }
     } catch (error) {
       console.error('Erro ao salvar palavra:', error);
       throw error;
@@ -364,20 +372,37 @@ class SupabaseStudyService {
     }
 
     try {
-      const { error } = await supabase
+      const dados: any = {
+        user_id: this.usuarioId,
+        semana: check.semana,
+        data: check.dataInicio,
+        checkpoints: check.checkpoints,
+        nota_final: check.minutosRealizados,
+        observacoes: check.observacoes || '',
+      };
+      
+      console.log('[SupabaseStudyService] Tentando salvar check com dados:', dados);
+      
+      if (check.id) {
+        dados.id = check.id;
+      }
+      
+      const { data: resultado, error } = await supabase
         .from('checks_semanais')
-        .upsert({
-          user_id: this.usuarioId,
-          semana: check.semana,
-          data: check.dataInicio,
-          checkpoints: check.checkpoints,
-          nota_final: check.minutosRealizados,
-          observacoes: check.observacoes,
-        }, { onConflict: 'user_id,semana' });
+        .upsert(dados, { onConflict: 'user_id,semana' })
+        .select();
 
-      if (error) throw error;
+      if (error) {
+        console.error('[SupabaseStudyService] Erro detalhado do Supabase:', error);
+        console.error('[SupabaseStudyService] Mensagem:', error.message);
+        console.error('[SupabaseStudyService] Detalhes:', error.details);
+        console.error('[SupabaseStudyService] Hint:', error.hint);
+        throw error;
+      }
+      
+      console.log('[SupabaseStudyService] Check salvo com sucesso:', resultado);
     } catch (error) {
-      console.error('Erro ao salvar check semanal:', error);
+      console.error('[SupabaseStudyService] Erro ao salvar check semanal:', error);
       throw error;
     }
   }
@@ -425,20 +450,29 @@ class SupabaseStudyService {
     }
 
     try {
+      const dados = {
+        user_id: this.usuarioId,
+        tarefa_id: progresso.tarefaId,
+        dia_numero: progresso.diaNumero || 1,
+        status: progresso.status,
+        tempo_gasto: progresso.tempoGasto,
+        notas: progresso.notas || '',
+      };
+      
+      console.log('[SupabaseStudyService] Salvando progresso tarefa:', dados);
+      
       const { error } = await supabase
         .from('progresso_tarefas')
-        .upsert({
-          user_id: this.usuarioId,
-          tarefa_id: progresso.tarefaId,
-          dia_numero: progresso.tarefaId,
-          status: progresso.status,
-          tempo_gasto: progresso.tempoGasto,
-          notas: '',
-        }, { onConflict: 'user_id,tarefa_id' });
+        .upsert(dados, { onConflict: 'user_id,tarefa_id' });
 
-      if (error) throw error;
+      if (error) {
+        console.error('[SupabaseStudyService] Erro ao salvar progresso:', error);
+        throw error;
+      }
+      
+      console.log('[SupabaseStudyService] Progresso salvo com sucesso!');
     } catch (error) {
-      console.error('Erro ao salvar progresso:', error);
+      console.error('[SupabaseStudyService] Erro ao salvar progresso:', error);
       throw error;
     }
   }
@@ -459,7 +493,7 @@ class SupabaseStudyService {
       return data.map(row => ({
         id: row.id,
         tarefaId: row.tarefa_id,
-        dia: row.dia_numero,
+        diaNumero: row.dia_numero,
         status: row.status,
         tempoGasto: row.tempo_gasto,
       }));
