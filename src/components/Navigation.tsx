@@ -6,11 +6,15 @@ import './Navigation.css';
 function Navigation() {
   const location = useLocation();
   const [sessao, setSessao] = useState<any>(null);
+  const [role, setRole] = useState<'aluno' | 'professor' | 'admin'>('aluno');
 
   useEffect(() => {
     async function fetchSessao() {
       const user = await SupabaseAuthService.getUsuarioAtual();
       setSessao(user || null);
+      if (user) {
+        setRole((user as any).role || 'aluno');
+      }
     }
     fetchSessao();
   }, []);
@@ -28,13 +32,22 @@ function Navigation() {
     return () => document.removeEventListener('mousedown', handleClickFora);
   }, []);
 
-  const links = [
+  const linksAluno = [
     { path: '/', label: 'Dashboard', icon: '📊' },
     { path: '/estudar', label: 'Estudar Hoje', icon: '📖' },
     { path: '/check', label: 'Check Semanal', icon: '✅' },
     { path: '/vocabulario', label: 'Vocabulário', icon: '📚' },
-    { path: '/cronograma', label: 'Cronograma', icon: '📅' }
+    { path: '/cronograma', label: 'Cronograma', icon: '📅' },
+    { path: '/guia', label: 'Guia de Estudos', icon: '📖' }
   ];
+
+  const linksProfessor = [
+    { path: '/professor', label: 'Meus Alunos', icon: '👨‍🏫' }
+  ];
+
+  const links = (role === 'professor' || role === 'admin') 
+    ? linksProfessor 
+    : linksAluno;
 
   const handleLogout = async () => {
     if (confirm('Deseja realmente sair?')) {

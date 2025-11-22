@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useStudy } from '../contexts/StudyContext';
 import { ConfigUsuario, DiaSemana, NivelDificuldade } from '../types';
 import SupabaseAuthService from '../services/SupabaseAuthService';
+import { professorService } from '../services/SupabaseProfessorService';
 import './Setup.css';
 
 function Setup() {
@@ -49,7 +50,21 @@ function Setup() {
       alert('⚠️ Selecione pelo menos um dia de estudo');
       return;
     }
+    
+    // Configurar perfil do usuário
     await configurar(formData);
+    
+    // Criar guia inicial (12 meses vazios) para o aluno
+    try {
+      const usuario = await SupabaseAuthService.getUsuarioAtual();
+      if (usuario) {
+        await professorService.criarGuiaInicial(usuario.id);
+      }
+    } catch (error) {
+      console.error('Erro ao criar guia inicial:', error);
+      // Não bloquear o setup se falhar, apenas logar
+    }
+    
     navigate('/');
   };
 

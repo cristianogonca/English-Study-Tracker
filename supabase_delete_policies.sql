@@ -1,31 +1,47 @@
--- Adicionar políticas de DELETE para todas as tabelas
+-- ============================================
+-- CORRIGIR POLICIES DO CRONOGRAMA PARA PROFESSOR
+-- ============================================
 
--- user_configs
-CREATE POLICY "Users can delete their own config"
-ON user_configs FOR DELETE
-USING (auth.uid() = user_id);
+-- 1. Deletar todas as policies do cronograma
+DROP POLICY IF EXISTS "Users can view own cronograma" ON cronograma;
+DROP POLICY IF EXISTS "Users can update own cronograma" ON cronograma;
+DROP POLICY IF EXISTS "Users can view cronograma" ON cronograma;
+DROP POLICY IF EXISTS "Users can update cronograma" ON cronograma;
+DROP POLICY IF EXISTS "Users can insert own cronograma" ON cronograma;
+DROP POLICY IF EXISTS "Users can delete own cronograma" ON cronograma;
+DROP POLICY IF EXISTS "Users can delete their own cronograma" ON cronograma;
+DROP POLICY IF EXISTS "Users can insert their own cronograma" ON cronograma;
 
--- cronograma
-CREATE POLICY "Users can delete their own cronograma"
-ON cronograma FOR DELETE
-USING (auth.uid() = user_id);
+-- 2. Criar policies corretas
 
--- vocabulario
-CREATE POLICY "Users can delete their own vocabulario"
-ON vocabulario FOR DELETE
-USING (auth.uid() = user_id);
+-- SELECT: Aluno vê seu cronograma, professor vê todos
+CREATE POLICY "Users can view cronograma" ON cronograma
+  FOR SELECT
+  USING (
+    auth.uid() = user_id OR
+    EXISTS (SELECT 1 FROM users_profile WHERE id = auth.uid() AND role IN ('professor', 'admin'))
+  );
 
--- checks_semanais
-CREATE POLICY "Users can delete their own checks"
-ON checks_semanais FOR DELETE
-USING (auth.uid() = user_id);
+-- INSERT: Apenas o próprio usuário
+CREATE POLICY "Users can insert cronograma" ON cronograma
+  FOR INSERT
+  WITH CHECK (auth.uid() = user_id);
 
--- progresso_tarefas
-CREATE POLICY "Users can delete their own progresso"
-ON progresso_tarefas FOR DELETE
-USING (auth.uid() = user_id);
+-- UPDATE: Aluno atualiza seu cronograma, professor atualiza qualquer
+CREATE POLICY "Users can update cronograma" ON cronograma
+  FOR UPDATE
+  USING (
+    auth.uid() = user_id OR
+    EXISTS (SELECT 1 FROM users_profile WHERE id = auth.uid() AND role IN ('professor', 'admin'))
+  );
 
--- fases
-CREATE POLICY "Users can delete their own fases"
-ON fases FOR DELETE
-USING (auth.uid() = user_id);
+-- DELETE: Apenas o próprio usuário
+CREATE POLICY "Users can delete cronograma" ON cronograma
+  FOR DELETE
+  USING (auth.uid() = user_id);
+
+-- 3. Verificar resultado
+SELECT policyname, cmd 
+FROM pg_policies 
+WHERE tablename = 'cronograma';
+

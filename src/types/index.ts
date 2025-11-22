@@ -197,6 +197,7 @@ export interface Usuario {
   nome: string;
   dataCriacao: string;
   ultimoAcesso: string;
+  role?: 'aluno' | 'professor' | 'admin'; // NOVO: role do usuário
 }
 
 // sessao de autenticacao
@@ -205,4 +206,36 @@ export interface SessaoAuth {
   email: string;
   nome: string;
   dataLogin: string;
+  role?: 'aluno' | 'professor' | 'admin'; // NOVO: role na sessão
+}
+
+// NOVO: Guia de estudos mensal (editável por professor)
+export interface GuiaEstudosMes {
+  id?: string;
+  user_id?: string;
+  mes: number; // 1-12
+  titulo: string;
+  objetivos: string[];
+  gramatica: string[];
+  vocabulario: string[];
+  listening: string[];
+  speaking: string[];
+  reading: string[];
+  writing: string[];
+  check_final: string[];
+  criado_em?: string;
+  atualizado_em?: string;
+}
+
+// NOVO: View de alunos para professor
+export interface AlunoView {
+  id: string;
+  nome: string;
+  email: string;
+  data_inicio?: string;
+  nivel_alvo?: string;
+  horas_semanais?: number;
+  total_dias: number;
+  dias_concluidos: number;
+  meses_guia: number;
 }

@@ -1,0 +1,393 @@
+.guia-estudos {
+  padding: 20px;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.guia-header {
+  text-align: center;
+  margin-bottom: 30px;
+}
+
+.guia-header h1 {
+  font-size: 2.5em;
+  margin-bottom: 10px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.guia-header p {
+  color: #666;
+  font-size: 1.1em;
+}
+
+/* Seletor de Mês */
+.mes-selector {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+  margin-bottom: 30px;
+}
+
+.mes-btn {
+  padding: 12px 24px;
+  background: white !important;
+  border: 2px solid #667eea !important;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  color: #667eea !important;
+  transition: all 0.3s;
+  opacity: 1 !important;
+  visibility: visible !important;
+  font-size: 14px;
+}
+
+.mes-btn:hover {
+  border-color: #764ba2 !important;
+  background: #f8f9ff !important;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.mes-btn.active {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%) !important;
+  color: white !important;
+  border-color: transparent !important;
+  box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+}
+
+/* Conteúdo do Mês */
+.conteudo-mes {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+}
+
+.mes-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 30px;
+  padding-bottom: 20px;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.mes-header h2 {
+  font-size: 2em;
+  color: #333;
+}
+
+.fase-badge {
+  padding: 8px 16px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 0.9em;
+  background: #f0f0f0;
+}
+
+/* Seções */
+.guia-section {
+  margin-bottom: 40px;
+}
+
+.guia-section h3 {
+  font-size: 1.5em;
+  color: #667eea;
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.guia-section ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.guia-section li {
+  padding: 10px 0;
+  padding-left: 30px;
+  position: relative;
+}
+
+.guia-section li:before {
+  content: "▸";
+  position: absolute;
+  left: 0;
+  color: #667eea;
+  font-weight: bold;
+}
+
+/* Dica GPT */
+.dica-gpt {
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  border-left: 4px solid #667eea;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.dica-gpt strong {
+  color: #667eea;
+  display: block;
+  margin-bottom: 8px;
+}
+
+.dica-gpt p {
+  font-style: italic;
+  color: #555;
+  margin: 0;
+}
+
+/* Tarefa Diária */
+.tarefa-diaria {
+  background: #fff3e0;
+  border-left: 4px solid #ff9800;
+  padding: 15px;
+  border-radius: 8px;
+  margin-top: 15px;
+}
+
+.tarefa-diaria strong {
+  color: #ff9800;
+  display: block;
+  margin-bottom: 8px;
+}
+
+/* Check Final */
+.check-final {
+  background: #e8f5e9;
+  padding: 20px;
+  border-radius: 12px;
+  border: 2px solid #4caf50;
+}
+
+.check-final h3 {
+  color: #4caf50;
+}
+
+/* Rotina Semanal */
+.rotina-semanal {
+  background: #f9f9f9;
+  padding: 20px;
+  border-radius: 12px;
+}
+
+.dias-semana {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.dia-rotina {
+  background: white;
+  padding: 15px;
+  border-radius: 8px;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+  transition: transform 0.3s;
+}
+
+.dia-rotina:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(0,0,0,0.15);
+}
+
+.dia-numero {
+  font-size: 1.2em;
+  font-weight: bold;
+  color: #667eea;
+  margin-bottom: 8px;
+}
+
+.dia-nome {
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.dia-desc {
+  font-size: 0.9em;
+  color: #666;
+  line-height: 1.4;
+}
+
+/* Calendário do Mês */
+.calendario-mes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 15px;
+  margin-top: 20px;
+}
+
+.dia-card {
+  background: white;
+  border: 2px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  text-align: center;
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+}
+
+.dia-card:hover {
+  border-color: #667eea;
+  transform: translateY(-3px);
+  box-shadow: 0 4px 8px rgba(102, 126, 234, 0.2);
+}
+
+.dia-card.concluido {
+  background: linear-gradient(135deg, #4caf5020 0%, #8bc34a20 100%);
+  border-color: #4caf50;
+}
+
+.dia-card .dia-numero {
+  font-weight: bold;
+  font-size: 1.1em;
+  color: #333;
+  margin-bottom: 5px;
+}
+
+.dia-card .dia-data {
+  font-size: 0.85em;
+  color: #666;
+}
+
+.dia-card .check {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  background: #4caf50;
+  color: white;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 0.9em;
+}
+
+/* Modal */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 20px;
+}
+
+.modal-content {
+  background: white;
+  border-radius: 12px;
+  padding: 30px;
+  max-width: 600px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  position: relative;
+}
+
+.modal-close {
+  position: absolute;
+  top: 15px;
+  right: 15px;
+  background: none;
+  border: none;
+  font-size: 1.5em;
+  cursor: pointer;
+  color: #999;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  transition: all 0.3s;
+}
+
+.modal-close:hover {
+  background: #f0f0f0;
+  color: #333;
+}
+
+.modal-content h2 {
+  color: #667eea;
+  margin-bottom: 20px;
+}
+
+.modal-content p {
+  margin: 10px 0;
+}
+
+.atividade-destaque {
+  background: linear-gradient(135deg, #667eea15 0%, #764ba215 100%);
+  padding: 20px;
+  border-radius: 8px;
+  margin: 20px 0;
+}
+
+.atividade-destaque h3 {
+  color: #667eea;
+  margin-bottom: 10px;
+}
+
+.conteudo-dia {
+  margin-top: 20px;
+}
+
+.conteudo-dia h4 {
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.conteudo-dia ul {
+  list-style: none;
+  padding-left: 0;
+}
+
+.conteudo-dia li {
+  padding: 8px 0;
+  padding-left: 25px;
+  position: relative;
+}
+
+.conteudo-dia li:before {
+  content: "✓";
+  position: absolute;
+  left: 0;
+  color: #4caf50;
+  font-weight: bold;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .guia-header h1 {
+    font-size: 1.8em;
+  }
+
+  .mes-header {
+    flex-direction: column;
+    gap: 15px;
+    text-align: center;
+  }
+
+  .dias-semana {
+    grid-template-columns: 1fr;
+  }
+
+  .calendario-mes {
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  }
+}

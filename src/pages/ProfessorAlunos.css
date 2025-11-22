@@ -1,0 +1,212 @@
+.professor-alunos {
+  padding: 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+}
+
+.page-header {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.page-header h1 {
+  font-size: 2.5rem;
+  margin-bottom: 0.5rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 1.1rem;
+}
+
+.busca-container {
+  margin-bottom: 2rem;
+}
+
+.busca-input {
+  width: 100%;
+  max-width: 600px;
+  padding: 1rem;
+  font-size: 1rem;
+  border: 2px solid #e0e0e0;
+  border-radius: 10px;
+  display: block;
+  margin: 0 auto;
+  transition: all 0.3s ease;
+}
+
+.busca-input:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.loading, .erro {
+  text-align: center;
+  padding: 3rem;
+  font-size: 1.2rem;
+}
+
+.erro {
+  color: #e74c3c;
+  background: #ffe5e5;
+  border-radius: 10px;
+  margin: 2rem auto;
+  max-width: 600px;
+}
+
+.sem-alunos {
+  text-align: center;
+  padding: 3rem;
+  color: #999;
+  font-size: 1.1rem;
+}
+
+.alunos-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+  gap: 2rem;
+  margin-top: 2rem;
+}
+
+.aluno-card {
+  background: white;
+  border-radius: 15px;
+  padding: 1.5rem;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+  border: 2px solid transparent;
+}
+
+.aluno-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 15px rgba(0, 0, 0, 0.15);
+  border-color: #667eea;
+}
+
+.aluno-header {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
+}
+
+.aluno-header h3 {
+  font-size: 1.4rem;
+  margin-bottom: 0.3rem;
+  color: #333;
+}
+
+.aluno-email {
+  color: #666;
+  font-size: 0.9rem;
+}
+
+.aluno-stats {
+  margin: 1.5rem 0;
+}
+
+.stat {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 0.8rem;
+  padding: 0.5rem;
+  background: #f8f9fa;
+  border-radius: 8px;
+}
+
+.stat-label {
+  font-weight: 600;
+  color: #555;
+}
+
+.stat-value {
+  color: #667eea;
+  font-weight: 700;
+}
+
+.progresso-bar {
+  width: 100%;
+  height: 12px;
+  background: #e0e0e0;
+  border-radius: 10px;
+  overflow: hidden;
+  margin: 1rem 0 0.5rem 0;
+}
+
+.progresso-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+  transition: width 0.5s ease;
+  border-radius: 10px;
+}
+
+.progresso-percent {
+  display: block;
+  text-align: center;
+  font-weight: 700;
+  color: #667eea;
+  font-size: 1.1rem;
+}
+
+.aluno-actions {
+  display: flex;
+  gap: 0.8rem;
+  margin-top: 1.5rem;
+}
+
+.btn-action {
+  flex: 1;
+  padding: 0.9rem;
+  border: none;
+  border-radius: 10px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  color: white;
+}
+
+.btn-cronograma {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+}
+
+.btn-cronograma:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+}
+
+.btn-guia {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+}
+
+.btn-guia:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+}
+
+@media (max-width: 768px) {
+  .professor-alunos {
+    padding: 1rem;
+  }
+
+  .page-header h1 {
+    font-size: 2rem;
+  }
+
+  .alunos-grid {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+
+  .aluno-actions {
+    flex-direction: column;
+  }
+
+  .btn-action {
+    width: 100%;
+  }
+}
