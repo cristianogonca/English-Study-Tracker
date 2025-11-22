@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStudy } from '../contexts/StudyContext';
 import { ConfigUsuario, DiaSemana, NivelDificuldade } from '../types';
 import AuthService from '../services/AuthService';
@@ -6,6 +7,7 @@ import './Setup.css';
 
 function Setup() {
   const { configurar } = useStudy();
+  const navigate = useNavigate();
   
   const [formData, setFormData] = useState<ConfigUsuario>({
     nome: '',
@@ -37,20 +39,18 @@ function Setup() {
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
     if (!formData.nome) {
       alert('⚠️ Por favor, preencha seu nome');
       return;
     }
-    
     if (formData.diasEstudo.length === 0) {
       alert('⚠️ Selecione pelo menos um dia de estudo');
       return;
     }
-
-    configurar(formData);
+    await configurar(formData);
+    navigate('/');
   };
 
   const diasSemana: { label: string; value: DiaSemana }[] = [

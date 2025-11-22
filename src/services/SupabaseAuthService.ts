@@ -66,23 +66,16 @@ const SupabaseAuthService = {
     }
   },
 
-  async getSessao() {
-    console.log('[SupabaseAuth] getSessao() chamado');
+  async obterSessao() {
+    console.log('[SupabaseAuth] obterSessao() chamado');
     try {
-      const { data: { user }, error } = await supabase.auth.getUser();
-      
-      if (error || !user) {
-        console.log('[SupabaseAuth] Nenhuma sessão ativa');
+      const { data: { session }, error } = await supabase.auth.getSession();
+      if (error) {
+        console.error('[SupabaseAuth] Erro ao buscar sessão:', error);
         return null;
       }
-      
-      console.log('[SupabaseAuth] Sessão encontrada para:', user.email);
-      return {
-        usuarioId: user.id,
-        email: user.email || '',
-        nome: user.user_metadata?.nome || user.email?.split('@')[0] || 'Usuário',
-        dataLogin: new Date().toISOString()
-      };
+      console.log('[SupabaseAuth] Sessão atual:', session?.user?.id || 'nenhuma');
+      return session;
     } catch (error) {
       console.error('[SupabaseAuth] EXCEÇÃO ao buscar sessão:', error);
       return null;

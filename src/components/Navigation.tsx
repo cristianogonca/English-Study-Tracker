@@ -5,7 +5,15 @@ import './Navigation.css';
 
 function Navigation() {
   const location = useLocation();
-  const sessao = SupabaseAuthService.getSessao();
+  const [sessao, setSessao] = useState<any>(null);
+
+  useEffect(() => {
+    async function fetchSessao() {
+      const s = await SupabaseAuthService.obterSessao();
+      setSessao(s?.user || null);
+    }
+    fetchSessao();
+  }, []);
   const [menuAberto, setMenuAberto] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
