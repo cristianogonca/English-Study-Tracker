@@ -19,7 +19,7 @@ export default function Login() {
     setCarregando(true);
 
     if (!email || !senha) {
-      setErro('Preencha todos os campos');
+      setErro('Fill in all fields');
       setCarregando(false);
       return;
     }
@@ -34,11 +34,11 @@ export default function Login() {
         // forcar recarregamento completo da pagina para o contexto atualizar
         window.location.href = '/';
       } else {
-        setErro('Email ou senha incorretos');
+        setErro('Incorrect email or password');
       }
     } catch (error) {
       console.error('Erro ao fazer login:', error);
-      setErro('Erro ao fazer login. Tente novamente.');
+      setErro('Login error. Please try again.');
     } finally {
       setCarregando(false);
     }
@@ -57,14 +57,14 @@ export default function Login() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
+              placeholder="your@email.com"
               autoComplete="off"
               autoFocus
             />
           </div>
 
           <div className="form-group">
-            <label>Senha</label>
+            <label>Password</label>
             <input
               type="password"
               value={senha}
@@ -77,13 +77,13 @@ export default function Login() {
           {erro && <div className="erro-mensagem">{erro}</div>}
 
           <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Entrando...' : 'Entrar'}
+            {carregando ? 'Signing in...' : 'Sign In'}
           </button>
         </form>
 
         <div className="login-footer">
           <p className="texto-info">
-            💡 Você receberá suas credenciais por email após a compra do curso.
+            💡 You will receive your credentials by email after purchasing the course.
           </p>
         </div>
       </div>

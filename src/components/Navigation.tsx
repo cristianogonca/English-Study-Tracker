@@ -3,10 +3,23 @@ import { useState, useRef, useEffect } from 'react';
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import './Navigation.css';
 
+const TIMER_STORAGE_KEY = 'pomodoro_timer_state';
+
+interface TimerState {
+  minutos: number;
+  segundos: number;
+  ativo: boolean;
+  pausado: boolean;
+  iniciadoEm: number;
+  userId: string;
+  minutosIniciais: number;
+}
+
 function Navigation() {
   const location = useLocation();
   const [sessao, setSessao] = useState<any>(null);
   const [role, setRole] = useState<'aluno' | 'professor' | 'admin'>('aluno');
+  const [timerAtivo, setTimerAtivo] = useState<{ minutos: number; segundos: number } | null>(null);
 
   useEffect(() => {
     async function fetchSessao() {
@@ -21,6 +34,51 @@ function Navigation() {
   const [menuAberto, setMenuAberto] = useState(false);
   const menuRef = useRef<HTMLDivElement>(null);
 
+  // Monitorar timer do localStorage
+  useEffect(() => {
+    const checkTimer = () => {
+      const saved = localStorage.getItem(TIMER_STORAGE_KEY);
+      
+      if (saved) {
+        try {
+          const state: TimerState = JSON.parse(saved);
+          
+          if (state.ativo && !state.pausado) {
+            // Calcular tempo restante
+            const agora = Date.now();
+            const decorrido = Math.floor((agora - state.iniciadoEm) / 1000);
+            let totalSegundos = state.minutos * 60 + state.segundos - decorrido;
+            
+            if (totalSegundos > 0) {
+              const novosMinutos = Math.floor(totalSegundos / 60);
+              const novosSegundos = totalSegundos % 60;
+              setTimerAtivo({ minutos: novosMinutos, segundos: novosSegundos });
+            } else {
+              setTimerAtivo(null);
+            }
+          } else if (state.pausado) {
+            // Timer pausado - mostrar tempo atual
+            setTimerAtivo({ minutos: state.minutos, segundos: state.segundos });
+          } else {
+            setTimerAtivo(null);
+          }
+        } catch (error) {
+          setTimerAtivo(null);
+        }
+      } else {
+        setTimerAtivo(null);
+      }
+    };
+
+    // Verificar inicialmente
+    checkTimer();
+
+    // Atualizar a cada segundo
+    const interval = setInterval(checkTimer, 1000);
+
+    return () => clearInterval(interval);
+  }, []);
+
   // Fechar menu ao clicar fora
   useEffect(() => {
     const handleClickFora = (event: MouseEvent) => {
@@ -34,15 +92,15 @@ function Navigation() {
 
   const linksAluno = [
     { path: '/', label: 'Dashboard', icon: '📊' },
-    { path: '/estudar', label: 'Estudar Hoje', icon: '📖' },
-    { path: '/check', label: 'Check Semanal', icon: '✅' },
-    { path: '/vocabulario', label: 'Vocabulário', icon: '📚' },
-    { path: '/cronograma', label: 'Cronograma', icon: '📅' },
-    { path: '/guia', label: 'Guia de Estudos', icon: '📖' }
+    { path: '/estudar', label: 'Study Today', icon: '📖' },
+    { path: '/check', label: 'Weekly Check', icon: '✅' },
+    { path: '/vocabulario', label: 'Vocabulary', icon: '📚' },
+    { path: '/cronograma', label: 'Schedule', icon: '📅' },
+    { path: '/guia', label: 'Study Guide', icon: '📖' }
   ];
 
   const linksProfessor = [
-    { path: '/professor', label: 'Meus Alunos', icon: '👨‍🏫' }
+    { path: '/professor', label: 'My Students', icon: '👨‍🏫' }
   ];
 
   const links = (role === 'professor' || role === 'admin') 
@@ -50,7 +108,9 @@ function Navigation() {
     : linksAluno;
 
   const handleLogout = async () => {
-    if (confirm('Deseja realmente sair?')) {
+    if (confirm('Are you sure you want to logout?')) {
+      // Clear timer from localStorage
+      localStorage.removeItem(TIMER_STORAGE_KEY);
       await SupabaseAuthService.logout();
       window.location.href = '/';
     }
@@ -61,6 +121,14 @@ function Navigation() {
       <div className="nav-container">
         <div className="nav-brand">
           <h1>🎓 English Study Tracker</h1>
+          {timerAtivo && role === 'aluno' && (
+            <Link to="/estudar" className="timer-indicator">
+              <span className="timer-icon">⏱️</span>
+              <span className="timer-time">
+                {String(timerAtivo.minutos).padStart(2, '0')}:{String(timerAtivo.segundos).padStart(2, '0')}
+              </span>
+            </Link>
+          )}
         </div>
         
         <ul className="nav-links">
@@ -100,11 +168,11 @@ function Navigation() {
                   className="dropdown-item"
                   onClick={() => setMenuAberto(false)}
                 >
-                  🔐 Trocar Senha
+                  🔐 Change Password
                 </Link>
                 <div className="dropdown-divider"></div>
                 <button onClick={handleLogout} className="dropdown-item logout">
-                  🚪 Sair
+                  🚺 Logout
                 </button>
               </div>
             )}

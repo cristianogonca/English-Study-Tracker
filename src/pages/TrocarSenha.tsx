@@ -19,17 +19,17 @@ export default function TrocarSenha() {
 
     // Validações
     if (!senhaAtual || !novaSenha || !confirmarSenha) {
-      setErro('Preencha todos os campos');
+      setErro('Fill in all fields');
       return;
     }
 
     if (novaSenha.length < 6) {
-      setErro('A nova senha deve ter no mínimo 6 caracteres');
+      setErro('New password must be at least 6 characters');
       return;
     }
 
     if (novaSenha !== confirmarSenha) {
-      setErro('As senhas não coincidem');
+      setErro('Passwords do not match');
       return;
     }
 
@@ -44,10 +44,10 @@ export default function TrocarSenha() {
           navigate('/dashboard');
         }, 2000);
       } else {
-        setErro('Senha atual incorreta ou erro ao trocar senha');
+        setErro('Incorrect current password or error changing password');
       }
     } catch (error) {
-      setErro('Erro ao trocar senha. Tente novamente.');
+      setErro('Error changing password. Please try again.');
     } finally {
       setCarregando(false);
     }
@@ -56,45 +56,45 @@ export default function TrocarSenha() {
   return (
     <div className="login-container">
       <div className="login-box">
-        <h1>🔐 Trocar Senha</h1>
-        <p className="login-subtitle">Altere sua senha temporária</p>
+        <h1>🔐 Change Password</h1>
+        <p className="login-subtitle">Change your temporary password</p>
 
         {erro && <div className="erro-mensagem">{erro}</div>}
-        {sucesso && <div className="sucesso-mensagem">✅ Senha alterada com sucesso! Redirecionando...</div>}
+        {sucesso && <div className="sucesso-mensagem">✅ Password changed successfully! Redirecting...</div>}
 
         <form onSubmit={handleSubmit}>
           <div className="form-group">
-            <label htmlFor="senhaAtual">Senha Atual</label>
+            <label htmlFor="senhaAtual">Current Password</label>
             <input
               type="password"
               id="senhaAtual"
               value={senhaAtual}
               onChange={(e) => setSenhaAtual(e.target.value)}
-              placeholder="Digite sua senha atual"
+              placeholder="Enter your current password"
               disabled={carregando || sucesso}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="novaSenha">Nova Senha</label>
+            <label htmlFor="novaSenha">New Password</label>
             <input
               type="password"
               id="novaSenha"
               value={novaSenha}
               onChange={(e) => setNovaSenha(e.target.value)}
-              placeholder="Digite sua nova senha (mín. 6 caracteres)"
+              placeholder="Enter your new password (min. 6 characters)"
               disabled={carregando || sucesso}
             />
           </div>
 
           <div className="form-group">
-            <label htmlFor="confirmarSenha">Confirmar Nova Senha</label>
+            <label htmlFor="confirmarSenha">Confirm New Password</label>
             <input
               type="password"
               id="confirmarSenha"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              placeholder="Confirme sua nova senha"
+              placeholder="Confirm your new password"
               disabled={carregando || sucesso}
             />
           </div>
@@ -104,14 +104,14 @@ export default function TrocarSenha() {
             className="btn-primary"
             disabled={carregando || sucesso}
           >
-            {carregando ? 'Trocando...' : sucesso ? '✅ Senha Alterada!' : 'Trocar Senha'}
+            {carregando ? 'Changing...' : sucesso ? '✅ Password Changed!' : 'Change Password'}
           </button>
         </form>
 
         <div className="login-footer">
           <p>
             <a href="#" onClick={() => navigate('/dashboard')}>
-              Voltar ao Dashboard
+              Back to Dashboard
             </a>
           </p>
         </div>

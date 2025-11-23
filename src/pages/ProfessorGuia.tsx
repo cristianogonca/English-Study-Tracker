@@ -74,7 +74,7 @@ export default function ProfessorGuia() {
       ]);
 
       if (!alunoData) {
-        setErro('Aluno não encontrado');
+        setErro('Student not found');
         return;
       }
 
@@ -82,7 +82,7 @@ export default function ProfessorGuia() {
       setGuia(guiaData);
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
-      setErro('Erro ao carregar dados do aluno');
+      setErro('Error loading student data');
     } finally {
       setLoading(false);
     }
@@ -118,17 +118,17 @@ export default function ProfessorGuia() {
       });
 
       setEditando(false);
-      alert('Salvo com sucesso!');
+      alert('Saved successfully!');
     } catch (error) {
       console.error('Erro ao salvar:', error);
-      alert('Erro ao salvar alterações');
+      alert('Error saving changes');
     } finally {
       setSalvando(false);
     }
   };
 
   const adicionarItem = (campo: keyof typeof formData) => {
-    const novoItem = prompt(`Adicionar item em ${campo}:`);
+    const novoItem = prompt(`Add item in ${campo}:`);
     if (novoItem) {
       setFormData(prev => ({
         ...prev,
@@ -147,7 +147,7 @@ export default function ProfessorGuia() {
   if (loading) {
     return (
       <div className="professor-guia">
-        <div className="loading">Carregando guia...</div>
+        <div className="loading">Loading guide...</div>
       </div>
     );
   }
@@ -155,21 +155,22 @@ export default function ProfessorGuia() {
   if (erro || !aluno) {
     return (
       <div className="professor-guia">
-        <div className="erro">{erro || 'Aluno não encontrado'}</div>
-        <button onClick={() => navigate('/professor')} className="btn-voltar">
-          ← Voltar
+        <button onClick={() => navigate('/professor')} className="btn-voltar-professor">
+          ← Back to Student List
         </button>
+        <div className="erro">{erro || 'Student not found'}</div>
       </div>
     );
   }
 
   return (
     <div className="professor-guia">
+      <button onClick={() => navigate('/professor')} className="btn-voltar-professor">
+        ← Back to Student List
+      </button>
+      
       <header className="page-header">
-        <button onClick={() => navigate('/professor')} className="btn-voltar-header">
-          ← Voltar
-        </button>
-        <h1>📚 Guia de Estudos de {aluno.nome}</h1>
+        <h1>📚 {aluno.nome}'s Study Guide</h1>
         <p>{aluno.email}</p>
       </header>
 
@@ -183,7 +184,7 @@ export default function ProfessorGuia() {
               setEditando(false);
             }}
           >
-            Mês {mes}
+            Month {mes}
           </button>
         ))}
       </div>
@@ -196,12 +197,12 @@ export default function ProfessorGuia() {
             value={formData.titulo}
             onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
             disabled={!editando}
-            placeholder="Título do mês"
+            placeholder="Month title"
           />
           
           {!editando ? (
             <button className="btn-editar" onClick={() => setEditando(true)}>
-              ✏️ Editar
+              ✏️ Edit
             </button>
           ) : (
             <div className="btn-group">
@@ -213,14 +214,14 @@ export default function ProfessorGuia() {
                 }}
                 disabled={salvando}
               >
-                Cancelar
+                Cancel
               </button>
               <button 
                 className="btn-salvar" 
                 onClick={salvar}
                 disabled={salvando}
               >
-                {salvando ? 'Salvando...' : 'Salvar'}
+                {salvando ? 'Saving...' : 'Save'}
               </button>
             </div>
           )}
@@ -236,14 +237,14 @@ export default function ProfessorGuia() {
                     className="btn-add"
                     onClick={() => adicionarItem(secao)}
                   >
-                    + Adicionar
+                    + Add
                   </button>
                 )}
               </div>
 
               <ul className="section-list">
                 {formData[secao].length === 0 ? (
-                  <li className="empty-message">Nenhum item cadastrado</li>
+                  <li className="empty-message">No items registered</li>
                 ) : (
                   formData[secao].map((item, index) => (
                     <li key={index} className="section-item">

@@ -39,7 +39,7 @@ export default function ProfessorCronograma() {
       ]);
 
       if (!alunoData) {
-        setErro('Aluno não encontrado');
+        setErro('Student not found');
         return;
       }
 
@@ -49,7 +49,7 @@ export default function ProfessorCronograma() {
       console.log('📋 Exemplo de dia com tarefas:', cronogramaData.find(d => d.tarefas && d.tarefas.length > 0));
     } catch (error) {
       console.error('Erro ao carregar dados:', error);
-      setErro('Erro ao carregar dados do aluno');
+      setErro('Error loading student data');
     } finally {
       setLoading(false);
     }
@@ -153,7 +153,7 @@ export default function ProfessorCronograma() {
       fecharEdicao();
     } catch (error) {
       console.error('Erro ao salvar:', error);
-      alert('Erro ao salvar alterações');
+      alert('Error saving changes');
     } finally {
       setSalvando(false);
     }
@@ -162,7 +162,7 @@ export default function ProfessorCronograma() {
   if (loading) {
     return (
       <div className="professor-cronograma">
-        <div className="loading">Carregando cronograma...</div>
+        <div className="loading">Loading schedule...</div>
       </div>
     );
   }
@@ -170,21 +170,22 @@ export default function ProfessorCronograma() {
   if (erro || !aluno) {
     return (
       <div className="professor-cronograma">
-        <div className="erro">{erro || 'Aluno não encontrado'}</div>
-        <button onClick={() => navigate('/professor')} className="btn-voltar">
-          ← Voltar
+        <button onClick={() => navigate('/professor')} className="btn-voltar-professor">
+          ← Back to Student List
         </button>
+        <div className="erro">{erro || 'Student not found'}</div>
       </div>
     );
   }
 
   return (
     <div className="professor-cronograma">
+      <button onClick={() => navigate('/professor')} className="btn-voltar-professor">
+        ← Back to Student List
+      </button>
+      
       <header className="page-header">
-        <button onClick={() => navigate('/professor')} className="btn-voltar-header">
-          ← Voltar
-        </button>
-        <h1>📅 Cronograma de {aluno.nome}</h1>
+        <h1>📅 {aluno.nome}'s Schedule</h1>
         <p>{aluno.email}</p>
       </header>
 
@@ -195,7 +196,7 @@ export default function ProfessorCronograma() {
             className={`mes-btn ${mesAtual === mes ? 'ativo' : ''}`}
             onClick={() => setMesAtual(mes)}
           >
-            Mês {mes}
+            Month {mes}
           </button>
         ))}
       </div>
@@ -204,20 +205,20 @@ export default function ProfessorCronograma() {
         {diasDoMes.map(dia => (
           <div key={dia.id} className={`dia-card ${dia.concluido ? 'concluido' : ''}`}>
             <div className="dia-header">
-              <span className="dia-numero">Dia {dia.numero}</span>
-              <span className="dia-fase">Fase {dia.fase}</span>
+              <span className="dia-numero">Day {dia.numero}</span>
+              <span className="dia-fase">Phase {dia.fase}</span>
             </div>
             
             <div className="dia-info">
-              <p className="dia-semana">Semana {dia.semana}</p>
-              <p className="dia-titulo">{dia.tituloSemana || 'Sem título'}</p>
+              <p className="dia-semana">Week {dia.semana}</p>
+              <p className="dia-titulo">{dia.tituloSemana || 'No title'}</p>
               <p className="dia-tempo">{dia.tempoTotal} min</p>
               {dia.data && (
-                <p className="dia-data">{new Date(dia.data).toLocaleDateString('pt-BR')}</p>
+                <p className="dia-data">{new Date(dia.data).toLocaleDateString('en-US')}</p>
               )}
               {dia.tarefas && dia.tarefas.length > 0 && (
                 <div className="dia-tarefas-preview">
-                  <p className="tarefas-count">📋 {dia.tarefas.length} tarefa{dia.tarefas.length !== 1 ? 's' : ''}</p>
+                  <p className="tarefas-count">📋 {dia.tarefas.length} task{dia.tarefas.length !== 1 ? 's' : ''}</p>
                 </div>
               )}
             </div>
@@ -226,7 +227,7 @@ export default function ProfessorCronograma() {
               className="btn-editar"
               onClick={() => abrirEdicao(dia)}
             >
-              ✏️ Editar
+              ✏️ Edit
             </button>
           </div>
         ))}
@@ -235,20 +236,20 @@ export default function ProfessorCronograma() {
       {diaEditando && (
         <div className="modal-overlay" onClick={fecharEdicao}>
           <div className="modal-content" onClick={(e) => e.stopPropagation()}>
-            <h2>Editar Dia {diaEditando.numero}</h2>
+            <h2>Edit Day {diaEditando.numero}</h2>
             
             <div className="form-group">
-              <label>Título da Semana:</label>
+              <label>Week Title:</label>
               <input
                 type="text"
                 value={formData.tituloSemana}
                 onChange={(e) => setFormData({ ...formData, tituloSemana: e.target.value })}
-                placeholder="Ex: Introdução ao Present Simple"
+                placeholder="Ex: Introduction to Present Simple"
               />
             </div>
 
             <div className="form-group">
-              <label>Tempo Total (minutos):</label>
+              <label>Total Time (minutes):</label>
               <input
                 type="number"
                 value={formData.tempoTotal}
@@ -259,7 +260,7 @@ export default function ProfessorCronograma() {
             </div>
 
             <div className="form-group">
-              <label>Tarefas do Dia:</label>
+              <label>Daily Tasks:</label>
               <div className="tarefas-lista">
                 {formData.tarefas.map((tarefa, index) => (
                   <div key={tarefa.id || index} className="tarefa-card">
@@ -271,51 +272,51 @@ export default function ProfessorCronograma() {
                         type="button"
                         className="btn-remover-tarefa"
                         onClick={() => removerTarefa(index)}
-                        title="Remover tarefa"
+                        title="Remove task"
                       >
                         🗑️
                       </button>
                     </div>
 
                     <div className="tarefa-campo">
-                      <label>Título:</label>
+                      <label>Title:</label>
                       <input
                         type="text"
                         value={tarefa.titulo}
                         onChange={(e) => atualizarTarefa(index, 'titulo', e.target.value)}
-                        placeholder="Ex: Alfabeto e Pronúncia"
+                        placeholder="Ex: Alphabet and Pronunciation"
                       />
                     </div>
 
                     <div className="tarefa-campo">
-                      <label>Descrição:</label>
+                      <label>Description:</label>
                       <textarea
                         value={tarefa.descricao}
                         onChange={(e) => atualizarTarefa(index, 'descricao', e.target.value)}
-                        placeholder="Ex: Estudar o alfabeto inglês e pronúncia básica"
+                        placeholder="Ex: Study the English alphabet and basic pronunciation"
                         rows={2}
                       />
                     </div>
 
                     <div className="tarefa-row">
                       <div className="tarefa-campo">
-                        <label>Tipo:</label>
+                        <label>Type:</label>
                         <select
                           value={tarefa.tipo}
                           onChange={(e) => atualizarTarefa(index, 'tipo', e.target.value as TipoConteudo)}
                         >
-                          <option value={TipoConteudo.GRAMATICA}>Gramática</option>
-                          <option value={TipoConteudo.VOCABULARIO}>Vocabulário</option>
+                          <option value={TipoConteudo.GRAMATICA}>Grammar</option>
+                          <option value={TipoConteudo.VOCABULARIO}>Vocabulary</option>
                           <option value={TipoConteudo.LISTENING}>Listening</option>
                           <option value={TipoConteudo.SPEAKING}>Speaking</option>
                           <option value={TipoConteudo.READING}>Reading</option>
                           <option value={TipoConteudo.WRITING}>Writing</option>
-                          <option value={TipoConteudo.REVISAO}>Revisão</option>
+                          <option value={TipoConteudo.REVISAO}>Review</option>
                         </select>
                       </div>
 
                       <div className="tarefa-campo">
-                        <label>Duração (min):</label>
+                        <label>Duration (min):</label>
                         <input
                           type="number"
                           value={tarefa.duracaoEstimada}
@@ -333,7 +334,7 @@ export default function ProfessorCronograma() {
                 className="btn-adicionar-tarefa"
                 onClick={adicionarTarefa}
               >
-                + Adicionar Tarefa
+                + Add Task
               </button>
             </div>
 
@@ -343,14 +344,14 @@ export default function ProfessorCronograma() {
                 onClick={fecharEdicao}
                 disabled={salvando}
               >
-                Cancelar
+                Cancel
               </button>
               <button
                 className="btn-salvar"
                 onClick={salvarEdicao}
                 disabled={salvando}
               >
-                {salvando ? 'Salvando...' : 'Salvar'}
+                {salvando ? 'Saving...' : 'Save'}
               </button>
             </div>
           </div>

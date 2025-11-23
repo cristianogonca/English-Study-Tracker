@@ -137,7 +137,7 @@ function Dashboard() {
 
   // Nunca redireciona para /setup, apenas mostra erro e botão de recarregar
   const handleReconfigurar = async () => {
-    if (!confirm('⚠️ ATENÇÃO: Isso vai deletar TODO o seu progresso!\n\nSerá perdido:\n- Cronograma completo\n- Vocabulário aprendido\n- Checks semanais\n- Progresso de tarefas\n- Configurações\n- Fases\n\nDeseja continuar?')) {
+    if (!confirm('⚠️ WARNING: This will delete ALL your progress!\n\nYou will lose:\n- Complete schedule\n- Learned vocabulary\n- Weekly checks\n- Task progress\n- Settings\n- Phases\n\nDo you want to continue?')) {
       return;
     }
 
@@ -146,7 +146,7 @@ function Dashboard() {
       const userId = usuario.data.user?.id;
 
       if (!userId) {
-        alert('❌ Erro: usuário não identificado');
+        alert('❌ Error: user not identified');
         return;
       }
 
@@ -181,18 +181,18 @@ function Dashboard() {
       const erros = [r1, r2, r3, r4, r5, r6].filter(r => r.error);
       if (erros.length > 0) {
         console.error('[Reconfigurar] Erros encontrados:', erros.map(e => e.error?.message));
-        alert(`❌ Erro ao deletar alguns dados:\n${erros.map(e => e.error?.message).join('\n')}`);
+        alert(`❌ Error deleting some data:\n${erros.map(e => e.error?.message).join('\n')}`);
         return;
       }
 
       console.log('[Reconfigurar] Todos os dados deletados com sucesso!');
-      alert('✅ Todos os dados foram deletados! Redirecionando para configuração...');
+      alert('✅ All data has been deleted! Redirecting to setup...');
       
       // Forçar reload completo para limpar cache do Supabase
       window.location.href = '/setup';
     } catch (error) {
       console.error('[Reconfigurar] Erro ao reconfigurar:', error);
-      alert('❌ Erro ao deletar dados. Tente novamente.');
+      alert('❌ Error deleting data. Try again.');
     }
   };
 
@@ -200,7 +200,7 @@ function Dashboard() {
   if (carregando) {
     return (
       <div style={{ padding: '20px', textAlign: 'center' }}>
-        Carregando estatísticas...
+        Loading statistics...
       </div>
     );
   }
@@ -209,9 +209,9 @@ function Dashboard() {
   if (!carregando && !stats) {
     return (
       <div className="loading" style={{color:'red',padding:'2rem'}}>
-        Erro ao carregar estatísticas do usuário.<br />
-        Tente recarregar ou entrar novamente.<br />
-        <button onClick={handleReconfigurar}>Recarregar</button>
+        Error loading user statistics.<br />
+        Try reloading or logging in again.<br />
+        <button onClick={handleReconfigurar}>Reload</button>
       </div>
     );
   }
@@ -224,82 +224,82 @@ function Dashboard() {
     <div className="dashboard">
       <header className="dashboard-header">
         <h1>📚 Dashboard</h1>
-        <p>Acompanhe seu progresso nos estudos de inglês</p>
+        <p>Track your English learning progress</p>
       </header>
 
       <div className="stats-grid">
-        {/* Card: Sequência */}
+        {/* Card: Streak */}
         <div className="stat-card streak">
           <div className="stat-icon">🔥</div>
           <div className="stat-content">
-            <h3>Sequência Atual</h3>
-            <p className="stat-value">{stats.sequenciaAtual} dias</p>
-            <span className="stat-subtitle">Melhor: {stats.melhorSequencia} dias</span>
+            <h3>Current Streak</h3>
+            <p className="stat-value">{stats.sequenciaAtual} days</p>
+            <span className="stat-subtitle">Best: {stats.melhorSequencia} days</span>
           </div>
         </div>
 
-        {/* Card: Horas Estudadas */}
+        {/* Card: Hours Studied */}
         <div className="stat-card hours">
           <div className="stat-icon">⏱️</div>
           <div className="stat-content">
-            <h3>Horas Acumuladas</h3>
+            <h3>Total Hours</h3>
             <p className="stat-value">{stats.horasAcumuladas}h</p>
-            <span className="stat-subtitle">{stats.tempoTotalMinutos} minutos</span>
+            <span className="stat-subtitle">{stats.tempoTotalMinutos} minutes</span>
           </div>
         </div>
 
-        {/* Card: Dias Estudados */}
+        {/* Card: Days Studied */}
         <div className="stat-card days">
           <div className="stat-icon">📅</div>
           <div className="stat-content">
-            <h3>Dias Estudados</h3>
+            <h3>Days Studied</h3>
             <p className="stat-value">{stats.diasEstudados}</p>
-            <span className="stat-subtitle">Média: {stats.mediaMinutosDia} min/dia</span>
+            <span className="stat-subtitle">Average: {stats.mediaMinutosDia} min/day</span>
           </div>
         </div>
 
-        {/* Card: Vocabulário */}
+        {/* Card: Vocabulary */}
         <div className="stat-card vocab">
           <div className="stat-icon">📖</div>
           <div className="stat-content">
-            <h3>Palavras Aprendidas</h3>
+            <h3>Words Learned</h3>
             <p className="stat-value">{stats.palavrasAprendidas}</p>
-            <span className="stat-subtitle">Vocabulário crescendo!</span>
+            <span className="stat-subtitle">Vocabulary growing!</span>
           </div>
         </div>
 
-        {/* Card: Tarefas */}
+        {/* Card: Tasks */}
         <div className="stat-card tasks">
           <div className="stat-icon">✅</div>
           <div className="stat-content">
-            <h3>Tarefas Concluídas</h3>
+            <h3>Tasks Completed</h3>
             <p className="stat-value">{stats.tarefasConcluidas}</p>
-            <span className="stat-subtitle">{stats.tarefasPendentes} pendentes</span>
+            <span className="stat-subtitle">{stats.tarefasPendentes} pending</span>
           </div>
         </div>
 
-        {/* Card: Fase Atual */}
+        {/* Card: Current Phase */}
         <div className="stat-card phase">
           <div className="stat-icon">🎯</div>
           <div className="stat-content">
-            <h3>Fase Atual</h3>
-            <p className="stat-value">Fase {stats.faseAtual}</p>
-            <span className="stat-subtitle">{stats.progressoFaseAtual}% completo</span>
+            <h3>Current Phase</h3>
+            <p className="stat-value">Phase {stats.faseAtual}</p>
+            <span className="stat-subtitle">{stats.progressoFaseAtual}% complete</span>
           </div>
         </div>
       </div>
 
-      {/* Meta Semanal */}
+      {/* Weekly Goal */}
       {metaAtual && (
         <div className="meta-semanal">
-          <h2>📊 Meta da Semana {metaAtual.semana}</h2>
+          <h2>📊 Week {metaAtual.semana} Goal</h2>
           <div className="meta-content">
             <div className="meta-info">
-              <p><strong>Meta:</strong> {metaAtual.metaMinutos} minutos (7 horas)</p>
-              <p><strong>Realizado:</strong> {metaAtual.minutosRealizados} minutos</p>
-              <p><strong>Faltam:</strong> {metaAtual.metaMinutos - metaAtual.minutosRealizados} minutos</p>
+              <p><strong>Goal:</strong> {metaAtual.metaMinutos} minutes (7 hours)</p>
+              <p><strong>Completed:</strong> {metaAtual.minutosRealizados} minutes</p>
+              <p><strong>Remaining:</strong> {metaAtual.metaMinutos - metaAtual.minutosRealizados} minutes</p>
               {metaAtual.minutosRealocados > 0 && (
-                <p className="realocado"><strong>Realocado:</strong> {metaAtual.minutosRealocados} min/dia</p>
+                <p className="realocado"><strong>Reallocated:</strong> {metaAtual.minutosRealocados} min/day</p>
               )}
             </div>
             
@@ -313,22 +313,22 @@ function Dashboard() {
             </div>
             
             <div className={`status-badge ${metaAtual.status}`}>
-              {metaAtual.status === 'cumprida' && '✅ Cumprida'}
-              {metaAtual.status === 'em_andamento' && '🔄 Em andamento'}
-              {metaAtual.status === 'atrasada' && '⚠️ Atrasada'}
-              {metaAtual.status === 'realocada' && '📌 Realocada'}
+              {metaAtual.status === 'cumprida' && '✅ Completed'}
+              {metaAtual.status === 'em_andamento' && '🔄 In progress'}
+              {metaAtual.status === 'atrasada' && '⚠️ Delayed'}
+              {metaAtual.status === 'realocada' && '📌 Reallocated'}
             </div>
           </div>
         </div>
       )}
 
-      {/* Progresso por Fase */}
+      {/* Progress by Phase */}
       <div className="fases-progress">
-        <h2>🎓 Progresso por Fase</h2>
+        <h2>🎓 Progress by Phase</h2>
         <div className="fases-grid">
           <div className={`fase-card ${stats.faseAtual === 1 ? 'active' : ''}`}>
-            <h3>Fase 1: Básico</h3>
-            <p>Meses 1-4 • 120 horas</p>
+            <h3>Phase 1: Basic</h3>
+            <p>Months 1-4 • 120 hours</p>
             <div className="fase-bar">
               <div 
                 className="fase-fill" 
@@ -338,8 +338,8 @@ function Dashboard() {
           </div>
           
           <div className={`fase-card ${stats.faseAtual === 2 ? 'active' : ''}`}>
-            <h3>Fase 2: Intermediário</h3>
-            <p>Meses 5-8 • 120 horas</p>
+            <h3>Phase 2: Intermediate</h3>
+            <p>Months 5-8 • 120 hours</p>
             <div className="fase-bar">
               <div 
                 className="fase-fill" 
@@ -349,8 +349,8 @@ function Dashboard() {
           </div>
           
           <div className={`fase-card ${stats.faseAtual === 3 ? 'active' : ''}`}>
-            <h3>Fase 3: Avançado</h3>
-            <p>Meses 9-12 • 125 horas</p>
+            <h3>Phase 3: Advanced</h3>
+            <p>Months 9-12 • 125 hours</p>
             <div className="fase-bar">
               <div 
                 className="fase-fill" 
@@ -361,16 +361,16 @@ function Dashboard() {
         </div>
       </div>
 
-      {/* Checks Semanais */}
+      {/* Weekly Checks */}
       <div className="checks-info">
-        <h2>✔️ Checks Semanais Completos</h2>
-        <p className="checks-count">{stats.checkpointsConcluidos} semanas avaliadas</p>
+        <h2>✔️ Completed Weekly Checks</h2>
+        <p className="checks-count">{stats.checkpointsConcluidos} weeks evaluated</p>
       </div>
 
-      {/* Último Estudo */}
+      {/* Last Study */}
       {stats.ultimoEstudo && (
         <div className="ultimo-estudo">
-          <p>📆 Último estudo: {new Date(stats.ultimoEstudo).toLocaleDateString('pt-BR')}</p>
+          <p>📆 Last study: {new Date(stats.ultimoEstudo).toLocaleDateString('en-US')}</p>
         </div>
       )}
 
@@ -392,7 +392,7 @@ function Dashboard() {
           onMouseOver={(e) => e.currentTarget.style.background = '#ff5252'}
           onMouseOut={(e) => e.currentTarget.style.background = '#ff6b6b'}
         >
-          ⚙️ Reconfigurar Plano de Estudos
+          ⚙️ Reconfigure Study Plan
         </button>
       </div>
     </div>

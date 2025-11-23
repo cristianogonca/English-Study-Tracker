@@ -1,5 +1,7 @@
 -- ============================================
--- TABELA: rotina_semanal (Rotina Padrão Editável)
+-- TABELA: rotina_semanal
+-- Armazena a rotina semanal padrão (7 dias) por usuário
+-- Professor pode editar, aluno vê no Guia de Estudos
 -- ============================================
 
 CREATE TABLE IF NOT EXISTS rotina_semanal (
@@ -14,12 +16,10 @@ CREATE TABLE IF NOT EXISTS rotina_semanal (
   UNIQUE(user_id, dia_semana)
 );
 
+-- Índice para busca rápida
 CREATE INDEX idx_rotina_semanal_user_id ON rotina_semanal(user_id);
 
--- ============================================
--- RLS POLICIES: rotina_semanal
--- ============================================
-
+-- RLS Policies
 ALTER TABLE rotina_semanal ENABLE ROW LEVEL SECURITY;
 
 -- SELECT: Aluno vê sua rotina, professor vê todas
@@ -30,7 +30,7 @@ CREATE POLICY "Users can view rotina_semanal" ON rotina_semanal
     EXISTS (SELECT 1 FROM users_profile WHERE id = auth.uid() AND role IN ('professor', 'admin'))
   );
 
--- INSERT: Apenas o próprio usuário pode inserir
+-- INSERT: Apenas o próprio usuário (setup inicial)
 CREATE POLICY "Users can insert rotina_semanal" ON rotina_semanal
   FOR INSERT
   WITH CHECK (auth.uid() = user_id);
@@ -48,8 +48,19 @@ CREATE POLICY "Users can delete rotina_semanal" ON rotina_semanal
   FOR DELETE
   USING (auth.uid() = user_id);
 
--- ============================================
--- INSERIR ROTINA PADRÃO (7 dias)
--- ============================================
--- Esta rotina será inserida automaticamente no setup do aluno
--- Professor pode editar depois conforme necessidade de cada aluno
+-- Função para atualizar updated_at automaticamente
+CREATE OR REPLACE FUNCTION update_rotina_semanal_updated_at()
+RETURNS TRIGGER AS $$
+BEGIN
+  NEW.updated_at = NOW();
+  RETURN NEW;
+END;
+$$ LANGUAGE plpgsql;
+
+CREATE TRIGGER trigger_update_rotina_semanal_updated_at
+  BEFORE UPDATE ON rotina_semanal
+  FOR EACH ROW
+  EXECUTE FUNCTION update_rotina_semanal_updated_at();
+
+-- Verificar resultado
+SELECT * FROM rotina_semanal LIMIT 5;

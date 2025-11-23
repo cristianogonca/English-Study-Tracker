@@ -15,6 +15,7 @@ import GuiaEstudos from './pages/GuiaEstudos';
 import ProfessorAlunos from './pages/ProfessorAlunos';
 import ProfessorCronograma from './pages/ProfessorCronograma';
 import ProfessorGuia from './pages/ProfessorGuia';
+import ProfessorRotina from './pages/ProfessorRotina';
 import Navigation from './components/Navigation';
 
 function AppRoutes() {
@@ -42,11 +43,11 @@ function AppRoutes() {
   }, []);
 
   if (carregando) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Verificando autenticação...</div>;
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Verifying authentication...</div>;
   }
 
   if (carregandoConfig) {
-    return <div style={{ padding: '20px', textAlign: 'center' }}>Carregando configurações...</div>;
+    return <div style={{ padding: '20px', textAlign: 'center' }}>Loading settings...</div>;
   }
 
   return (
@@ -72,6 +73,11 @@ function AppRoutes() {
         <Route path="/professor/guia/:alunoId" element={
           !logado ? <Navigate to="/login" /> :
           (role === 'professor' || role === 'admin') ? <ProfessorGuia /> :
+          <Navigate to="/" />
+        } />
+        <Route path="/professor/rotina/:alunoId" element={
+          !logado ? <Navigate to="/login" /> :
+          (role === 'professor' || role === 'admin') ? <ProfessorRotina /> :
           <Navigate to="/" />
         } />
         

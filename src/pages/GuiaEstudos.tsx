@@ -9,25 +9,27 @@ function GuiaEstudos() {
   const { cronograma, config } = useStudy();
   const [mesSelecionado, setMesSelecionado] = useState(1);
   const [guia, setGuia] = useState<GuiaEstudosMes[]>([]);
-  const [rotinaSemanl, setRotinaSemanl] = useState<AtividadeSemanal[]>([]);
+  const [rotinaSemanal, setRotinaSemanal] = useState<AtividadeSemanal[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    carregarGuia();
+    carregarDados();
   }, []);
 
-  const carregarGuia = async () => {
+  const carregarDados = async () => {
     try {
       setLoading(true);
       const usuario = await SupabaseAuthService.getUsuarioAtual();
       if (usuario) {
-        const guiaData = await professorService.buscarGuiaAluno(usuario.id);
-        const rotinaData = await professorService.buscarRotinaSemanal(usuario.id);
+        const [guiaData, rotinaData] = await Promise.all([
+          professorService.buscarGuiaAluno(usuario.id),
+          professorService.buscarRotinaSemanal(usuario.id)
+        ]);
         setGuia(guiaData);
-        setRotinaSemanl(rotinaData);
+        setRotinaSemanal(rotinaData);
       }
     } catch (error) {
-      console.error('Erro ao carregar guia:', error);
+      console.error('Erro ao carregar dados:', error);
     } finally {
       setLoading(false);
     }
@@ -50,14 +52,14 @@ function GuiaEstudos() {
   if (loading) {
     return (
       <div className="guia-estudos">
-        <div className="loading">Carregando guia de estudos...</div>
+        <div className="loading">Loading study guide...</div>
       </div>
     );
   }
 
   const conteudoMesAtual = mesAtual || {
     mes: mesSelecionado,
-    titulo: `Mês ${mesSelecionado}`,
+    titulo: `Month ${mesSelecionado}`,
     objetivos: [],
     gramatica: [],
     vocabulario: [],
@@ -68,11 +70,32 @@ function GuiaEstudos() {
     check_final: []
   };
 
+  const getAtividadesDia = (diaSemana: number): AtividadeSemanal | undefined => {
+    // Buscar da rotina semanal carregada do banco
+    const atividade = rotinaSemanal.find(a => a.diaSemana === diaSemana);
+    
+    // Fallback para atividades padrão se não houver no banco
+    if (!atividade) {
+      const atividadesPadrao: AtividadeSemanal[] = [
+        { diaSemana: 1, nome: "Gramática + Exercícios", descricao: "Estudar tópico gramatical da semana + fazer exercícios práticos", icone: "📝" },
+        { diaSemana: 2, nome: "Vocabulário + Frases", descricao: "Aprender 10 palavras novas + criar frases próprias", icone: "📚" },
+        { diaSemana: 3, nome: "Listening + Anotações", descricao: "Ouvir áudio/vídeo + anotar palavras e frases ouvidas", icone: "🎧" },
+        { diaSemana: 4, nome: "Reading + Resumo", descricao: "Ler texto em inglês + fazer resumo em 5 linhas", icone: "📖" },
+        { diaSemana: 5, nome: "Speaking + Gravação", descricao: "Gravar áudio falando sobre tópico do dia", icone: "🎤" },
+        { diaSemana: 6, nome: "Writing", descricao: "Escrever texto ou diálogo sobre tema da semana", icone: "✍️" },
+        { diaSemana: 7, nome: "Revisão", descricao: "Revisar tudo da semana + fazer check semanal no app", icone: "✅" }
+      ];
+      return atividadesPadrao.find(a => a.diaSemana === diaSemana);
+    }
+    
+    return atividade;
+  };
+
   return (
     <div className="guia-estudos">
       <header className="guia-header">
-        <h1>📖 Guia de Estudos</h1>
-        <p>Detalhamento completo do seu plano de 12 meses</p>
+        <h1>📖 Study Guide</h1>
+        <p>Complete breakdown of your 12-month plan</p>
       </header>
 
       {/* Seletor de Mês */}
@@ -83,7 +106,7 @@ function GuiaEstudos() {
             className={`mes-btn ${mes === mesSelecionado ? 'active' : ''}`}
             onClick={() => setMesSelecionado(mes)}
           >
-            Mês {mes}
+            Month {mes}
           </button>
         ))}
       </div>
@@ -91,17 +114,17 @@ function GuiaEstudos() {
       {/* Conteúdo do Mês */}
       <div className="conteudo-mes">
         <div className="mes-header">
-          <h2>Mês {conteudoMesAtual.mes}: {conteudoMesAtual.titulo}</h2>
+          <h2>Month {conteudoMesAtual.mes}: {conteudoMesAtual.titulo}</h2>
           <p className="fase-badge">
-            {conteudoMesAtual.mes <= 4 ? '🟢 Fase 1 - Básico' : 
-             conteudoMesAtual.mes <= 8 ? '🟡 Fase 2 - Intermediário' : 
-             '🔵 Fase 3 - Avançado'}
+            {conteudoMesAtual.mes <= 4 ? '🟢 Phase 1 - Basic' : 
+             conteudoMesAtual.mes <= 8 ? '🟡 Phase 2 - Intermediate' : 
+             '🔵 Phase 3 - Advanced'}
           </p>
         </div>
 
         {/* Objetivos */}
         <section className="guia-section">
-          <h3>🎯 Objetivos do Mês</h3>
+          <h3>🎯 Month Goals</h3>
           <ul>
             {conteudoMesAtual.objetivos.map((obj, i) => (
               <li key={i}>{obj}</li>
@@ -111,29 +134,29 @@ function GuiaEstudos() {
 
         {/* Gramática */}
         <section className="guia-section">
-          <h3>📝 Gramática a Dominar</h3>
+          <h3>📝 Grammar to Master</h3>
           <ul>
             {conteudoMesAtual.gramatica.map((item, i) => (
               <li key={i}>{item}</li>
             ))}
           </ul>
           <div className="dica-gpt">
-            <strong>💡 Atividade com GPT:</strong>
-            <p>"Me explique {conteudoMesAtual.gramatica[1]} de forma simples, com 20 frases de exemplo e depois faça perguntas para eu responder."</p>
+            <strong>💡 Activity with GPT:</strong>
+            <p>"Explain {conteudoMesAtual.gramatica[1]} in a simple way, with 20 example sentences, and then ask me questions to answer."</p>
           </div>
         </section>
 
         {/* Vocabulário */}
         <section className="guia-section">
-          <h3>📚 Vocabulário Essencial</h3>
+          <h3>📚 Essential Vocabulary</h3>
           <ul>
             {conteudoMesAtual.vocabulario.map((item, i) => (
               <li key={i}>{item}</li>
             ))}
           </ul>
           <div className="tarefa-diaria">
-            <strong>📌 Tarefa Diária (10 minutos):</strong>
-            <p>5-10 palavras novas + criar 3 frases usando cada uma</p>
+            <strong>📌c Daily Task (10 minutes):</strong>
+            <p>5-10 new words + create 3 sentences using each one</p>
           </div>
         </section>
 
@@ -179,8 +202,8 @@ function GuiaEstudos() {
 
         {/* Check Final */}
         <section className="guia-section check-final">
-          <h3>✅ Check Final do Mês {conteudoMesAtual.mes}</h3>
-          <p>Você deve conseguir:</p>
+          <h3>✅ Final Check for Month {conteudoMesAtual.mes}</h3>
+          <p>You should be able to:</p>
           <ul>
             {conteudoMesAtual.check_final.map((item: string, i: number) => (
               <li key={i}>{item}</li>
@@ -190,15 +213,19 @@ function GuiaEstudos() {
 
         {/* Rotina Semanal */}
         <section className="guia-section rotina-semanal">
-          <h3>📅 Rotina Semanal Padrão (1h/dia)</h3>
+          <h3>📅 Standard Weekly Routine (1h/day)</h3>
           <div className="dias-semana">
-            {rotinaSemanl.map(atividade => (
-              <div key={atividade.dia_semana} className="dia-rotina">
-                <div className="dia-numero">{atividade.icone} Dia {atividade.dia_semana}</div>
-                <div className="dia-nome">{atividade.nome}</div>
-                <div className="dia-desc">{atividade.descricao}</div>
-              </div>
-            ))}
+            {Array.from({ length: 7 }, (_, i) => i + 1).map(dia => {
+              const atividade = getAtividadesDia(dia);
+              if (!atividade) return null;
+              return (
+                <div key={dia} className="dia-rotina">
+                  <div className="dia-numero">{atividade.icone} Dia {dia}</div>
+                  <div className="dia-nome">{atividade.nome}</div>
+                  <div className="dia-desc">{atividade.descricao}</div>
+                </div>
+              );
+            })}
           </div>
         </section>
       </div>

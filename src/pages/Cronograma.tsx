@@ -68,14 +68,14 @@ function Cronograma() {
     const primeiroDiaDoMes = cronograma.find(dia => dia.mes === mes);
     if (primeiroDiaDoMes && primeiroDiaDoMes.data) {
       const data = new Date(primeiroDiaDoMes.data);
-      return data.toLocaleDateString('pt-BR', { month: 'long', year: 'numeric' })
+      return data.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
         .replace(/^\w/, c => c.toUpperCase());
     }
     
     // Fallback para array fixo se não houver data
     const meses = [
-      'Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho',
-      'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'
+      'January', 'February', 'March', 'April', 'May', 'June',
+      'July', 'August', 'September', 'October', 'November', 'December'
     ];
     return meses[mes - 1];
   };
@@ -107,8 +107,8 @@ function Cronograma() {
   return (
     <div className="cronograma">
       <header className="page-header">
-        <h1>📅 Cronograma Anual</h1>
-        <p>Visualize seu plano de estudos de 12 meses</p>
+        <h1>📅 Annual Schedule</h1>
+        <p>View your 12-month study plan</p>
       </header>
 
       {/* Estatísticas Gerais */}
@@ -117,38 +117,38 @@ function Cronograma() {
           <span className="stat-icon">📖</span>
           <div className="stat-info">
             <span className="stat-value">{estatisticas.totalDias}</span>
-            <span className="stat-label">Total de Dias</span>
+            <span className="stat-label">Total Days</span>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">✅</span>
           <div className="stat-info">
             <span className="stat-value">{estatisticas.diasConcluidos}</span>
-            <span className="stat-label">Dias Concluídos</span>
+            <span className="stat-label">Completed Days</span>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">📊</span>
           <div className="stat-info">
             <span className="stat-value">{estatisticas.progressoGeral}%</span>
-            <span className="stat-label">Progresso Geral</span>
+            <span className="stat-label">Overall Progress</span>
           </div>
         </div>
       </div>
 
       {/* Fases */}
       <div className="fases-overview">
-        <h2>📚 Fases do Currículo</h2>
+        <h2>📚 Curriculum Phases</h2>
         <div className="fases-grid">
           {fases.map((fase, index) => (
             <div key={index} className="fase-card" style={{ borderColor: getCorFase(fase) }}>
               <h3>{fase.nome}</h3>
               <p className="fase-periodo">
-                Mês {fase.mesInicio} a {fase.mesFim}
+                Month {fase.mesInicio} to {fase.mesFim}
               </p>
               <div className="fase-metas">
-                <span>⏱️ {fase.horasTotal}h totais</span>
-                <span>🎯 7h/semana</span>
+                <span>⏱️ {fase.horasTotal}h total</span>
+                <span>🎯 7h/week</span>
               </div>
               <div className="fase-progress-bar">
                 <div
@@ -159,7 +159,7 @@ function Cronograma() {
                   }}
                 />
               </div>
-              <p className="fase-progress-text">{fase.progresso}% concluído</p>
+              <p className="fase-progress-text">{fase.progresso}% completed</p>
             </div>
           ))}
         </div>
@@ -171,13 +171,13 @@ function Cronograma() {
           className={visualizacao === 'mes' ? 'active' : ''}
           onClick={() => setVisualizacao('mes')}
         >
-          📅 Visualização Mensal
+          📅 Monthly View
         </button>
         <button
           className={visualizacao === 'ano' ? 'active' : ''}
           onClick={() => setVisualizacao('ano')}
         >
-          📆 Visualização Anual
+          📆 Annual View
         </button>
       </div>
 
@@ -191,7 +191,7 @@ function Cronograma() {
             >
               ◀️
             </button>
-            <h2>{getNomeMes(mesAtual)} - Mês {mesAtual}</h2>
+            <h2>{getNomeMes(mesAtual)} - Month {mesAtual}</h2>
             <button
               onClick={() => mesAtual < 12 && setMesAtual(mesAtual + 1)}
               disabled={mesAtual === 12}
@@ -202,10 +202,10 @@ function Cronograma() {
 
           <div className="mes-info">
             <div className="fase-badge" style={{ background: getCorFase(obterFaseDoMes(mesAtual)) }}>
-              {obterFaseDoMes(mesAtual)?.nome || 'Fase não definida'}
+              {obterFaseDoMes(mesAtual)?.nome || 'Phase not defined'}
             </div>
             <div className="progresso-mes">
-              Progresso do mês: <strong>{calcularProgressoMes(mesAtual)}%</strong>
+              Month progress: <strong>{calcularProgressoMes(mesAtual)}%</strong>
             </div>
           </div>
 
@@ -224,13 +224,13 @@ function Cronograma() {
                   }}
                 >
                   <div className="dia-header">
-                    <span className="dia-numero">Dia {dia.numero}</span>
-                    <span className="dia-semana">Semana {dia.semana}</span>
+                    <span className="dia-numero">Day {dia.numero}</span>
+                    <span className="dia-semana">Week {dia.semana}</span>
                   </div>
                   <div className="dia-content">
-                    <p className="dia-descricao">{dia.tituloSemana || `Dia ${dia.numero}`}</p>
+                    <p className="dia-descricao">{dia.tituloSemana || `Day ${dia.numero}`}</p>
                     <div className="dia-tarefas-count">
-                      {dia.tarefas.length} tarefa{dia.tarefas.length !== 1 ? 's' : ''}
+                      {dia.tarefas.length} task{dia.tarefas.length !== 1 ? 's' : ''}
                     </div>
                   </div>
                   <div className="dia-progress-bar">
@@ -273,8 +273,8 @@ function Cronograma() {
                   {fase?.nome.split(' ')[1] || 'N/A'}
                 </div>
                 <div className="mes-stats">
-                  <span>📅 {diasMes.length} dias</span>
-                  <span>✅ {diasMes.filter(d => calcularProgressoDia(d) === 100).length} concluídos</span>
+                  <span>📅 {diasMes.length} days</span>
+                  <span>✅ {diasMes.filter(d => calcularProgressoDia(d) === 100).length} completed</span>
                 </div>
                 <div className="mes-progress-bar">
                   <div
@@ -301,13 +301,13 @@ function Cronograma() {
             </button>
 
             <h2>
-              📅 Dia {diaSelecionado.numero} - Semana {diaSelecionado.semana}
+              📅 Day {diaSelecionado.numero} - Week {diaSelecionado.semana}
             </h2>
-            <p className="modal-data">{diaSelecionado.data || 'Não iniciado'}</p>
-            <p className="modal-descricao">{diaSelecionado.tituloSemana || `Mês ${diaSelecionado.mes}, Fase ${diaSelecionado.fase}`}</p>
+            <p className="modal-data">{diaSelecionado.data || 'Not started'}</p>
+            <p className="modal-descricao">{diaSelecionado.tituloSemana || `Month ${diaSelecionado.mes}, Phase ${diaSelecionado.fase}`}</p>
 
             <div className="modal-fase">
-              <strong>Fase:</strong>{' '}
+              <strong>Phase:</strong>{' '}
               <span
                 style={{
                   color: getCorFase(obterFaseDoMes(diaSelecionado.mes))
@@ -317,7 +317,7 @@ function Cronograma() {
               </span>
             </div>
 
-            <h3>📋 Tarefas do Dia</h3>
+            <h3>📋 Daily Tasks</h3>
             <div className="modal-tarefas">
               {diaSelecionado.tarefas.map((tarefa, index) => {
                 const progresso = progressos.find((p: ProgressoTarefa) => p.tarefaId === tarefa.id);
@@ -330,9 +330,9 @@ function Cronograma() {
                     <div className="tarefa-header">
                       <span className="tarefa-tipo">{tarefa.tipo}</span>
                       <span className={`tarefa-status status-${progresso?.status || 'pendente'}`}>
-                        {progresso?.status === 'concluida' ? '✅ Concluída' :
-                         progresso?.status === 'em_progresso' ? '⏳ Em progresso' :
-                         '⚪ Pendente'}
+                        {progresso?.status === 'concluida' ? '✅ Completed' :
+                         progresso?.status === 'em_progresso' ? '⏳ In progress' :
+                         '⚪ Pending'}
                       </span>
                     </div>
                     <h4>{tarefa.titulo}</h4>
@@ -340,9 +340,9 @@ function Cronograma() {
                     <div className="tarefa-footer">
                       <span>⏱️ {tarefa.duracaoEstimada} min</span>
                       <span className={`tarefa-dificuldade dificuldade-${tarefa.nivel}`}>
-                        {tarefa.nivel === 'basico' ? '🟢 Básico' :
-                         tarefa.nivel === 'intermediario' ? '🟡 Intermediário' :
-                         '🔴 Avançado'}
+                        {tarefa.nivel === 'basico' ? '🟢 Basic' :
+                         tarefa.nivel === 'intermediario' ? '🟡 Intermediate' :
+                         '🔴 Advanced'}
                       </span>
                     </div>
                   </div>
@@ -351,7 +351,7 @@ function Cronograma() {
             </div>
 
             <div className="modal-progress">
-              <h3>📊 Progresso do Dia</h3>
+              <h3>📊 Day Progress</h3>
               <div className="progress-bar-large">
                 <div
                   className="progress-fill-large"

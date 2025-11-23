@@ -238,13 +238,14 @@ export interface AlunoView {
   total_dias: number;
   dias_concluidos: number;
   meses_guia: number;
+  minutos_estudados?: number;
+  progresso_percentual?: number; // Progresso baseado em tempo estudado vs esperado
 }
 
-// NOVO: Rotina Semanal Editável
+// NOVO: Rotina Semanal Padrão (7 dias)
 export interface AtividadeSemanal {
   id?: string;
-  user_id?: string;
-  dia_semana: number; // 1-7
+  diaSemana: number; // 1-7 (segunda a domingo)
   nome: string;
   descricao: string;
   icone: string;

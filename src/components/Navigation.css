@@ -24,6 +24,62 @@
   white-space: nowrap;
 }
 
+/* Timer indicator */
+.nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.timer-indicator {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  text-decoration: none;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.timer-indicator:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+}
+
+.timer-icon {
+  font-size: 1.2rem;
+  animation: rotate 3s linear infinite;
+}
+
+@keyframes rotate {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes pulse {
+  0%, 100% {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+  50% {
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
+  }
+}
+
+.timer-time {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #667eea;
+  font-family: 'Courier New', monospace;
+  letter-spacing: 0.05em;
+}
+
 .nav-links {
   list-style: none;
   padding: 0;
@@ -231,6 +287,25 @@
 
   .nav-brand h1 {
     font-size: 1.2rem;
+  }
+
+  .nav-brand {
+    flex-direction: column;
+    gap: 0.5rem;
+    align-items: flex-start;
+  }
+
+  .timer-indicator {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .timer-icon {
+    font-size: 1rem;
+  }
+
+  .timer-time {
+    font-size: 0.95rem;
   }
 
   .nav-links {

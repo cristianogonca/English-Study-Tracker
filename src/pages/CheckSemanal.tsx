@@ -15,11 +15,11 @@ function CheckSemanal() {
 
   // checkpoints padrao da semana
   const [checkpoints, setCheckpoints] = useState<CheckpointSemanal[]>([
-    { pergunta: 'Dominei a gramática da semana?', resposta: 'sim', nota: 0 },
-    { pergunta: 'Pratiquei listening pelo menos 2x?', resposta: 'sim', nota: 0 },
-    { pergunta: 'Gravei speaking pelo menos 1x?', resposta: 'sim', nota: 0 },
-    { pergunta: 'Li textos em inglês esta semana?', resposta: 'sim', nota: 0 },
-    { pergunta: 'Escrevi algo em inglês?', resposta: 'sim', nota: 0 }
+    { pergunta: 'Did I master this week\'s grammar?', resposta: 'sim', nota: 0 },
+    { pergunta: 'Did I practice listening at least 2x?', resposta: 'sim', nota: 0 },
+    { pergunta: 'Did I record speaking at least 1x?', resposta: 'sim', nota: 0 },
+    { pergunta: 'Did I read texts in English this week?', resposta: 'sim', nota: 0 },
+    { pergunta: 'Did I write something in English?', resposta: 'sim', nota: 0 }
   ]);
 
   useEffect(() => {
@@ -156,7 +156,7 @@ function CheckSemanal() {
 
     try {
       await SupabaseStudyService.salvarCheckSemanal(check);
-      alert('✅ Check semanal salvo com sucesso!');
+      alert('✅ Weekly check saved successfully!');
       
       // limpar form
       setSemana(semana + 1);
@@ -166,15 +166,15 @@ function CheckSemanal() {
       setPalavrasAprendidas(0);
       setObservacoes('');
       setCheckpoints([
-        { pergunta: 'Dominei a gramática da semana?', resposta: 'sim', nota: 0 },
-        { pergunta: 'Pratiquei listening pelo menos 2x?', resposta: 'sim', nota: 0 },
-        { pergunta: 'Gravei speaking pelo menos 1x?', resposta: 'sim', nota: 0 },
-        { pergunta: 'Li textos em inglês esta semana?', resposta: 'sim', nota: 0 },
-        { pergunta: 'Escrevi algo em inglês?', resposta: 'sim', nota: 0 }
+        { pergunta: 'Did I master this week\'s grammar?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Did I practice listening at least 2x?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Did I record speaking at least 1x?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Did I read texts in English this week?', resposta: 'sim', nota: 0 },
+        { pergunta: 'Did I write something in English?', resposta: 'sim', nota: 0 }
       ]);
     } catch (error) {
       console.error('Erro ao salvar check:', error);
-      alert('❌ Erro ao salvar check semanal!');
+      alert('❌ Error saving weekly check!');
     }
   };
 
@@ -184,15 +184,15 @@ function CheckSemanal() {
   return (
     <div className="check-semanal">
       <header className="page-header">
-        <h1>✅ Check Semanal</h1>
-        <p>Avalie seu progresso e aprendizado da semana</p>
+        <h1>✅ Weekly Check</h1>
+        <p>Evaluate your progress and learning for the week</p>
       </header>
 
       <form onSubmit={(e) => { e.preventDefault(); salvarCheck(); }} className="check-form">
         
         {/* Número da Semana */}
         <div className="semana-selector">
-          <label>📅 Semana do Ano</label>
+          <label>📅 Week of Year</label>
           <div className="semana-input">
             <button type="button" onClick={() => semana > 1 && setSemana(semana - 1)}>
               ◀️
@@ -209,14 +209,14 @@ function CheckSemanal() {
               ▶️
             </button>
           </div>
-          <small>Semana {semana} de 52</small>
+          <small>Week {semana} of 52</small>
         </div>
 
         {/* Presença */}
         <div className="form-section">
-          <h2>📊 Presença</h2>
+          <h2>📊 Attendance</h2>
           <div className="presenca-group">
-            <label>Quantos % dos dias você estudou?</label>
+            <label>What % of days did you study?</label>
             <div className="slider-container">
               <input
                 type="range"
@@ -239,9 +239,9 @@ function CheckSemanal() {
 
         {/* Meta de Minutos */}
         <div className="form-section">
-          <h2>⏱️ Meta de Minutos</h2>
+          <h2>⏱️ Time Goal</h2>
           <div className="meta-group">
-            <label>Quantos minutos você estudou esta semana?</label>
+            <label>How many minutes did you study this week?</label>
             <input
               type="number"
               value={minutosRealizados}
@@ -250,7 +250,7 @@ function CheckSemanal() {
               placeholder="Ex: 420"
               style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
             />
-            <small>Meta: 420 minutos (7 horas/semana)</small>
+            <small>Goal: 420 minutes (7 hours/week)</small>
             
             <div className="meta-bar">
               <div 
@@ -262,10 +262,10 @@ function CheckSemanal() {
             </div>
 
             {minutosRealizados >= 420 ? (
-              <p className="meta-status success">✅ Meta cumprida! Parabéns!</p>
+              <p className="meta-status success">✅ Goal achieved! Congratulations!</p>
             ) : (
               <p className="meta-status warning">
-                ⚠️ Faltam {420 - minutosRealizados} minutos para cumprir a meta
+                ⚠️ {420 - minutosRealizados} minutes remaining to reach the goal
               </p>
             )}
           </div>
@@ -273,30 +273,30 @@ function CheckSemanal() {
 
         {/* Evolução na Fala */}
         <div className="form-section">
-          <h2>🗣️ Evolução na Conversação</h2>
+          <h2>🗣️ Conversation Progress</h2>
           <div className="evolucao-group">
-            <label>Você sentiu evolução na sua fala esta semana?</label>
+            <label>Did you feel improvement in your speaking this week?</label>
             <div className="radio-options">
               <button
                 type="button"
                 className={evolucaoFala === 'sim' ? 'active' : ''}
                 onClick={() => setEvolucaoFala('sim')}
               >
-                ✅ Sim
+                ✅ Yes
               </button>
               <button
                 type="button"
                 className={evolucaoFala === 'parcial' ? 'active' : ''}
                 onClick={() => setEvolucaoFala('parcial')}
               >
-                🔸 Parcial
+                🔸 Partial
               </button>
               <button
                 type="button"
                 className={evolucaoFala === 'nao' ? 'active' : ''}
                 onClick={() => setEvolucaoFala('nao')}
               >
-                ❌ Não
+                ❌ No
               </button>
             </div>
           </div>
@@ -304,9 +304,9 @@ function CheckSemanal() {
 
         {/* Vocabulário */}
         <div className="form-section">
-          <h2>📚 Vocabulário</h2>
+          <h2>📚 Vocabulary</h2>
           <div className="vocab-group">
-            <label>Quantas palavras novas você aprendeu?</label>
+            <label>How many new words did you learn?</label>
             <input
               type="number"
               value={palavrasAprendidas}
@@ -315,14 +315,14 @@ function CheckSemanal() {
               placeholder="Ex: 50"
               style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
             />
-            <small>Meta recomendada: 30-50 palavras/semana</small>
+            <small>Recommended goal: 30-50 words/week</small>
           </div>
         </div>
 
         {/* Checkpoints */}
         <div className="form-section checkpoints-section">
-          <h2>✔️ Checkpoints da Semana</h2>
-          <p className="checkpoints-desc">Marque o que você conseguiu fazer:</p>
+          <h2>✔️ Weekly Checkpoints</h2>
+          <p className="checkpoints-desc">Mark what you managed to do:</p>
           
           {checkpoints.map((checkpoint, index) => (
             <div key={index} className="checkpoint-item">
@@ -335,27 +335,27 @@ function CheckSemanal() {
                     className={checkpoint.resposta === 'sim' ? 'active green' : ''}
                     onClick={() => atualizarCheckpoint(index, 'sim')}
                   >
-                    ✅ Sim
+                    ✅ Yes
                   </button>
                   <button
                     type="button"
                     className={checkpoint.resposta === 'parcial' ? 'active yellow' : ''}
                     onClick={() => atualizarCheckpoint(index, 'parcial')}
                   >
-                    🔸 Parcial
+                    🔸 Partial
                   </button>
                   <button
                     type="button"
                     className={checkpoint.resposta === 'nao' ? 'active red' : ''}
                     onClick={() => atualizarCheckpoint(index, 'nao')}
                   >
-                    ❌ Não
+                    ❌ No
                   </button>
                 </div>
 
                 {checkpoint.resposta !== 'nao' && (
                   <div className="checkpoint-nota">
-                    <label>Nota (0-10):</label>
+                    <label>Score (0-10):</label>
                     <input
                       type="number"
                       min="0"
@@ -372,33 +372,33 @@ function CheckSemanal() {
 
         {/* Observações */}
         <div className="form-section">
-          <h2>💭 Observações Gerais</h2>
+          <h2>💭 General Observations</h2>
           <textarea
             value={observacoes}
             onChange={(e) => setObservacoes(e.target.value)}
-            placeholder="Como foi a semana? O que funcionou bem? O que precisa melhorar? Alguma dificuldade específica?"
+            placeholder="How was the week? What worked well? What needs improvement? Any specific difficulties?"
             rows={5}
           />
         </div>
 
         {/* Resumo */}
         <div className="resumo-section">
-          <h3>📊 Resumo da Semana</h3>
+          <h3>📊 Week Summary</h3>
           <div className="resumo-grid">
             <div className="resumo-item">
-              <span className="resumo-label">Presença:</span>
+              <span className="resumo-label">Attendance:</span>
               <span className="resumo-value">{presenca}%</span>
             </div>
             <div className="resumo-item">
-              <span className="resumo-label">Minutos:</span>
+              <span className="resumo-label">Minutes:</span>
               <span className="resumo-value">{minutosRealizados} / 420</span>
             </div>
             <div className="resumo-item">
-              <span className="resumo-label">Palavras:</span>
+              <span className="resumo-label">Words:</span>
               <span className="resumo-value">{palavrasAprendidas}</span>
             </div>
             <div className="resumo-item">
-              <span className="resumo-label">Evolução Fala:</span>
+              <span className="resumo-label">Speaking Progress:</span>
               <span className="resumo-value">
                 {evolucaoFala === 'sim' ? '✅' : evolucaoFala === 'parcial' ? '🔸' : '❌'}
               </span>
@@ -408,19 +408,19 @@ function CheckSemanal() {
 
         {/* Botão Salvar */}
         <button type="submit" className="btn-save">
-          💾 Salvar Check Semanal
+          💾 Save Weekly Check
         </button>
       </form>
 
       {/* Dicas */}
       <div className="dicas-section">
-        <h3>💡 Dicas para Próxima Semana</h3>
+        <h3>💡 Tips for Next Week</h3>
         <ul>
-          <li>🎯 Se não cumpriu a meta, redistribua os minutos nos próximos dias</li>
-          <li>📝 Anote palavras novas diariamente no vocabulário</li>
-          <li>🗣️ Pratique speaking mesmo sozinho, grave áudios</li>
-          <li>📚 Se algum checkpoint ficou pendente, priorize na próxima semana</li>
-          <li>✨ Celebre suas conquistas, por menores que sejam!</li>
+          <li>🎯 If you didn't meet the goal, redistribute the minutes over the next few days</li>
+          <li>📝 Note new words daily in your vocabulary</li>
+          <li>🗣️ Practice speaking even alone, record audios</li>
+          <li>📚 If any checkpoint was pending, prioritize it next week</li>
+          <li>✨ Celebrate your achievements, no matter how small!</li>
         </ul>
       </div>
     </div>

@@ -112,29 +112,54 @@
 .stat {
   display: flex;
   justify-content: space-between;
+  align-items: center;
   margin-bottom: 0.8rem;
-  padding: 0.5rem;
+  padding: 0.6rem 0.8rem;
   background: #f8f9fa;
   border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.stat:hover {
+  background: #e9ecef;
+  transform: translateX(3px);
 }
 
 .stat-label {
   font-weight: 600;
   color: #555;
+  font-size: 0.95rem;
 }
 
 .stat-value {
   color: #667eea;
   font-weight: 700;
+  font-size: 1rem;
+}
+
+.progresso-container {
+  margin-top: 1.5rem;
+  padding: 1rem;
+  background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+  border-radius: 10px;
+}
+
+.progresso-label {
+  display: block;
+  font-weight: 600;
+  color: #555;
+  margin-bottom: 0.8rem;
+  font-size: 0.95rem;
 }
 
 .progresso-bar {
   width: 100%;
-  height: 12px;
-  background: #e0e0e0;
+  height: 14px;
+  background: white;
   border-radius: 10px;
   overflow: hidden;
-  margin: 1rem 0 0.5rem 0;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.1);
+  margin-bottom: 0.6rem;
 }
 
 .progresso-fill {
@@ -142,6 +167,8 @@
   background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
   transition: width 0.5s ease;
   border-radius: 10px;
+  position: relative;
+  box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
 }
 
 .progresso-percent {
@@ -149,17 +176,20 @@
   text-align: center;
   font-weight: 700;
   color: #667eea;
-  font-size: 1.1rem;
+  font-size: 1.2rem;
+  margin-top: 0.3rem;
 }
 
 .aluno-actions {
   display: flex;
   gap: 0.8rem;
   margin-top: 1.5rem;
+  flex-wrap: wrap;
 }
 
 .btn-action {
   flex: 1;
+  min-width: 140px;
   padding: 0.9rem;
   border: none;
   border-radius: 10px;
@@ -186,6 +216,15 @@
 .btn-guia:hover {
   transform: scale(1.05);
   box-shadow: 0 5px 15px rgba(240, 147, 251, 0.4);
+}
+
+.btn-rotina {
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+}
+
+.btn-rotina:hover {
+  transform: scale(1.05);
+  box-shadow: 0 5px 15px rgba(79, 172, 254, 0.4);
 }
 
 @media (max-width: 768px) {

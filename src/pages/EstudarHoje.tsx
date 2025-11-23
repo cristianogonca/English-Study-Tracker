@@ -1,8 +1,22 @@
 import { useState, useEffect } from 'react';
 import { useStudy } from '../contexts/StudyContext';
 import SupabaseStudyService from '../services/SupabaseStudyService';
+import SupabaseAuthService from '../services/SupabaseAuthService';
 import { RegistroDiario } from '../types';
 import './EstudarHoje.css';
+
+// Chave localStorage para persistir timer
+const TIMER_STORAGE_KEY = 'pomodoro_timer_state';
+
+interface TimerState {
+  minutos: number;
+  segundos: number;
+  ativo: boolean;
+  pausado: boolean;
+  iniciadoEm: number; // timestamp
+  userId: string;
+  minutosIniciais: number; // Tempo configurado ao iniciar
+}
 
 function EstudarHoje() {
   const { config } = useStudy();
@@ -12,12 +26,131 @@ function EstudarHoje() {
   const [pausado, setPausado] = useState(false);
   const [sessaoId, setSessaoId] = useState<string | null>(null);
   const [pausas, setPausas] = useState(0);
+  const [timestampInicio, setTimestampInicio] = useState<number>(Date.now()); // Guarda quando iniciou
+  const [carregouDoStorage, setCarregouDoStorage] = useState(false); // Flag para evitar limpar antes de carregar
+  const [minutosIniciais, setMinutosIniciais] = useState(25); // Guarda quanto tempo foi configurado ao iniciar
+  const [minutosEstudadosTotal, setMinutosEstudadosTotal] = useState(0); // Acumula tempo estudado nas sessões
 
   // formulario de registro
   const [conteudoEstudado, setConteudoEstudado] = useState('');
   const [dificuldades, setDificuldades] = useState('');
   const [observacoes, setObservacoes] = useState('');
   const [humor, setHumor] = useState<'otimo' | 'bom' | 'regular' | 'ruim'>('bom');
+
+  // Carregar estado do timer do localStorage ao montar
+  useEffect(() => {
+    const carregarTimerSalvo = async () => {
+      const usuario = await SupabaseAuthService.getUsuarioAtual();
+      if (!usuario) return;
+
+      const saved = localStorage.getItem(TIMER_STORAGE_KEY);
+      console.log('🔍 [Timer] localStorage raw:', saved);
+      
+      if (saved) {
+        try {
+          const state: TimerState = JSON.parse(saved);
+          console.log('📦 [Timer] State parsed:', state);
+          
+          // Verificar se é do mesmo usuário
+          if (state.userId !== usuario.id) {
+            console.log('❌ [Timer] Usuário diferente, limpando');
+            localStorage.removeItem(TIMER_STORAGE_KEY);
+            return;
+          }
+
+          // Restaurar minutosIniciais
+          if (state.minutosIniciais) {
+            setMinutosIniciais(state.minutosIniciais);
+          }
+
+          // Calcular tempo decorrido desde que foi salvo
+          const agora = Date.now();
+          const decorrido = Math.floor((agora - state.iniciadoEm) / 1000); // segundos
+          console.log('⏱️ [Timer] Tempo decorrido:', decorrido, 'segundos');
+          
+          if (state.ativo && !state.pausado) {
+            // Recalcular tempo restante
+            let totalSegundos = state.minutos * 60 + state.segundos;
+            console.log('📊 [Timer] Total segundos antes:', totalSegundos);
+            totalSegundos -= decorrido;
+            console.log('📊 [Timer] Total segundos depois:', totalSegundos);
+            
+            if (totalSegundos > 0) {
+              const novosMinutos = Math.floor(totalSegundos / 60);
+              const novosSegundos = totalSegundos % 60;
+              
+              console.log('✅ [Timer] Restaurando:', novosMinutos, 'min', novosSegundos, 'seg');
+              setMinutos(novosMinutos);
+              setSegundos(novosSegundos);
+              setAtivo(true);
+              setPausado(false);
+              setTimestampInicio(state.iniciadoEm); // Restaura timestamp original
+            } else {
+              // Timer já terminou enquanto estava em outra página
+              console.log('⏰ [Timer] Timer terminou durante navegação');
+              setMinutos(0);
+              setSegundos(0);
+              setAtivo(false);
+              tocarAlarme();
+              localStorage.removeItem(TIMER_STORAGE_KEY);
+            }
+          } else {
+            // Timer estava pausado, restaurar exatamente como estava
+            console.log('⏸️ [Timer] Restaurando timer pausado');
+            setMinutos(state.minutos);
+            setSegundos(state.segundos);
+            setAtivo(state.ativo);
+            setPausado(state.pausado);
+            setTimestampInicio(state.iniciadoEm); // Restaura timestamp
+          }
+        } catch (error) {
+          console.error('❌ [Timer] Erro ao carregar timer salvo:', error);
+          localStorage.removeItem(TIMER_STORAGE_KEY);
+        }
+      } else {
+        console.log('ℹ️ [Timer] Nenhum timer salvo encontrado');
+      }
+      
+      // Marca que já tentou carregar do storage
+      setCarregouDoStorage(true);
+    };
+
+    carregarTimerSalvo();
+  }, []);
+
+  // Salvar estado do timer no localStorage sempre que mudar
+  useEffect(() => {
+    // Só salva/remove DEPOIS de ter carregado o estado inicial
+    if (!carregouDoStorage) {
+      console.log('⏳ [Timer] Aguardando carregamento do storage...');
+      return;
+    }
+
+    const salvarTimerState = async () => {
+      if (ativo) {
+        const usuario = await SupabaseAuthService.getUsuarioAtual();
+        if (!usuario) return;
+
+        const state: TimerState = {
+          minutos,
+          segundos,
+          ativo,
+          pausado,
+          iniciadoEm: timestampInicio, // Usa timestamp fixo do início
+          userId: usuario.id,
+          minutosIniciais // Salva o tempo configurado
+        };
+        console.log('💾 [Timer] Salvando state:', state);
+        localStorage.setItem(TIMER_STORAGE_KEY, JSON.stringify(state));
+      } else if (!ativo && !pausado) {
+        // Só remove se realmente parou (não se apenas pausou)
+        console.log('🗑️ [Timer] Removendo timer do localStorage');
+        localStorage.removeItem(TIMER_STORAGE_KEY);
+      }
+    };
+
+    salvarTimerState();
+  }, [minutos, segundos, ativo, pausado, timestampInicio, carregouDoStorage, minutosIniciais]);
 
   useEffect(() => {
     let intervalo: any;
@@ -29,6 +162,7 @@ function EstudarHoje() {
             // timer acabou
             setAtivo(false);
             tocarAlarme();
+            localStorage.removeItem(TIMER_STORAGE_KEY);
           } else {
             setMinutos(minutos - 1);
             setSegundos(59);
@@ -47,42 +181,88 @@ function EstudarHoje() {
       // TODO: Implementar iniciarSessao via SupabaseStudyService
       // const id = await SupabaseStudyService.iniciarSessao();
       // setSessaoId(id);
+      setMinutosIniciais(minutos); // Salva quanto tempo foi configurado
+      setTimestampInicio(Date.now()); // Define timestamp do início
       setAtivo(true);
       setPausado(false);
     }
   };
 
   const pausarTimer = async () => {
-    setPausado(!pausado);
-    if (!pausado && sessaoId) {
+    const novoPausado = !pausado;
+    setPausado(novoPausado);
+    
+    // Incrementa pausas quando está pausando (não quando está despausando)
+    if (novoPausado) {
+      setPausas(pausas + 1);
+      console.log('⏸️ [Timer] Pausado - Total de pausas:', pausas + 1);
+    } else {
+      console.log('▶️ [Timer] Retomado');
+    }
+    
+    if (sessaoId) {
       // TODO: Implementar adicionarPausa via SupabaseStudyService
       // await SupabaseStudyService.adicionarPausa(sessaoId);
-      setPausas(pausas + 1);
     }
   };
 
   const pararTimer = async () => {
+    // PRIMEIRO: Calcula tempo estudado ANTES de resetar os valores
+    // Tempo total em segundos que PASSOU (não o que resta!)
+    const segundosTotaisInicio = minutosIniciais * 60;
+    const segundosTotaisRestantes = minutos * 60 + segundos;
+    const segundosDecorridos = segundosTotaisInicio - segundosTotaisRestantes;
+    
+    // Converte para minutos
+    const minutosDecorridos = segundosDecorridos / 60;
+    
+    // Arredonda: < 1 min = 0, >= 1 min = arredonda pra cima
+    let tempoFinal;
+    if (minutosDecorridos < 1) {
+      tempoFinal = 0;
+    } else {
+      tempoFinal = Math.ceil(minutosDecorridos);
+    }
+    
+    console.log(`⏹️ [Timer] Cálculo: ${minutosIniciais}min - ${minutos}:${segundos} = ${segundosDecorridos}seg = ${minutosDecorridos.toFixed(2)}min → ${tempoFinal}min`);
+    
+    // Acumula o tempo estudado nesta sessão
+    const novoTotal = minutosEstudadosTotal + tempoFinal;
+    setMinutosEstudadosTotal(novoTotal);
+    console.log('⏹️ [Timer] Parando - Estudou:', tempoFinal, 'min. Total acumulado:', novoTotal);
+    
+    // Mostra quanto tempo estudou
+    alert(`⏱️ Session completed!\n\n` +
+          `Time this session: ${tempoFinal} minute${tempoFinal !== 1 ? 's' : ''}\n` +
+          `Total studied today: ${novoTotal} minute${novoTotal !== 1 ? 's' : ''}`);
+    
     if (sessaoId) {
       // TODO: Implementar finalizarSessao via SupabaseStudyService
       // await SupabaseStudyService.finalizarSessao(sessaoId, conteudoEstudado);
     }
+    
+    // DEPOIS: Reseta o timer
     setAtivo(false);
     setPausado(false);
-    setMinutos(25);
+    setMinutos(minutosIniciais); // Volta para o tempo configurado inicialmente
     setSegundos(0);
     setSessaoId(null);
+    setPausas(0); // Reseta contador de pausas
+    localStorage.removeItem(TIMER_STORAGE_KEY);
   };
 
   const reiniciarTimer = async () => {
-    setMinutos(25);
+    setMinutos(minutosIniciais); // Volta para o tempo configurado inicialmente
     setSegundos(0);
     setAtivo(false);
     setPausado(false);
+    setPausas(0); // Reseta contador de pausas
     if (sessaoId) {
       // TODO: Implementar finalizarSessao via SupabaseStudyService
       // await SupabaseStudyService.finalizarSessao(sessaoId);
       setSessaoId(null);
     }
+    localStorage.removeItem(TIMER_STORAGE_KEY);
   };
 
   const tocarAlarme = () => {
@@ -93,7 +273,7 @@ function EstudarHoje() {
 
   const salvarRegistro = async () => {
     if (!config) {
-      alert('❌ Configuração não carregada');
+      alert('❌ Configuration not loaded');
       return;
     }
 
@@ -121,11 +301,31 @@ function EstudarHoje() {
     console.log('  - diffDays:', diffDays);
     console.log('  - diaNumero calculado:', diaNumero);
 
-    // Calcula tempo estudado baseado no timer Pomodoro
-    // Se o timer está rodando, conta o tempo decorrido
-    // Por padrão, um Pomodoro completo é 25 minutos
-    const tempoTotal = 25 - minutos + (segundos > 0 ? 1 : 0);
-    const minutosEstudados = Math.max(tempoTotal, 0);
+    // Usa o tempo acumulado de todas as sessões do dia
+    // Se o timer ainda está rodando, adiciona o tempo atual também
+    let minutosEstudados = minutosEstudadosTotal;
+    
+    if (ativo) {
+      // Timer rodando: adiciona tempo da sessão atual
+      const segundosTotaisInicio = minutosIniciais * 60;
+      const segundosTotaisRestantes = minutos * 60 + segundos;
+      const segundosDecorridos = segundosTotaisInicio - segundosTotaisRestantes;
+      const minutosDecorridos = segundosDecorridos / 60;
+      
+      // Arredonda: < 1 min = 0, >= 1 min = arredonda pra cima
+      let tempoAtual;
+      if (minutosDecorridos < 1) {
+        tempoAtual = 0;
+      } else {
+        tempoAtual = Math.ceil(minutosDecorridos);
+      }
+      
+      minutosEstudados += tempoAtual;
+    }
+    
+    console.log('[EstudarHoje] Minutos estudados:', minutosEstudados);
+    console.log('  - Acumulado:', minutosEstudadosTotal);
+    console.log('  - Sessão atual:', ativo ? (minutosIniciais - minutos) : 0);
     
     const registro = {
       data: hoje,
@@ -140,7 +340,7 @@ function EstudarHoje() {
     try {
       console.log('[EstudarHoje] Salvando registro diário para dia', diaNumero);
       await SupabaseStudyService.salvarProgressoTarefa({
-        tarefaId: `registro_${hoje}`,
+        tarefaId: `dia_${diaNumero}`,  // USA NUMERO DO DIA, não a data
         diaNumero: diaNumero,
         status: 'concluida',
         tempoGasto: minutosEstudados,
@@ -148,15 +348,20 @@ function EstudarHoje() {
       });
       console.log('[EstudarHoje] Registro salvo com sucesso!');
       
+      // Marcar o dia como concluído no cronograma
+      console.log('[EstudarHoje] Marcando dia como concluído...');
+      await SupabaseStudyService.marcarDiaConcluido(diaNumero);
+      console.log('[EstudarHoje] Dia marcado como concluído!');
+      
       // limpar form
       setConteudoEstudado('');
       setDificuldades('');
       setObservacoes('');
       setHumor('bom');
-      alert('✅ Registro diário salvo com sucesso!');
+      alert('✅ Daily log saved successfully!\n🎉 Day marked as completed!');
     } catch (error) {
       console.error('Erro ao salvar registro:', error);
-      alert('❌ Erro ao salvar registro diário!');
+      alert('❌ Error saving daily log!');
     }
   };
 
@@ -167,8 +372,8 @@ function EstudarHoje() {
   return (
     <div className="estudar-hoje">
       <header className="page-header">
-        <h1>⏱️ Estudar Hoje</h1>
-        <p>Timer Pomodoro + Registro Diário</p>
+        <h1>⏱️ Study Today</h1>
+        <p>Pomodoro Timer + Daily Log</p>
       </header>
 
       {/* Timer Pomodoro */}
@@ -180,123 +385,123 @@ function EstudarHoje() {
         </div>
 
         <div className="timer-info">
-          <p>🔥 Pausas: {pausas}</p>
-          {sessaoId && <p>📝 Sessão ativa</p>}
+          <p>🔥 Breaks: {pausas}</p>
+          {sessaoId && <p>📝 Active Session</p>}
         </div>
 
         <div className="timer-controls">
           {!ativo ? (
             <button className="btn btn-start" onClick={iniciarTimer}>
-              ▶️ Iniciar
+              ▶️ Start
             </button>
           ) : (
             <>
               <button className="btn btn-pause" onClick={pausarTimer}>
-                {pausado ? '▶️ Continuar' : '⏸️ Pausar'}
+                {pausado ? '▶️ Resume' : '⏸️ Pause'}
               </button>
               <button className="btn btn-stop" onClick={pararTimer}>
-                ⏹️ Parar
+                ⏹️ Stop
               </button>
               <button className="btn btn-reset" onClick={reiniciarTimer}>
-                🔄 Reiniciar
+                🔄 Reset
               </button>
             </>
           )}
         </div>
 
         <div className="timer-presets">
-          <button onClick={() => { setMinutos(25); setSegundos(0); }}>25 min</button>
-          <button onClick={() => { setMinutos(15); setSegundos(0); }}>15 min</button>
-          <button onClick={() => { setMinutos(5); setSegundos(0); }}>5 min</button>
+          <button onClick={() => { setMinutos(25); setSegundos(0); setMinutosIniciais(25); }}>25 min</button>
+          <button onClick={() => { setMinutos(15); setSegundos(0); setMinutosIniciais(15); }}>15 min</button>
+          <button onClick={() => { setMinutos(5); setSegundos(0); setMinutosIniciais(5); }}>5 min</button>
         </div>
       </div>
 
-      {/* Registro Diário */}
+      {/* Daily Log */}
       <div className="registro-section">
-        <h2>📝 Registro Diário de Estudo</h2>
+        <h2>📝 Daily Study Log</h2>
         
         <form onSubmit={(e) => { e.preventDefault(); salvarRegistro(); }}>
           <div className="form-group">
-            <label>📚 O que você estudou hoje?</label>
+            <label>📚 What did you study today?</label>
             <textarea
               value={conteudoEstudado}
               onChange={(e) => setConteudoEstudado(e.target.value)}
-              placeholder="Ex: Gramática (Simple Present), Vocabulário (10 palavras sobre casa), Listening (BBC)"
+              placeholder="Ex: Grammar (Simple Present), Vocabulary (10 house words), Listening (BBC)"
               rows={3}
               required
             />
-            <small>Separe os tópicos por vírgula</small>
+            <small>Separate topics with commas</small>
           </div>
 
           <div className="form-group">
-            <label>😰 Dificuldades encontradas</label>
+            <label>😰 Difficulties encountered</label>
             <textarea
               value={dificuldades}
               onChange={(e) => setDificuldades(e.target.value)}
-              placeholder="Ex: Pronúncia de TH, Diferença entre Do/Does, Verbos irregulares"
+              placeholder="Ex: TH pronunciation, Difference between Do/Does, Irregular verbs"
               rows={2}
             />
-            <small>Opcional - separe por vírgula</small>
+            <small>Optional - separate with commas</small>
           </div>
 
           <div className="form-group">
-            <label>💭 Observações gerais</label>
+            <label>💭 General observations</label>
             <textarea
               value={observacoes}
               onChange={(e) => setObservacoes(e.target.value)}
-              placeholder="Como foi o estudo hoje? O que funcionou bem? O que pode melhorar?"
+              placeholder="How was your study today? What worked well? What can be improved?"
               rows={2}
             />
           </div>
 
           <div className="form-group">
-            <label>😊 Como você se sentiu hoje?</label>
+            <label>😊 How did you feel today?</label>
             <div className="humor-options">
               <button
                 type="button"
                 className={humor === 'otimo' ? 'active' : ''}
                 onClick={() => setHumor('otimo')}
               >
-                😄 Ótimo
+                😄 Great
               </button>
               <button
                 type="button"
                 className={humor === 'bom' ? 'active' : ''}
                 onClick={() => setHumor('bom')}
               >
-                🙂 Bom
+                🙂 Good
               </button>
               <button
                 type="button"
                 className={humor === 'regular' ? 'active' : ''}
                 onClick={() => setHumor('regular')}
               >
-                😐 Regular
+                😐 Okay
               </button>
               <button
                 type="button"
                 className={humor === 'ruim' ? 'active' : ''}
                 onClick={() => setHumor('ruim')}
               >
-                😞 Ruim
+                😞 Bad
               </button>
             </div>
           </div>
 
           <button type="submit" className="btn btn-primary btn-save">
-            💾 Salvar Registro Diário
+            💾 Save Daily Log
           </button>
         </form>
       </div>
 
       <div className="dicas-section">
-        <h3>💡 Dicas para o Estudo</h3>
+        <h3>💡 Study Tips</h3>
         <ul>
-          <li>🎯 Use o método Pomodoro: 25 min estudo + 5 min pausa</li>
-          <li>📝 Anote sempre palavras novas que aprender</li>
-          <li>🔊 Pratique a pronúncia em voz alta</li>
-          <li>🎧 Ouça conteúdo em inglês diariamente</li>
-          <li>✍️ Escreva pelo menos algumas frases todo dia</li>
+          <li>🎯 Use Pomodoro method: 25 min study + 5 min break</li>
+          <li>📝 Always note down new words you learn</li>
+          <li>🔊 Practice pronunciation out loud</li>
+          <li>🎧 Listen to English content daily</li>
+          <li>✍️ Write at least a few sentences every day</li>
         </ul>
       </div>
     </div>

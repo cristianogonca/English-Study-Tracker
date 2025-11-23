@@ -17,19 +17,19 @@ export default function Registro() {
     setCarregando(true);
 
     if (!nome || !email || !senha || !confirmarSenha) {
-      setErro('Preencha todos os campos');
+      setErro('Fill in all fields');
       setCarregando(false);
       return;
     }
 
     if (senha.length < 6) {
-      setErro('Senha deve ter no mínimo 6 caracteres');
+      setErro('Password must be at least 6 characters');
       setCarregando(false);
       return;
     }
 
     if (senha !== confirmarSenha) {
-      setErro('As senhas não coincidem');
+      setErro('Passwords do not match');
       setCarregando(false);
       return;
     }
@@ -38,7 +38,7 @@ export default function Registro() {
       const usuario = await SupabaseAuthService.registrar(email, senha, nome);
       
       if (!usuario) {
-        setErro('Este email já está cadastrado ou ocorreu um erro');
+        setErro('This email is already registered or an error occurred');
         setCarregando(false);
         return;
       }
@@ -48,7 +48,7 @@ export default function Registro() {
       window.location.href = '/setup';
     } catch (error) {
       console.error('Erro ao registrar:', error);
-      setErro('Erro ao criar conta. Tente novamente.');
+      setErro('Error creating account. Please try again.');
       setCarregando(false);
     }
   };
@@ -57,16 +57,16 @@ export default function Registro() {
     <div className="login-container">
       <div className="login-card">
         <h1>📚 English Study Tracker</h1>
-        <h2>Criar Conta</h2>
+        <h2>Create Account</h2>
         
         <form onSubmit={handleRegistro}>
           <div className="form-group">
-            <label>Nome</label>
+            <label>Name</label>
             <input
               type="text"
               value={nome}
               onChange={(e) => setNome(e.target.value)}
-              placeholder="Seu nome completo"
+              placeholder="Your full name"
               autoComplete="off"
               autoFocus
             />
@@ -78,29 +78,29 @@ export default function Registro() {
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              placeholder="seu@email.com"
+              placeholder="your@email.com"
               autoComplete="off"
             />
           </div>
 
           <div className="form-group">
-            <label>Senha</label>
+            <label>Password</label>
             <input
               type="password"
               value={senha}
               onChange={(e) => setSenha(e.target.value)}
-              placeholder="Mínimo 6 caracteres"
+              placeholder="Minimum 6 characters"
               autoComplete="new-password"
             />
           </div>
 
           <div className="form-group">
-            <label>Confirmar Senha</label>
+            <label>Confirm Password</label>
             <input
               type="password"
               value={confirmarSenha}
               onChange={(e) => setConfirmarSenha(e.target.value)}
-              placeholder="Digite a senha novamente"
+              placeholder="Enter password again"
               autoComplete="new-password"
             />
           </div>
@@ -108,12 +108,12 @@ export default function Registro() {
           {erro && <div className="erro-mensagem">{erro}</div>}
 
           <button type="submit" className="btn-primary" disabled={carregando}>
-            {carregando ? 'Criando conta...' : 'Criar Conta'}
+            {carregando ? 'Creating account...' : 'Create Account'}
           </button>
         </form>
 
         <div className="login-footer">
-          <p>Já tem conta? <Link to="/login">Fazer login</Link></p>
+          <p>Already have an account? <Link to="/login">Sign in</Link></p>
         </div>
       </div>
     </div>

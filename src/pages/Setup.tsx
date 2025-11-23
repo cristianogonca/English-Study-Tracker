@@ -34,7 +34,7 @@ function Setup() {
   };
 
   const handleLogout = async () => {
-    if (confirm('Deseja sair sem configurar? Você precisará configurar quando voltar.')) {
+    if (confirm('Exit without setting up? You will need to configure when you return.')) {
       await SupabaseAuthService.logout();
       window.location.href = '/';
     }
@@ -43,26 +43,26 @@ function Setup() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.nome) {
-      alert('⚠️ Por favor, preencha seu nome');
+      alert('⚠️ Please fill in your name');
       return;
     }
     if (formData.diasEstudo.length === 0) {
-      alert('⚠️ Selecione pelo menos um dia de estudo');
+      alert('⚠️ Select at least one study day');
       return;
     }
     
     // Configurar perfil do usuário
     await configurar(formData);
     
-    // Criar guia inicial (12 meses vazios) + rotina semanal padrão para o aluno
+    // Criar guia inicial (12 meses) e rotina semanal para o aluno
     try {
       const usuario = await SupabaseAuthService.getUsuarioAtual();
       if (usuario) {
         await professorService.criarGuiaInicial(usuario.id);
-        await professorService.criarRotinaSemanal(usuario.id);
+        await professorService.criarRotinaSemanalInicial(usuario.id);
       }
     } catch (error) {
-      console.error('Erro ao criar guia/rotina inicial:', error);
+      console.error('Erro ao criar guia inicial:', error);
       // Não bloquear o setup se falhar, apenas logar
     }
     
@@ -70,37 +70,37 @@ function Setup() {
   };
 
   const diasSemana: { label: string; value: DiaSemana }[] = [
-    { label: 'Segunda', value: DiaSemana.SEGUNDA },
-    { label: 'Terça', value: DiaSemana.TERCA },
-    { label: 'Quarta', value: DiaSemana.QUARTA },
-    { label: 'Quinta', value: DiaSemana.QUINTA },
-    { label: 'Sexta', value: DiaSemana.SEXTA },
-    { label: 'Sábado', value: DiaSemana.SABADO },
-    { label: 'Domingo', value: DiaSemana.DOMINGO }
+    { label: 'Monday', value: DiaSemana.SEGUNDA },
+    { label: 'Tuesday', value: DiaSemana.TERCA },
+    { label: 'Wednesday', value: DiaSemana.QUARTA },
+    { label: 'Thursday', value: DiaSemana.QUINTA },
+    { label: 'Friday', value: DiaSemana.SEXTA },
+    { label: 'Saturday', value: DiaSemana.SABADO },
+    { label: 'Sunday', value: DiaSemana.DOMINGO }
   ];
 
   return (
     <div className="setup">
       <div className="setup-container">
         <header className="setup-header">
-          <h1>🎓 Bem-vindo ao English Study Tracker!</h1>
-          <p>Configure seu perfil e comece sua jornada de 12 meses</p>
+          <h1>🎓 Welcome to English Study Tracker!</h1>
+          <p>Set up your profile and start your 12-month journey</p>
         </header>
 
         <form onSubmit={handleSubmit} className="setup-form">
           <div className="form-group">
-            <label>👤 Seu Nome</label>
+            <label>👤 Your Name</label>
             <input
               type="text"
               value={formData.nome}
               onChange={(e) => setFormData({ ...formData, nome: e.target.value })}
-              placeholder="Digite seu nome"
+              placeholder="Enter your name"
               required
             />
           </div>
 
           <div className="form-group">
-            <label>🎯 Meta Diária (minutos)</label>
+            <label>🎯 Daily Goal (minutes)</label>
             <input
               type="number"
               value={formData.metaDiaria}
@@ -108,11 +108,11 @@ function Setup() {
               min="30"
               max="300"
             />
-            <small>{formData.metaDiaria} minutos por dia = {(formData.metaDiaria / 60).toFixed(1)} horas</small>
+            <small>{formData.metaDiaria} minutes per day = {(formData.metaDiaria / 60).toFixed(1)} hours</small>
           </div>
 
           <div className="form-group">
-            <label>📊 Meta Semanal (minutos)</label>
+            <label>📊 Weekly Goal (minutes)</label>
             <input
               type="number"
               value={formData.metaSemanal}
@@ -120,11 +120,11 @@ function Setup() {
               min="210"
               max="2100"
             />
-            <small>{formData.metaSemanal} minutos por semana = {(formData.metaSemanal / 60).toFixed(1)} horas</small>
+            <small>{formData.metaSemanal} minutes per week = {(formData.metaSemanal / 60).toFixed(1)} hours</small>
           </div>
 
           <div className="form-group">
-            <label>📅 Dias de Estudo</label>
+            <label>📅 Study Days</label>
             <div className="dias-grid">
               {diasSemana.map(({ label, value }) => (
                 <button
@@ -137,11 +137,11 @@ function Setup() {
                 </button>
               ))}
             </div>
-            <small>{formData.diasEstudo.length} dia(s) selecionado(s)</small>
+            <small>{formData.diasEstudo.length} day(s) selected</small>
           </div>
 
           <div className="form-group">
-            <label>📆 Data de Início</label>
+            <label>📆 Start Date</label>
             <input
               type="date"
               value={formData.dataInicio}
@@ -151,50 +151,50 @@ function Setup() {
           </div>
 
           <div className="form-group">
-            <label>🎚️ Nível Inicial</label>
+            <label>🎚️ Initial Level</label>
             <div className="nivel-buttons">
               <button
                 type="button"
                 className={formData.nivelInicial === NivelDificuldade.BASICO ? 'active' : ''}
                 onClick={() => setFormData({ ...formData, nivelInicial: NivelDificuldade.BASICO })}
               >
-                🟢 Básico
+                🟢 Basic
               </button>
               <button
                 type="button"
                 className={formData.nivelInicial === NivelDificuldade.INTERMEDIARIO ? 'active' : ''}
                 onClick={() => setFormData({ ...formData, nivelInicial: NivelDificuldade.INTERMEDIARIO })}
               >
-                🟡 Intermediário
+                🟡 Intermediate
               </button>
               <button
                 type="button"
                 className={formData.nivelInicial === NivelDificuldade.AVANCADO ? 'active' : ''}
                 onClick={() => setFormData({ ...formData, nivelInicial: NivelDificuldade.AVANCADO })}
               >
-                🔴 Avançado
+                🔴 Advanced
               </button>
             </div>
           </div>
 
           <div className="info-box">
-            <h3>📚 Sobre o programa:</h3>
+            <h3>📚 About the program:</h3>
             <ul>
-              <li>✅ 12 meses de currículo estruturado</li>
-              <li>✅ 365 dias de conteúdo pré-definido</li>
-              <li>✅ 3 fases progressivas (Básico → Intermediário → Avançado)</li>
-              <li>✅ Sistema de checks semanais</li>
-              <li>✅ Vocabulário com flashcards</li>
-              <li>✅ Timer Pomodoro integrado</li>
+              <li>✅ 12-month structured curriculum</li>
+              <li>✅ 365 days of pre-defined content</li>
+              <li>✅ 3 progressive phases (Basic → Intermediate → Advanced)</li>
+              <li>✅ Weekly check system</li>
+              <li>✅ Vocabulary with flashcards</li>
+              <li>✅ Integrated Pomodoro timer</li>
             </ul>
           </div>
 
           <button type="submit" className="btn-start">
-            🚀 Começar Jornada
+            🚀 Start Journey
           </button>
 
           <button type="button" className="btn-secondary" onClick={handleLogout}>
-            ← Voltar ao Login
+            ← Back to Login
           </button>
         </form>
       </div>

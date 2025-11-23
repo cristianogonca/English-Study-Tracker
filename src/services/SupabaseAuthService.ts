@@ -88,13 +88,14 @@ const SupabaseAuthService = {
       
       if (!user) return null;
       
-      // Buscar role do users_profile
+      // Buscar role do users_profile (pode não existir para alunos)
       const { data: profileData } = await supabase
         .from('users_profile')
         .select('role')
         .eq('id', user.id)
-        .single();
+        .maybeSingle(); // Usa maybeSingle() ao invés de single() para não dar erro 406
       
+      // Se não tem registro em users_profile ou deu erro, é aluno
       const role = profileData?.role || 'aluno';
       
       return { ...user, role };

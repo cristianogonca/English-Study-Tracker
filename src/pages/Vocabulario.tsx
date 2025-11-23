@@ -40,7 +40,7 @@ function Vocabulario() {
   const adicionarPalavra = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!novaPalavra.palavra || !novaPalavra.traducao) {
-      alert('⚠️ Preencha palavra e tradução!');
+      alert('⚠️ Fill in word and translation!');
       return;
     }
     try {
@@ -58,9 +58,9 @@ function Vocabulario() {
         nivel: 'basico'
       });
       await carregarPalavras();
-      alert('✅ Palavra adicionada com sucesso!');
+      alert('✅ Word added successfully!');
     } catch (error) {
-      alert('Erro ao adicionar palavra!');
+      alert('Error adding word!');
     }
   };
 
@@ -76,7 +76,7 @@ function Vocabulario() {
   };
 
   const resetarPalavra = async (palavraId: string) => {
-    if (confirm('Resetar acertos e erros desta palavra?')) {
+    if (confirm('Reset hits and misses for this word?')) {
       try {
         await SupabaseStudyService.resetarPalavra(palavraId);
         await carregarPalavras();
@@ -85,7 +85,7 @@ function Vocabulario() {
   };
 
   const deletarPalavra = async (palavraId: string) => {
-    if (confirm('⚠️ Deletar esta palavra permanentemente?')) {
+    if (confirm('⚠️ Delete this word permanently?')) {
       try {
         await SupabaseStudyService.deletarPalavra(palavraId);
         await carregarPalavras();
@@ -137,8 +137,8 @@ function Vocabulario() {
   return (
     <div className="vocabulario">
       <header className="page-header">
-        <h1>📚 Vocabulário</h1>
-        <p>Organize e revise suas palavras aprendidas</p>
+        <h1>📚 Vocabulary</h1>
+        <p>Organize and review your learned words</p>
       </header>
 
       {/* Estatísticas */}
@@ -154,54 +154,54 @@ function Vocabulario() {
           <span className="stat-icon">✅</span>
           <div className="stat-info">
             <span className="stat-value">{stats.revisadas}</span>
-            <span className="stat-label">Revisadas</span>
+            <span className="stat-label">Reviewed</span>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">⏳</span>
           <div className="stat-info">
             <span className="stat-value">{stats.naoRevisadas}</span>
-            <span className="stat-label">Pendentes</span>
+            <span className="stat-label">Pending</span>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">🟢</span>
           <div className="stat-info">
             <span className="stat-value">{stats.basico}</span>
-            <span className="stat-label">Básico</span>
+            <span className="stat-label">Basic</span>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">🟡</span>
           <div className="stat-info">
             <span className="stat-value">{stats.intermediario}</span>
-            <span className="stat-label">Intermediário</span>
+            <span className="stat-label">Intermediate</span>
           </div>
         </div>
         <div className="stat-card">
           <span className="stat-icon">🔴</span>
           <div className="stat-info">
             <span className="stat-value">{stats.avancado}</span>
-            <span className="stat-label">Avançado</span>
+            <span className="stat-label">Advanced</span>
           </div>
         </div>
       </div>
 
       {/* Formulário Adicionar Palavra */}
       <div className="add-word-section">
-        <h2>➕ Adicionar Nova Palavra</h2>
+        <h2>➕ Add New Word</h2>
         <form onSubmit={adicionarPalavra} className="add-word-form">
           <div className="form-row">
             <input
               type="text"
-              placeholder="Palavra em inglês"
+              placeholder="Word in English"
               value={novaPalavra.palavra}
               onChange={(e) => setNovaPalavra({ ...novaPalavra, palavra: e.target.value })}
               required
             />
             <input
               type="text"
-              placeholder="Tradução em português"
+              placeholder="Translation in Portuguese"
               value={novaPalavra.traducao}
               onChange={(e) => setNovaPalavra({ ...novaPalavra, traducao: e.target.value })}
               required
@@ -209,36 +209,36 @@ function Vocabulario() {
           </div>
           <input
             type="text"
-            placeholder="Contexto ou exemplo (opcional)"
+            placeholder="Context or example (optional)"
             value={novaPalavra.exemplo}
             onChange={(e) => setNovaPalavra({ ...novaPalavra, exemplo: e.target.value })}
           />
           <div className="nivel-selector">
-            <label>Nível:</label>
+            <label>Level:</label>
             <button
               type="button"
               className={novaPalavra.nivel === 'basico' ? 'active' : ''}
               onClick={() => setNovaPalavra({ ...novaPalavra, nivel: 'basico' })}
             >
-              🟢 Básico
+              🟢 Basic
             </button>
             <button
               type="button"
               className={novaPalavra.nivel === 'intermediario' ? 'active' : ''}
               onClick={() => setNovaPalavra({ ...novaPalavra, nivel: 'intermediario' })}
             >
-              🟡 Intermediário
+              🟡 Intermediate
             </button>
             <button
               type="button"
               className={novaPalavra.nivel === 'avancado' ? 'active' : ''}
               onClick={() => setNovaPalavra({ ...novaPalavra, nivel: 'avancado' })}
             >
-              🔴 Avançado
+              🔴 Advanced
             </button>
           </div>
           <button type="submit" className="btn-add">
-            ➕ Adicionar Palavra
+            ➕ Add Word
           </button>
         </form>
       </div>
@@ -248,7 +248,7 @@ function Vocabulario() {
         <div className="search-bar">
           <input
             type="text"
-            placeholder="🔍 Buscar palavra..."
+            placeholder="🔍 Search word..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
@@ -259,19 +259,19 @@ function Vocabulario() {
             className={filtro === 'todas' ? 'active' : ''}
             onClick={() => setFiltro('todas')}
           >
-            📖 Todas ({stats.total})
+            📖 All ({stats.total})
           </button>
           <button
             className={filtro === 'revisadas' ? 'active' : ''}
             onClick={() => setFiltro('revisadas')}
           >
-            ✅ Revisadas ({stats.revisadas})
+            ✅ Reviewed ({stats.revisadas})
           </button>
           <button
             className={filtro === 'nao-revisadas' ? 'active' : ''}
             onClick={() => setFiltro('nao-revisadas')}
           >
-            ⏳ Pendentes ({stats.naoRevisadas})
+            ⏳ Pending ({stats.naoRevisadas})
           </button>
         </div>
 
@@ -280,7 +280,7 @@ function Vocabulario() {
             className={modoVisualizacao === 'lista' ? 'active' : ''}
             onClick={() => setModoVisualizacao('lista')}
           >
-            📋 Lista
+            📋 List
           </button>
           <button
             className={modoVisualizacao === 'flashcard' ? 'active' : ''}
@@ -301,8 +301,8 @@ function Vocabulario() {
           {palavrasFiltradas.length === 0 ? (
             <div className="empty-state">
               <span className="empty-icon">📭</span>
-              <p>Nenhuma palavra encontrada</p>
-              <small>Adicione palavras ou ajuste os filtros</small>
+              <p>No words found</p>
+              <small>Add words or adjust filters</small>
             </div>
           ) : (
             palavrasFiltradas.map((palavra, index) => (
@@ -324,8 +324,8 @@ function Vocabulario() {
                 )}
 
                 <div className="word-stats">
-                  <span>📅 {new Date(palavra.dataAprendida).toLocaleDateString('pt-BR')}</span>
-                  <span>🔄 Revisões: {palavra.acertos + palavra.erros}</span>
+                  <span>📅 {new Date(palavra.dataAprendida).toLocaleDateString('en-US')}</span>
+                  <span>🔄 Reviews: {palavra.acertos + palavra.erros}</span>
                   {(palavra.acertos + palavra.erros) > 0 && (
                     <span>
                       ✅ {palavra.acertos} | ❌ {palavra.erros}
@@ -337,16 +337,16 @@ function Vocabulario() {
                   <button
                     className="btn-reset"
                     onClick={() => resetarPalavra(palavra.id)}
-                    title="Resetar acertos e erros"
+                    title="Reset hits and misses"
                   >
-                    🔄 Resetar
+                    🔄 Reset
                   </button>
                   <button
                     className="btn-delete"
                     onClick={() => deletarPalavra(palavra.id)}
-                    title="Deletar palavra"
+                    title="Delete word"
                   >
-                    🗑️ Deletar
+                    🗑️ Delete
                   </button>
                 </div>
               </div>
@@ -358,7 +358,7 @@ function Vocabulario() {
           {palavrasFiltradas.length === 0 ? (
             <div className="empty-state">
               <span className="empty-icon">📭</span>
-              <p>Nenhuma palavra para revisar</p>
+              <p>No words to review</p>
             </div>
           ) : (
             <>
@@ -375,7 +375,7 @@ function Vocabulario() {
                   <h2>{palavrasFiltradas[indexFlashcard].palavra}</h2>
                   {!mostrarTraducao && (
                     <button className="btn-reveal" onClick={revelarTraducao}>
-                      🔍 Revelar Tradução
+                      🔍 Reveal Translation
                     </button>
                   )}
                 </div>
@@ -394,8 +394,8 @@ function Vocabulario() {
                     {/* Estatísticas de acertos/erros */}
                     {palavrasFiltradas[indexFlashcard].acertos + palavrasFiltradas[indexFlashcard].erros > 0 && (
                       <div className="flashcard-stats">
-                        <span>✅ {palavrasFiltradas[indexFlashcard].acertos} acertos</span>
-                        <span>❌ {palavrasFiltradas[indexFlashcard].erros} erros</span>
+                        <span>✅ {palavrasFiltradas[indexFlashcard].acertos} correct</span>
+                        <span>❌ {palavrasFiltradas[indexFlashcard].erros} wrong</span>
                       </div>
                     )}
                     
@@ -408,7 +408,7 @@ function Vocabulario() {
                         }}
                       >
                         <span className="btn-icon">✅</span>
-                        <span className="btn-text">Acertei</span>
+                        <span className="btn-text">I got it</span>
                       </button>
                       <button
                         className="btn-erro"
@@ -418,7 +418,7 @@ function Vocabulario() {
                         }}
                       >
                         <span className="btn-icon">❌</span>
-                        <span className="btn-text">Errei</span>
+                        <span className="btn-text">I missed</span>
                       </button>
                     </div>
                   </div>
@@ -431,14 +431,14 @@ function Vocabulario() {
                   disabled={indexFlashcard === 0}
                   className="btn-nav"
                 >
-                  ◀️ Anterior
+                  ◀️ Previous
                 </button>
                 <button
                   onClick={proximoFlashcard}
                   disabled={indexFlashcard === palavrasFiltradas.length - 1}
                   className="btn-nav"
                 >
-                  Próximo ▶️
+                  Next ▶️
                 </button>
               </div>
             </>

@@ -27,7 +27,8 @@ class SupabaseStudyService {
     }
 
     try {
-      const { error } = await supabase
+      // Salvar em user_configs (onde alunos salvam suas configurações)
+      const { error: configError } = await supabase
         .from('user_configs')
         .upsert({
           user_id: this.usuarioId,
@@ -39,7 +40,8 @@ class SupabaseStudyService {
           nivel_inicial: config.nivelInicial,
         }, { onConflict: 'user_id' });
 
-      if (error) throw error;
+      if (configError) throw configError;
+      
     } catch (error) {
       console.error('Erro ao salvar configuração:', error);
       throw error;
@@ -473,6 +475,35 @@ class SupabaseStudyService {
       console.log('[SupabaseStudyService] Progresso salvo com sucesso!');
     } catch (error) {
       console.error('[SupabaseStudyService] Erro ao salvar progresso:', error);
+      throw error;
+    }
+  }
+
+  /**
+   * Marca um dia como concluído no cronograma
+   */
+  async marcarDiaConcluido(diaNumero: number): Promise<void> {
+    if (!isSupabaseConfigured() || !this.usuarioId) {
+      throw new Error('Supabase não configurado ou usuário não definido');
+    }
+
+    try {
+      console.log(`[SupabaseStudyService] Marcando dia ${diaNumero} como concluído`);
+      
+      const { error } = await supabase
+        .from('cronograma')
+        .update({ concluido: true })
+        .eq('user_id', this.usuarioId)
+        .eq('dia_numero', diaNumero);
+
+      if (error) {
+        console.error('[SupabaseStudyService] Erro ao marcar dia concluído:', error);
+        throw error;
+      }
+      
+      console.log(`[SupabaseStudyService] Dia ${diaNumero} marcado como concluído!`);
+    } catch (error) {
+      console.error('[SupabaseStudyService] Erro ao marcar dia concluído:', error);
       throw error;
     }
   }

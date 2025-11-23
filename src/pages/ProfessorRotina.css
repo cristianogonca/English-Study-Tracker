@@ -1,0 +1,216 @@
+.professor-rotina {
+  max-width: 1400px;
+  margin: 0 auto;
+  padding: 2rem;
+}
+
+.btn-voltar-professor {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #3b82f6;
+  color: white;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  margin-bottom: 1.5rem;
+}
+
+.btn-voltar-professor:hover {
+  background: #2563eb;
+  transform: translateX(-3px);
+}
+
+.page-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.page-header h1 {
+  font-size: 2rem;
+  margin: 0 0 0.5rem 0;
+  background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.page-header p {
+  margin: 0;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.page-header strong {
+  color: #3b82f6;
+}
+
+.loading, .sem-rotina {
+  text-align: center;
+  padding: 3rem;
+  color: #6b7280;
+}
+
+.sem-rotina p {
+  margin: 0.5rem 0;
+  font-size: 1rem;
+}
+
+.mensagem-sucesso {
+  background: #d1fae5;
+  border: 1px solid #10b981;
+  color: #065f46;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.mensagem-erro {
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
+  padding: 1rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+.rotina-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.atividade-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.2s;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+.atividade-card:hover {
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  border-color: #3b82f6;
+}
+
+.atividade-header {
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f3f4f6;
+}
+
+.dia-badge {
+  display: inline-block;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 0.95rem;
+}
+
+.atividade-campo {
+  margin-bottom: 1rem;
+}
+
+.atividade-campo label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 500;
+  color: #374151;
+  font-size: 0.9rem;
+}
+
+.atividade-campo input,
+.atividade-campo textarea {
+  width: 100%;
+  padding: 0.75rem;
+  border: 1px solid #d1d5db;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  transition: all 0.2s;
+  font-family: inherit;
+}
+
+.atividade-campo input:focus,
+.atividade-campo textarea:focus {
+  outline: none;
+  border-color: #3b82f6;
+  box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.input-icone {
+  max-width: 80px;
+  text-align: center;
+  font-size: 1.5rem;
+}
+
+.atividade-campo textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.acoes-footer {
+  position: sticky;
+  bottom: 0;
+  background: white;
+  padding: 1.5rem;
+  border-top: 2px solid #e5e7eb;
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.05);
+}
+
+.btn-salvar {
+  padding: 1rem 2rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  box-shadow: 0 4px 6px rgba(102, 126, 234, 0.3);
+}
+
+.btn-salvar:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 8px rgba(102, 126, 234, 0.4);
+}
+
+.btn-salvar:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .professor-rotina {
+    padding: 1rem;
+  }
+
+  .rotina-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .page-header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header-info h1 {
+    font-size: 1.5rem;
+  }
+}

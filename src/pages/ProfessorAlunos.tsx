@@ -23,7 +23,7 @@ export default function ProfessorAlunos() {
       // Verificar se é professor
       const isProfessor = await professorService.isProfessor();
       if (!isProfessor) {
-        setErro('Você não tem permissão para acessar esta página');
+        setErro('You do not have permission to access this page');
         return;
       }
 
@@ -31,7 +31,7 @@ export default function ProfessorAlunos() {
       setAlunos(data);
     } catch (error) {
       console.error('Erro ao carregar alunos:', error);
-      setErro('Erro ao carregar lista de alunos');
+      setErro('Error loading student list');
     } finally {
       setLoading(false);
     }
@@ -43,6 +43,11 @@ export default function ProfessorAlunos() {
   );
 
   const calcularProgresso = (aluno: AlunoView) => {
+    // Se a view retorna progresso_percentual, usa ele (baseado em tempo)
+    if (aluno.progresso_percentual !== undefined && aluno.progresso_percentual !== null) {
+      return Math.min(100, Math.round(aluno.progresso_percentual));
+    }
+    // Fallback: calcula baseado em dias concluídos
     if (!aluno.total_dias || aluno.total_dias === 0) return 0;
     return Math.round((aluno.dias_concluidos / aluno.total_dias) * 100);
   };
@@ -50,7 +55,7 @@ export default function ProfessorAlunos() {
   if (loading) {
     return (
       <div className="professor-alunos">
-        <div className="loading">Carregando alunos...</div>
+        <div className="loading">Loading students...</div>
       </div>
     );
   }
@@ -66,14 +71,14 @@ export default function ProfessorAlunos() {
   return (
     <div className="professor-alunos">
       <header className="page-header">
-        <h1>👨‍🏫 Meus Alunos</h1>
-        <p>Gerencie o cronograma e guia de estudos dos seus alunos</p>
+        <h1>👨‍🏫 My Students</h1>
+        <p>Manage your students' schedule and study guide</p>
       </header>
 
       <div className="busca-container">
         <input
           type="text"
-          placeholder="Buscar aluno por nome ou email..."
+          placeholder="Search student by name or email..."
           value={busca}
           onChange={(e) => setBusca(e.target.value)}
           className="busca-input"
@@ -82,52 +87,67 @@ export default function ProfessorAlunos() {
 
       {alunosFiltrados.length === 0 ? (
         <div className="sem-alunos">
-          <p>Nenhum aluno encontrado</p>
+          <p>No students found</p>
         </div>
       ) : (
         <div className="alunos-grid">
           {alunosFiltrados.map((aluno) => (
             <div key={aluno.id} className="aluno-card">
               <div className="aluno-header">
-                <h3>{aluno.nome || 'Sem nome'}</h3>
+                <h3>{aluno.nome || 'No name'}</h3>
                 <span className="aluno-email">{aluno.email}</span>
               </div>
 
               <div className="aluno-stats">
                 <div className="stat">
-                  <span className="stat-label">Início:</span>
+                  <span className="stat-label">📅 Start:</span>
                   <span className="stat-value">
                     {aluno.data_inicio 
-                      ? new Date(aluno.data_inicio).toLocaleDateString('pt-BR')
-                      : 'Não configurado'
+                      ? new Date(aluno.data_inicio).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })
+                      : 'Not configured'
                     }
                   </span>
                 </div>
 
-                <div className="stat-item">
-                  <span className="stat-label">Meta Diária:</span>
-                  <span className="stat-value">{aluno.horas_semanais ? Math.round(aluno.horas_semanais / 7 * 10) / 10 : 0}h</span>
+                <div className="stat">
+                  <span className="stat-label">⏱️ Time Studied:</span>
+                  <span className="stat-value">
+                    {aluno.minutos_estudados 
+                      ? `${Math.floor(aluno.minutos_estudados / 60)}h ${aluno.minutos_estudados % 60}min`
+                      : '0h 0min'
+                    }
+                  </span>
                 </div>
 
-                <div className="stat-item">
-                  <span className="stat-label">Meta Semanal:</span>
+                <div className="stat">
+                  <span className="stat-label">🎯 Weekly Goal:</span>
                   <span className="stat-value">{aluno.horas_semanais || 0}h</span>
                 </div>
 
                 <div className="stat">
-                  <span className="stat-label">Progresso:</span>
+                  <span className="stat-label">📈 Days:</span>
                   <span className="stat-value">
-                    {aluno.dias_concluidos || 0} / {aluno.total_dias || 0} dias
+                    {aluno.dias_concluidos || 0} / {aluno.total_dias || 0}
                   </span>
                 </div>
 
-                <div className="progresso-bar">
-                  <div 
-                    className="progresso-fill" 
-                    style={{ width: `${calcularProgresso(aluno)}%` }}
-                  />
+                <div className="stat">
+                  <span className="stat-label">📚 Guide:</span>
+                  <span className="stat-value">
+                    {aluno.meses_guia || 0} / 12 months
+                  </span>
                 </div>
-                <span className="progresso-percent">{calcularProgresso(aluno)}%</span>
+
+                <div className="progresso-container">
+                  <span className="progresso-label">Overall Progress:</span>
+                  <div className="progresso-bar">
+                    <div 
+                      className="progresso-fill" 
+                      style={{ width: `${calcularProgresso(aluno)}%` }}
+                    />
+                  </div>
+                  <span className="progresso-percent">{calcularProgresso(aluno)}%</span>
+                </div>
               </div>
 
               <div className="aluno-actions">
@@ -135,13 +155,19 @@ export default function ProfessorAlunos() {
                   className="btn-action btn-cronograma"
                   onClick={() => navigate(`/professor/cronograma/${aluno.id}`)}
                 >
-                  📅 Cronograma
+                  📅 Schedule
                 </button>
                 <button
                   className="btn-action btn-guia"
                   onClick={() => navigate(`/professor/guia/${aluno.id}`)}
                 >
-                  📚 Guia de Estudos
+                  📚 Study Guide
+                </button>
+                <button
+                  className="btn-action btn-rotina"
+                  onClick={() => navigate(`/professor/rotina/${aluno.id}`)}
+                >
+                  🔄 Weekly Routine
                 </button>
               </div>
             </div>
