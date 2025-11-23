@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase';
-import { AlunoView, GuiaEstudosMes, DiaEstudo } from '../types';
+import { AlunoView, GuiaEstudosMes, DiaEstudo, AtividadeSemanal } from '../types';
 import { GUIA_BASE_12_MESES } from './GuiaBase';
 
 export class SupabaseProfessorService {
@@ -288,6 +288,83 @@ export class SupabaseProfessorService {
     }
 
     return data?.role || 'aluno';
+  }
+
+  // ==================== ROTINA SEMANAL ====================
+  
+  /**
+   * Criar rotina semanal padrão para um aluno
+   */
+  async criarRotinaSemanal(userId: string): Promise<void> {
+    const rotinaBase: AtividadeSemanal[] = [
+      { dia_semana: 1, nome: "Gramática + Exercícios", descricao: "Estudar tópico gramatical da semana + fazer exercícios práticos", icone: "📝" },
+      { dia_semana: 2, nome: "Vocabulário + Frases", descricao: "Aprender 10 palavras novas + criar frases próprias", icone: "📚" },
+      { dia_semana: 3, nome: "Listening + Anotações", descricao: "Ouvir áudio/vídeo + anotar palavras e frases ouvidas", icone: "🎧" },
+      { dia_semana: 4, nome: "Reading + Resumo", descricao: "Ler texto em inglês + fazer resumo em 5 linhas", icone: "📖" },
+      { dia_semana: 5, nome: "Speaking + Gravação", descricao: "Gravar áudio falando sobre tópico do dia", icone: "🎤" },
+      { dia_semana: 6, nome: "Writing", descricao: "Escrever texto ou diálogo sobre tema da semana", icone: "✍️" },
+      { dia_semana: 7, nome: "Revisão", descricao: "Revisar tudo da semana + fazer check semanal no app", icone: "✅" }
+    ];
+
+    const rows = rotinaBase.map(ativ => ({
+      user_id: userId,
+      dia_semana: ativ.dia_semana,
+      nome: ativ.nome,
+      descricao: ativ.descricao,
+      icone: ativ.icone
+    }));
+
+    const { error } = await supabase
+      .from('rotina_semanal')
+      .insert(rows);
+
+    if (error) {
+      console.error('Erro ao criar rotina semanal:', error);
+      throw new Error('Não foi possível criar rotina semanal');
+    }
+  }
+
+  /**
+   * Buscar rotina semanal de um aluno
+   */
+  async buscarRotinaSemanal(userId: string): Promise<AtividadeSemanal[]> {
+    const { data, error } = await supabase
+      .from('rotina_semanal')
+      .select('*')
+      .eq('user_id', userId)
+      .order('dia_semana');
+
+    if (error) {
+      console.error('Erro ao buscar rotina semanal:', error);
+      throw new Error('Não foi possível buscar rotina semanal');
+    }
+
+    return (data || []).map(row => ({
+      id: row.id,
+      user_id: row.user_id,
+      dia_semana: row.dia_semana,
+      nome: row.nome,
+      descricao: row.descricao,
+      icone: row.icone
+    }));
+  }
+
+  /**
+   * Atualizar uma atividade da rotina semanal
+   */
+  async atualizarAtividadeSemanal(
+    atividadeId: string,
+    updates: { nome?: string; descricao?: string; icone?: string }
+  ): Promise<void> {
+    const { error } = await supabase
+      .from('rotina_semanal')
+      .update(updates)
+      .eq('id', atividadeId);
+
+    if (error) {
+      console.error('Erro ao atualizar atividade semanal:', error);
+      throw new Error('Não foi possível atualizar atividade');
+    }
   }
 }
 

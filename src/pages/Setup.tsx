@@ -54,14 +54,15 @@ function Setup() {
     // Configurar perfil do usuário
     await configurar(formData);
     
-    // Criar guia inicial (12 meses vazios) para o aluno
+    // Criar guia inicial (12 meses vazios) + rotina semanal padrão para o aluno
     try {
       const usuario = await SupabaseAuthService.getUsuarioAtual();
       if (usuario) {
         await professorService.criarGuiaInicial(usuario.id);
+        await professorService.criarRotinaSemanal(usuario.id);
       }
     } catch (error) {
-      console.error('Erro ao criar guia inicial:', error);
+      console.error('Erro ao criar guia/rotina inicial:', error);
       // Não bloquear o setup se falhar, apenas logar
     }
     

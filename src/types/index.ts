@@ -239,3 +239,13 @@ export interface AlunoView {
   dias_concluidos: number;
   meses_guia: number;
 }
+
+// NOVO: Rotina Semanal Editável
+export interface AtividadeSemanal {
+  id?: string;
+  user_id?: string;
+  dia_semana: number; // 1-7
+  nome: string;
+  descricao: string;
+  icone: string;
+}
