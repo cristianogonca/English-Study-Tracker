@@ -1,4 +1,23 @@
-// Conteúdo base completo do Guia de Estudos (12 meses)
+import { NivelDificuldade } from '../types';
+import { GUIA_BASICO } from './GuiaBasico';
+import { GUIA_INTERMEDIARIO } from './GuiaIntermediario';
+import { GUIA_AVANCADO } from './GuiaAvancado';
+
+// Função para obter o guia correto baseado no nível
+export function obterGuiaPorNivel(nivel: NivelDificuldade = NivelDificuldade.BASICO): string {
+  switch (nivel) {
+    case NivelDificuldade.BASICO:
+      return GUIA_BASICO;
+    case NivelDificuldade.INTERMEDIARIO:
+      return GUIA_INTERMEDIARIO;
+    case NivelDificuldade.AVANCADO:
+      return GUIA_AVANCADO;
+    default:
+      return GUIA_BASICO;
+  }
+}
+
+// Conteúdo base completo do Guia de Estudos (12 meses) - DEPRECATED, usar obterGuiaPorNivel()
 export const GUIA_BASE_12_MESES = [
   {
     mes: 1,

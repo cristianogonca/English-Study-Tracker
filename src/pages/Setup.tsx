@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useStudy } from '../contexts/StudyContext';
 import { ConfigUsuario, DiaSemana, NivelDificuldade } from '../types';
@@ -18,6 +18,12 @@ function Setup() {
     dataInicio: new Date().toISOString().split('T')[0],
     nivelInicial: NivelDificuldade.BASICO
   });
+
+  // Calcular meta semanal automaticamente
+  useEffect(() => {
+    const metaSemanal = formData.metaDiaria * formData.diasEstudo.length;
+    setFormData(prev => ({ ...prev, metaSemanal }));
+  }, [formData.metaDiaria, formData.diasEstudo.length]);
 
   const toggleDia = (dia: DiaSemana) => {
     if (formData.diasEstudo.includes(dia)) {
@@ -116,11 +122,15 @@ function Setup() {
             <input
               type="number"
               value={formData.metaSemanal}
-              onChange={(e) => setFormData({ ...formData, metaSemanal: Number(e.target.value) })}
-              min="210"
-              max="2100"
+              readOnly
+              disabled
+              style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
             />
-            <small>{formData.metaSemanal} minutes per week = {(formData.metaSemanal / 60).toFixed(1)} hours</small>
+            <small>
+              {formData.metaSemanal} minutes per week = {(formData.metaSemanal / 60).toFixed(1)} hours
+              <br />
+              <strong>💡 Auto-calculated: {formData.metaDiaria} min/day × {formData.diasEstudo.length} days</strong>
+            </small>
           </div>
 
           <div className="form-group">

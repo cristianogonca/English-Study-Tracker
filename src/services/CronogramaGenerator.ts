@@ -1,7 +1,37 @@
 import { DiaEstudo, Tarefa, TipoConteudo, NivelDificuldade } from '../types';
+import { gerarCronogramaBasico } from './CronogramaGeneratorBasico';
+import { gerarCronogramaIntermediario } from './CronogramaGeneratorIntermediario';
+import { gerarCronogramaAvancado } from './CronogramaGeneratorAvancado';
 
-// gerador de cronograma completo de 365 dias
-export function gerarCronogramaCompleto(dataInicio: string = new Date().toISOString().split('T')[0]): DiaEstudo[] {
+// gerador de cronograma completo de 365 dias baseado no nível
+export function gerarCronogramaCompleto(
+  dataInicio: string = new Date().toISOString().split('T')[0],
+  nivel: NivelDificuldade = NivelDificuldade.BASICO
+): DiaEstudo[] {
+  console.log('🗓️ Gerando cronograma com data de início:', dataInicio, 'Nível:', nivel);
+  
+  // Parse correto da data (formato YYYY-MM-DD)
+  const [ano, mes, dia] = dataInicio.split('-').map(Number);
+  const dataBase = new Date(ano, mes - 1, dia);
+  dataBase.setHours(0, 0, 0, 0);
+  
+  console.log('📅 Data base convertida:', dataBase.toLocaleDateString('pt-BR'));
+
+  // Selecionar gerador baseado no nível
+  switch (nivel) {
+    case NivelDificuldade.BASICO:
+      return gerarCronogramaBasico(dataBase);
+    case NivelDificuldade.INTERMEDIARIO:
+      return gerarCronogramaIntermediario(dataBase);
+    case NivelDificuldade.AVANCADO:
+      return gerarCronogramaAvancado(dataBase);
+    default:
+      return gerarCronogramaBasico(dataBase);
+  }
+}
+
+// Mantém a função antiga para compatibilidade (usa cronograma detalhado)
+export function gerarCronogramaDetalhadoCompleto(dataInicio: string = new Date().toISOString().split('T')[0]): DiaEstudo[] {
   console.log('🗓️ Gerando cronograma com data de início:', dataInicio);
   const cronograma: DiaEstudo[] = [];
   let diaNumero = 1;

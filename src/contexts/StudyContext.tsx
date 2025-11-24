@@ -67,7 +67,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
             
             if (cronogramaCarregado.length === 0 || !dia1 || !dia1.data || dia1.data.split('T')[0] !== dataInicioFormatada) {
               console.log('[StudyProvider] Cronograma inválido ou desatualizado. Regenerando...');
-              const cronogramaNovo = gerarCronogramaCompleto(dataInicioFormatada);
+              const cronogramaNovo = gerarCronogramaCompleto(dataInicioFormatada, data.nivel_inicial);
               await SupabaseStudyService.salvarCronograma(cronogramaNovo);
               
               const fasesNovas = gerarFases();
@@ -168,7 +168,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     console.log('[StudyProvider] configurar() chamado com:', novaConfig);
     await SupabaseStudyService.salvarConfiguracao(novaConfig);
     
-    const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio);
+    const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio, novaConfig.nivelInicial);
     await SupabaseStudyService.salvarCronograma(cronogramaInicial);
     
     const fasesIniciais = gerarFases();
