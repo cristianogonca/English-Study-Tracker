@@ -16,6 +16,9 @@ import ProfessorAlunos from './pages/ProfessorAlunos';
 import ProfessorCronograma from './pages/ProfessorCronograma';
 import ProfessorGuia from './pages/ProfessorGuia';
 import ProfessorRotina from './pages/ProfessorRotina';
+import ProfessorProvasNovo from './pages/ProfessorProvasNovo';
+import AlunoProvasNovo from './pages/AlunoProvasNovo';
+import CorrigirProva from './pages/CorrigirProva';
 import Navigation from './components/Navigation';
 
 function AppRoutes() {
@@ -60,60 +63,85 @@ function AppRoutes() {
         <Route path="/setup" element={logado && role === 'aluno' ? <Setup /> : <Navigate to="/login" />} />
         
         {/* Rotas de Professor */}
-        <Route path="/professor" element={
+        <Route path="/professor" element={(
           !logado ? <Navigate to="/login" /> :
           (role === 'professor' || role === 'admin') ? <ProfessorAlunos /> :
           <Navigate to="/" />
-        } />
-        <Route path="/professor/cronograma/:alunoId" element={
+        )} />
+        <Route path="/professor/cronograma/:alunoId" element={(
           !logado ? <Navigate to="/login" /> :
           (role === 'professor' || role === 'admin') ? <ProfessorCronograma /> :
           <Navigate to="/" />
-        } />
-        <Route path="/professor/guia/:alunoId" element={
+        )} />
+        <Route path="/professor/guia/:alunoId" element={(
           !logado ? <Navigate to="/login" /> :
           (role === 'professor' || role === 'admin') ? <ProfessorGuia /> :
           <Navigate to="/" />
-        } />
-        <Route path="/professor/rotina/:alunoId" element={
+        )} />
+        <Route path="/professor/rotina/:alunoId" element={(
           !logado ? <Navigate to="/login" /> :
           (role === 'professor' || role === 'admin') ? <ProfessorRotina /> :
           <Navigate to="/" />
-        } />
+        )} />
+        <Route path="/professor/provas" element={(
+          !logado ? <Navigate to="/login" /> :
+          (role === 'professor' || role === 'admin') ? <ProfessorProvasNovo /> :
+          <Navigate to="/" />
+        )} />
+        <Route path="/professor/provas/:provaId" element={(
+          !logado ? <Navigate to="/login" /> :
+          (role === 'professor' || role === 'admin') ? <ProfessorProvasNovo /> :
+          <Navigate to="/" />
+        )} />
+        <Route path="/professor/provas/:provaId/corrigir" element={(
+          !logado ? <Navigate to="/login" /> :
+          (role === 'professor' || role === 'admin') ? <CorrigirProva /> :
+          <Navigate to="/" />
+        )} />
         
         {/* Rotas de Aluno */}
-        <Route path="/" element={
+        <Route path="/" element={(
           !logado ? <Navigate to="/login" /> :
           (role === 'professor' || role === 'admin') ? <Navigate to="/professor" /> :
           !isConfigured ? <Navigate to="/setup" /> :
           <Dashboard />
-        } />
-        <Route path="/estudar" element={
+        )} />
+        <Route path="/estudar" element={(
           !logado ? <Navigate to="/login" /> :
           !isConfigured ? <Navigate to="/setup" /> :
           <EstudarHoje />
-        } />
-        <Route path="/check-semanal" element={
+        )} />
+        <Route path="/check-semanal" element={(
           !logado ? <Navigate to="/login" /> :
           !isConfigured ? <Navigate to="/setup" /> :
           <CheckSemanal />
-        } />
+        )} />
         <Route path="/check" element={<Navigate to="/check-semanal" />} />
-        <Route path="/vocabulario" element={
+        <Route path="/vocabulario" element={(
           !logado ? <Navigate to="/login" /> :
           !isConfigured ? <Navigate to="/setup" /> :
           <Vocabulario />
-        } />
-        <Route path="/cronograma" element={
+        )} />
+        <Route path="/cronograma" element={(
           !logado ? <Navigate to="/login" /> :
           !isConfigured ? <Navigate to="/setup" /> :
           <Cronograma />
-        } />
-        <Route path="/guia" element={
+        )} />
+        <Route path="/guia" element={(
           !logado ? <Navigate to="/login" /> :
           !isConfigured ? <Navigate to="/setup" /> :
           <GuiaEstudos />
-        } />
+        )} />
+        <Route path="/provas" element={(
+          !logado ? <Navigate to="/login" /> :
+          !isConfigured ? <Navigate to="/setup" /> :
+          <AlunoProvasNovo />
+        )} />
+        <Route path="/provas/:provaId" element={(
+          !logado ? <Navigate to="/login" /> :
+          !isConfigured ? <Navigate to="/setup" /> :
+          <AlunoProvasNovo />
+        )} />
       </Routes>
     </BrowserRouter>
   );

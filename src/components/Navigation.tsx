@@ -44,22 +44,10 @@ function Navigation() {
           const state: TimerState = JSON.parse(saved);
           
           if (state.ativo && !state.pausado) {
-            // Calcular tempo restante
-            const agora = Date.now();
-            const decorrido = Math.floor((agora - state.iniciadoEm) / 1000);
-            let totalSegundos = state.minutos * 60 + state.segundos - decorrido;
-            
-            if (totalSegundos > 0) {
-              const novosMinutos = Math.floor(totalSegundos / 60);
-              const novosSegundos = totalSegundos % 60;
-              setTimerAtivo({ minutos: novosMinutos, segundos: novosSegundos });
-            } else {
-              setTimerAtivo(null);
-            }
-          } else if (state.pausado) {
-            // Timer pausado - mostrar tempo atual
+            // Timer ativo - mostrar tempo atual
             setTimerAtivo({ minutos: state.minutos, segundos: state.segundos });
           } else {
+            // Timer pausado ou parado - esconder
             setTimerAtivo(null);
           }
         } catch (error) {
@@ -96,11 +84,13 @@ function Navigation() {
     { path: '/check', label: 'Weekly Check', icon: '✅' },
     { path: '/vocabulario', label: 'Vocabulary', icon: '📚' },
     { path: '/cronograma', label: 'Schedule', icon: '📅' },
-    { path: '/guia', label: 'Study Guide', icon: '📖' }
+    { path: '/guia', label: 'Study Guide', icon: '📖' },
+    { path: '/provas', label: 'Tests', icon: '📝' }
   ];
 
   const linksProfessor = [
-    { path: '/professor', label: 'My Students', icon: '👨‍🏫' }
+    { path: '/professor', label: 'My Students', icon: '👨‍🏫' },
+    { path: '/professor/provas', label: 'Tests', icon: '📝' }
   ];
 
   const links = (role === 'professor' || role === 'admin') 

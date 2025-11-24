@@ -8,12 +8,12 @@
 }
 
 .nav-container {
-  max-width: 1400px;
-  margin: 0 auto;
-  padding: 0 2rem;
+  max-width: 100%;
+  margin: 0;
+  padding: 0 1rem;
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: flex-start;
   gap: 1rem;
 }
 
@@ -86,8 +86,8 @@
   margin: 0;
   display: flex;
   gap: 0.4rem;
-  flex: 1;
-  justify-content: center;
+  flex: 0;
+  justify-content: flex-start;
 }
 
 .nav-links li {
@@ -108,6 +108,8 @@
   font-weight: 600;
   font-size: 0.95rem;
   white-space: nowrap;
+  min-width: 145px;
+  justify-content: center;
 }
 
 .nav-links a:hover {

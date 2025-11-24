@@ -242,6 +242,110 @@ export interface AlunoView {
   progresso_percentual?: number; // Progresso baseado em tempo estudado vs esperado
 }
 
+// ============================================
+// SISTEMA DE PROVAS/TESTES
+// ============================================
+
+export enum TipoQuestao {
+  MULTIPLA_ESCOLHA = 'multipla_escolha',
+  DISSERTATIVA = 'dissertativa',
+  VERDADEIRO_FALSO = 'verdadeiro_falso',
+  PREENCHER_LACUNA = 'preencher_lacuna'
+}
+
+export enum StatusProva {
+  NAO_INICIADA = 'nao_iniciada',
+  DISPONIVEL = 'disponivel',
+  EM_ANDAMENTO = 'em_andamento',
+  AGUARDANDO_AVALIACAO = 'aguardando_avaliacao',
+  AVALIADA = 'avaliada',
+  EXPIRADA = 'expirada',
+  NAO_DISPONIVEL = 'nao_disponivel'
+}
+
+export interface Prova {
+  id: string;
+  professor_id: string;
+  titulo: string;
+  descricao?: string;
+  data_criacao: string;
+  data_disponivel?: string;
+  data_limite?: string;
+  duracao_minutos?: number;
+  ativa: boolean;
+  peso: number;
+}
+
+export interface ProvaQuestao {
+  id: string;
+  prova_id: string;
+  numero: number;
+  tipo: TipoQuestao;
+  enunciado: string;
+  opcoes?: string[]; // Para múltipla escolha
+  resposta_correta?: string;
+  pontos: number;
+}
+
+export interface ProvaResposta {
+  id?: string;
+  prova_id: string;
+  aluno_id: string;
+  questao_id: string;
+  resposta: string;
+  correta?: boolean | null;
+  pontos_obtidos?: number;
+  comentario_professor?: string;
+}
+
+export interface ProvaSubmissao {
+  id?: string;
+  prova_id: string;
+  aluno_id: string;
+  data_inicio: string;
+  data_submissao?: string;
+  nota_total?: number;
+  pontos_totais?: number;
+  pontos_possiveis?: number;
+  avaliada: boolean;
+  comentario_geral?: string;
+}
+
+export interface AlunoProvaDisponivel {
+  prova_id: string;
+  titulo: string;
+  descricao?: string;
+  data_disponivel?: string;
+  data_limite?: string;
+  duracao_minutos?: number;
+  peso: number;
+  submissao_id?: string;
+  data_inicio?: string;
+  data_submissao?: string;
+  nota_total?: number;
+  avaliada: boolean;
+  status: StatusProva;
+  total_questoes: number;
+}
+
+export interface ProfessorProvaSubmissao {
+  submissao_id: string;
+  prova_id: string;
+  prova_titulo: string;
+  data_limite?: string;
+  aluno_id: string;
+  aluno_nome: string;
+  aluno_email: string;
+  data_inicio?: string;
+  data_submissao?: string;
+  nota_total?: number;
+  pontos_totais?: number;
+  pontos_possiveis?: number;
+  avaliada: boolean;
+  comentario_geral?: string;
+  status: string;
+}
+
 // NOVO: Rotina Semanal Padrão (7 dias)
 export interface AtividadeSemanal {
   id?: string;
