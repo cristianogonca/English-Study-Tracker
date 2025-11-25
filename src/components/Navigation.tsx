@@ -18,7 +18,7 @@ interface TimerState {
 function Navigation() {
   const location = useLocation();
   const [sessao, setSessao] = useState<any>(null);
-  const [role, setRole] = useState<'aluno' | 'professor' | 'admin'>('aluno');
+  const [role, setRole] = useState<'aluno' | 'professor' | 'admin' | null>(null);
   const [timerAtivo, setTimerAtivo] = useState<{ minutos: number; segundos: number } | null>(null);
 
   useEffect(() => {
@@ -104,7 +104,8 @@ function Navigation() {
     { path: '/professor/provas', label: 'Tests', icon: '📝' }
   ];
 
-  const links = (role === 'professor' || role === 'admin') 
+  // Não renderiza links até saber o role
+  const links = role === null ? [] : (role === 'professor' || role === 'admin') 
     ? linksProfessor 
     : linksAluno;
 
