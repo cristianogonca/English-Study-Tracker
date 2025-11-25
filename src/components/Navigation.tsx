@@ -160,6 +160,14 @@ function Navigation() {
                 >
                   🔐 Change Password
                 </Link>
+                <Link 
+                  to="/resetar-perfil" 
+                  className="dropdown-item"
+                  onClick={() => setMenuAberto(false)}
+                  style={{ color: '#e74c3c' }}
+                >
+                  🔄 Reset Profile
+                </Link>
                 <div className="dropdown-divider"></div>
                 <button onClick={handleLogout} className="dropdown-item logout">
                   🚺 Logout

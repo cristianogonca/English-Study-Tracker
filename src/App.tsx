@@ -5,6 +5,7 @@ import SupabaseAuthService from './services/SupabaseAuthService';
 import Login from './pages/Login';
 import Registro from './pages/Registro';
 import TrocarSenha from './pages/TrocarSenha';
+import ResetarPerfil from './pages/ResetarPerfil';
 import Setup from './pages/Setup';
 import Dashboard from './pages/Dashboard';
 import EstudarHoje from './pages/EstudarHoje';
@@ -60,6 +61,7 @@ function AppRoutes() {
         <Route path="/login" element={!logado ? <Login /> : <Navigate to="/" />} />
         <Route path="/registro" element={!logado ? <Registro /> : <Navigate to="/" />} />
         <Route path="/trocar-senha" element={logado ? <TrocarSenha /> : <Navigate to="/login" />} />
+        <Route path="/resetar-perfil" element={logado && role === 'aluno' ? <ResetarPerfil /> : <Navigate to="/login" />} />
         <Route path="/setup" element={logado && role === 'aluno' ? <Setup /> : <Navigate to="/login" />} />
         
         {/* Rotas de Professor */}
