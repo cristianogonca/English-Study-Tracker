@@ -69,11 +69,10 @@ function EstudarHoje() {
           console.log('⏱️ [Timer] Tempo decorrido:', decorrido, 'segundos');
           
           if (state.ativo && !state.pausado) {
-            // Recalcular tempo restante
-            let totalSegundos = state.minutos * 60 + state.segundos;
-            console.log('📊 [Timer] Total segundos antes:', totalSegundos);
-            totalSegundos -= decorrido;
-            console.log('📊 [Timer] Total segundos depois:', totalSegundos);
+            // Recalcular tempo restante baseado no timestamp e minutosIniciais
+            const totalSegundosInicial = state.minutosIniciais * 60;
+            const totalSegundos = totalSegundosInicial - decorrido;
+            console.log('📊 [Timer] Total segundos restantes:', totalSegundos);
             
             if (totalSegundos > 0) {
               const novosMinutos = Math.floor(totalSegundos / 60);
@@ -131,9 +130,16 @@ function EstudarHoje() {
         const usuario = await SupabaseAuthService.getUsuarioAtual();
         if (!usuario) return;
 
+        // Recalcula minutos e segundos baseado no timestamp de início para manter sincronizado
+        const agora = Date.now();
+        const decorrido = Math.floor((agora - timestampInicio) / 1000);
+        const totalSegundos = (minutosIniciais * 60) - decorrido;
+        const minutosAtuais = Math.floor(totalSegundos / 60);
+        const segundosAtuais = totalSegundos % 60;
+
         const state: TimerState = {
-          minutos,
-          segundos,
+          minutos: minutosAtuais,
+          segundos: segundosAtuais,
           ativo,
           pausado,
           iniciadoEm: timestampInicio, // Usa timestamp fixo do início
@@ -150,31 +156,36 @@ function EstudarHoje() {
     };
 
     salvarTimerState();
-  }, [minutos, segundos, ativo, pausado, timestampInicio, carregouDoStorage, minutosIniciais]);
+  }, [ativo, pausado, timestampInicio, carregouDoStorage, minutosIniciais]);
 
   useEffect(() => {
     let intervalo: any;
 
     if (ativo && !pausado) {
       intervalo = setInterval(() => {
-        if (segundos === 0) {
-          if (minutos === 0) {
-            // timer acabou
-            setAtivo(false);
-            tocarAlarme();
-            localStorage.removeItem(TIMER_STORAGE_KEY);
-          } else {
-            setMinutos(minutos - 1);
-            setSegundos(59);
-          }
+        // Recalcula baseado no timestamp para manter sincronizado
+        const agora = Date.now();
+        const decorrido = Math.floor((agora - timestampInicio) / 1000);
+        const totalSegundos = (minutosIniciais * 60) - decorrido;
+        
+        if (totalSegundos <= 0) {
+          // timer acabou
+          setMinutos(0);
+          setSegundos(0);
+          setAtivo(false);
+          tocarAlarme();
+          localStorage.removeItem(TIMER_STORAGE_KEY);
         } else {
-          setSegundos(segundos - 1);
+          const novosMinutos = Math.floor(totalSegundos / 60);
+          const novosSegundos = totalSegundos % 60;
+          setMinutos(novosMinutos);
+          setSegundos(novosSegundos);
         }
       }, 1000);
     }
 
     return () => clearInterval(intervalo);
-  }, [ativo, pausado, minutos, segundos]);
+  }, [ativo, pausado, timestampInicio, minutosIniciais]);
 
   const iniciarTimer = async () => {
     if (!ativo) {
@@ -410,9 +421,14 @@ function EstudarHoje() {
         </div>
 
         <div className="timer-presets">
-          <button onClick={() => { setMinutos(25); setSegundos(0); setMinutosIniciais(25); }}>25 min</button>
-          <button onClick={() => { setMinutos(15); setSegundos(0); setMinutosIniciais(15); }}>15 min</button>
           <button onClick={() => { setMinutos(5); setSegundos(0); setMinutosIniciais(5); }}>5 min</button>
+          <button onClick={() => { setMinutos(10); setSegundos(0); setMinutosIniciais(10); }}>10 min</button>
+          <button onClick={() => { setMinutos(15); setSegundos(0); setMinutosIniciais(15); }}>15 min</button>
+          <button onClick={() => { setMinutos(20); setSegundos(0); setMinutosIniciais(20); }}>20 min</button>
+          <button onClick={() => { setMinutos(25); setSegundos(0); setMinutosIniciais(25); }}>25 min</button>
+          <button onClick={() => { setMinutos(30); setSegundos(0); setMinutosIniciais(30); }}>30 min</button>
+          <button onClick={() => { setMinutos(45); setSegundos(0); setMinutosIniciais(45); }}>45 min</button>
+          <button onClick={() => { setMinutos(60); setSegundos(0); setMinutosIniciais(60); }}>60 min</button>
         </div>
       </div>
 

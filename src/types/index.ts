@@ -187,6 +187,7 @@ export interface ConfigUsuario {
   diasEstudo: DiaSemana[];
   dataInicio: string;
   nivelInicial: NivelDificuldade;
+  duracaoPrograma?: number; // dias totais do programa (padrão 365)
 }
 
 // usuario do sistema

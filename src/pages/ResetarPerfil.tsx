@@ -79,7 +79,31 @@ export default function ResetarPerfil() {
 
       if (provasError) throw provasError;
 
-      // 6. Deletar user_configs
+      // 6. Deletar progresso_tarefas
+      const { error: progressoError } = await supabase
+        .from('progresso_tarefas')
+        .delete()
+        .eq('user_id', userId);
+
+      if (progressoError) throw progressoError;
+
+      // 7. Deletar fases
+      const { error: fasesError } = await supabase
+        .from('fases')
+        .delete()
+        .eq('user_id', userId);
+
+      if (fasesError) throw fasesError;
+
+      // 8. Deletar guia_estudos
+      const { error: guiaError } = await supabase
+        .from('guia_estudos')
+        .delete()
+        .eq('user_id', userId);
+
+      if (guiaError) throw guiaError;
+
+      // 9. Deletar user_configs
       const { error: configError } = await supabase
         .from('user_configs')
         .delete()

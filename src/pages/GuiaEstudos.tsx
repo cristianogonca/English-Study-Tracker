@@ -36,16 +36,17 @@ function GuiaEstudos() {
   };
 
   useEffect(() => {
-    if (config?.dataInicio && cronograma.length > 0) {
+    if (config?.dataInicio && cronograma.length > 0 && guia.length > 0) {
       // Calcular mês atual baseado na data de início
       const hoje = new Date();
       const inicio = new Date(config.dataInicio);
       const diffTime = Math.abs(hoje.getTime() - inicio.getTime());
       const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-      const mesAtual = Math.min(Math.ceil(diffDays / 30), 12);
+      const totalMeses = guia.length;
+      const mesAtual = Math.min(Math.ceil(diffDays / 30), totalMeses);
       setMesSelecionado(mesAtual);
     }
-  }, [config, cronograma]);
+  }, [config, cronograma, guia]);
 
   const mesAtual = guia.find(m => m.mes === mesSelecionado);
 
@@ -91,16 +92,22 @@ function GuiaEstudos() {
     return atividade;
   };
 
+  // Calcular número de meses com base no guia carregado
+  const totalMeses = guia.length > 0 ? guia.length : 12;
+  const descricaoPlano = totalMeses <= 3 ? '3-month plan' : 
+                         totalMeses <= 6 ? '6-month plan' : 
+                         '12-month plan';
+
   return (
     <div className="guia-estudos">
       <header className="guia-header">
         <h1>📖 Study Guide</h1>
-        <p>Complete breakdown of your 12-month plan</p>
+        <p>Complete breakdown of your {descricaoPlano}</p>
       </header>
 
       {/* Seletor de Mês */}
       <div className="mes-selector">
-        {Array.from({ length: 12 }, (_, i) => i + 1).map(mes => (
+        {Array.from({ length: totalMeses }, (_, i) => i + 1).map(mes => (
           <button
             key={mes}
             className={`mes-btn ${mes === mesSelecionado ? 'active' : ''}`}
@@ -213,7 +220,7 @@ function GuiaEstudos() {
 
         {/* Rotina Semanal */}
         <section className="guia-section rotina-semanal">
-          <h3>📅 Standard Weekly Routine (1h/day)</h3>
+          <h3>📅 Standard Routine (1h/day)</h3>
           <div className="dias-semana">
             {Array.from({ length: 7 }, (_, i) => i + 1).map(dia => {
               const atividade = getAtividadesDia(dia);

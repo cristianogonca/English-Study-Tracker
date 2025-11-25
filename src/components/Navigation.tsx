@@ -44,8 +44,19 @@ function Navigation() {
           const state: TimerState = JSON.parse(saved);
           
           if (state.ativo && !state.pausado) {
-            // Timer ativo - mostrar tempo atual
-            setTimerAtivo({ minutos: state.minutos, segundos: state.segundos });
+            // Timer ativo - calcular tempo decorrido desde iniciadoEm
+            const agora = Date.now();
+            const decorrido = Math.floor((agora - state.iniciadoEm) / 1000);
+            const totalSegundos = (state.minutosIniciais * 60) - decorrido;
+            
+            if (totalSegundos > 0) {
+              const minutos = Math.floor(totalSegundos / 60);
+              const segundos = totalSegundos % 60;
+              setTimerAtivo({ minutos, segundos });
+            } else {
+              // Timer chegou a zero
+              setTimerAtivo(null);
+            }
           } else {
             // Timer pausado ou parado - esconder
             setTimerAtivo(null);

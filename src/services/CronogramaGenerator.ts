@@ -3,12 +3,15 @@ import { gerarCronogramaBasico } from './CronogramaGeneratorBasico';
 import { gerarCronogramaIntermediario } from './CronogramaGeneratorIntermediario';
 import { gerarCronogramaAvancado } from './CronogramaGeneratorAvancado';
 
-// gerador de cronograma completo de 365 dias baseado no nível
+// gerador de cronograma completo baseado no nível e duração
 export function gerarCronogramaCompleto(
   dataInicio: string = new Date().toISOString().split('T')[0],
-  nivel: NivelDificuldade = NivelDificuldade.BASICO
+  nivel: NivelDificuldade = NivelDificuldade.BASICO,
+  duracaoDias: number = 365,
+  metaDiaria: number = 60,
+  diasEstudo: number[] = [1, 2, 3, 4, 5] // dias da semana que o usuário estuda (0=domingo, 1=segunda, ...)
 ): DiaEstudo[] {
-  console.log('🗓️ Gerando cronograma com data de início:', dataInicio, 'Nível:', nivel);
+  console.log('🗓️ Gerando cronograma com data de início:', dataInicio, 'Nível:', nivel, 'Duração:', duracaoDias, 'dias', 'Meta diária:', metaDiaria, 'min', 'Dias estudo:', diasEstudo);
   
   // Parse correto da data (formato YYYY-MM-DD)
   const [ano, mes, dia] = dataInicio.split('-').map(Number);
@@ -20,13 +23,13 @@ export function gerarCronogramaCompleto(
   // Selecionar gerador baseado no nível
   switch (nivel) {
     case NivelDificuldade.BASICO:
-      return gerarCronogramaBasico(dataBase);
+      return gerarCronogramaBasico(dataBase, duracaoDias, metaDiaria, diasEstudo);
     case NivelDificuldade.INTERMEDIARIO:
-      return gerarCronogramaIntermediario(dataBase);
+      return gerarCronogramaIntermediario(dataBase, duracaoDias, metaDiaria, diasEstudo);
     case NivelDificuldade.AVANCADO:
-      return gerarCronogramaAvancado(dataBase);
+      return gerarCronogramaAvancado(dataBase, duracaoDias, metaDiaria, diasEstudo);
     default:
-      return gerarCronogramaBasico(dataBase);
+      return gerarCronogramaBasico(dataBase, duracaoDias, metaDiaria, diasEstudo);
   }
 }
 

@@ -38,6 +38,7 @@ class SupabaseStudyService {
           dias_estudo: config.diasEstudo,
           data_inicio: config.dataInicio,
           nivel_inicial: config.nivelInicial,
+          duracao_programa: config.duracaoPrograma || 365
         }, { onConflict: 'user_id' });
 
       if (configError) throw configError;
@@ -69,6 +70,7 @@ class SupabaseStudyService {
         diasEstudo: data.dias_estudo,
         dataInicio: data.data_inicio,
         nivelInicial: data.nivel_inicial,
+        duracaoPrograma: data.duracao_programa || 365
       };
     } catch (error) {
       console.error('Erro ao obter configuração:', error);

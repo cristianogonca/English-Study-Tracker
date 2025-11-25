@@ -217,10 +217,27 @@ export class SupabaseProfessorService {
   }
 
   /**
-   * Criar guia inicial completo para um aluno (12 meses com conteúdo rico)
+   * Criar guia inicial completo para um aluno (baseado na duração do programa)
    */
-  async criarGuiaInicial(userId: string): Promise<void> {
-    const guiaInicial = GUIA_BASE_12_MESES.map(mes => ({
+  async criarGuiaInicial(userId: string, duracaoDias: number = 365): Promise<void> {
+    // Verificar se já existe guia para este usuário
+    const { data: guiaExistente } = await supabase
+      .from('guia_estudos')
+      .select('id')
+      .eq('user_id', userId)
+      .limit(1);
+    
+    if (guiaExistente && guiaExistente.length > 0) {
+      console.log('[criarGuiaInicial] Guia já existe para o usuário, pulando criação');
+      return; // Já existe, não precisa criar
+    }
+
+    // Calcular quantos meses criar baseado na duração (arredondar para cima)
+    const mesesNecessarios = Math.ceil(duracaoDias / 30);
+    console.log(`[criarGuiaInicial] Criando guia para ${duracaoDias} dias = ${mesesNecessarios} meses`);
+
+    // Pegar apenas os meses necessários do guia base
+    const guiaInicial = GUIA_BASE_12_MESES.slice(0, mesesNecessarios).map(mes => ({
       user_id: userId,
       mes: mes.mes,
       titulo: mes.titulo,
@@ -345,9 +362,23 @@ export class SupabaseProfessorService {
   }
 
   /**
-   * Criar rotina semanal inicial (base padrão)
+   * Criar rotina semanal inicial (base padrão) - apenas para os dias selecionados
    */
-  async criarRotinaSemanalInicial(userId: string): Promise<void> {
+  async criarRotinaSemanalInicial(userId: string, diasEstudo: number[] = [1,2,3,4,5,6,0]): Promise<void> {
+    // Verificar se já existe rotina para este usuário
+    const { data: rotinaExistente } = await supabase
+      .from('rotina_semanal')
+      .select('id')
+      .eq('user_id', userId)
+      .limit(1);
+    
+    if (rotinaExistente && rotinaExistente.length > 0) {
+      console.log('[criarRotinaSemanalInicial] Rotina já existe para o usuário, pulando criação');
+      return; // Já existe, não precisa criar
+    }
+
+    console.log(`[criarRotinaSemanalInicial] Criando rotina para os dias: ${diasEstudo.join(', ')}`);
+
     const atividadesBase: AtividadeSemanal[] = [
       { diaSemana: 1, nome: "Gramática + Exercícios", descricao: "Estudar tópico gramatical da semana + fazer exercícios práticos", icone: "📝" },
       { diaSemana: 2, nome: "Vocabulário + Frases", descricao: "Aprender 10 palavras novas + criar frases próprias", icone: "📚" },
@@ -358,13 +389,26 @@ export class SupabaseProfessorService {
       { diaSemana: 7, nome: "Revisão", descricao: "Revisar tudo da semana + fazer check semanal no app", icone: "✅" }
     ];
 
-    const rows = atividadesBase.map(atividade => ({
+    // Converter domingo de 0 para 7 para compatibilidade com o banco
+    const diasConvertidos = diasEstudo.map(dia => dia === 0 ? 7 : dia);
+
+    // Filtrar apenas os dias selecionados pelo usuário
+    const atividadesFiltradas = atividadesBase.filter(atividade => 
+      diasConvertidos.includes(atividade.diaSemana)
+    );
+
+    const rows = atividadesFiltradas.map(atividade => ({
       user_id: userId,
       dia_semana: atividade.diaSemana,
       nome: atividade.nome,
       descricao: atividade.descricao,
       icone: atividade.icone
     }));
+
+    if (rows.length === 0) {
+      console.warn('[criarRotinaSemanalInicial] Nenhum dia de estudo selecionado, não criando rotina');
+      return;
+    }
 
     const { error } = await supabase
       .from('rotina_semanal')

@@ -5,13 +5,24 @@ import { DiaEstudo, Fase, ProgressoTarefa } from '../types';
 import './Cronograma.css';
 
 function Cronograma() {
-  const { cronograma: cronogramaContext, fases: fasesContext } = useStudy();
+  const { cronograma: cronogramaContext, fases: fasesContext, config } = useStudy();
   const [cronograma, setCronograma] = useState<DiaEstudo[]>([]);
   const [fases, setFases] = useState<Fase[]>([]);
   const [progressos, setProgressos] = useState<ProgressoTarefa[]>([]);
   const [mesAtual, setMesAtual] = useState(1);
   const [diaSelecionado, setDiaSelecionado] = useState<DiaEstudo | null>(null);
   const [visualizacao, setVisualizacao] = useState<'mes' | 'ano'>('mes');
+
+  // Calcular horas semanais com base na configuração
+  const calcularHorasSemanal = () => {
+    if (!config) return 7;
+    // Garantir que diasEstudo é um array e pegar seu length
+    const diasPorSemana = Array.isArray(config.diasEstudo) ? config.diasEstudo.length : 7;
+    const minutosPorDia = config.metaDiaria || 60;
+    const horasSemanal = (diasPorSemana * minutosPorDia) / 60;
+    // Arredondar para 1 casa decimal para melhor visualização
+    return Math.round(horasSemanal * 10) / 10;
+  };
 
   useEffect(() => {
     carregarDados();
@@ -148,7 +159,7 @@ function Cronograma() {
               </p>
               <div className="fase-metas">
                 <span>⏱️ {fase.horasTotal}h total</span>
-                <span>🎯 7h/week</span>
+                <span>🎯 {calcularHorasSemanal()}h/week</span>
               </div>
               <div className="fase-progress-bar">
                 <div

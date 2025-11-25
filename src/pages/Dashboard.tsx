@@ -1,5 +1,6 @@
 import { useEffect, useState, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { useStudy } from '../contexts/StudyContext';
 import SupabaseStudyService from '../services/SupabaseStudyService';
 import { supabase } from '../lib/supabase';
 import { Estatisticas, MetaSemanal } from '../types';
@@ -7,6 +8,7 @@ import './Dashboard.css';
 
 function Dashboard() {
   const navigate = useNavigate();
+  const { fases } = useStudy();
   const [stats, setStats] = useState<Estatisticas | null>(null);
   const [metaAtual, setMetaAtual] = useState<MetaSemanal | null>(null);
   const [carregando, setCarregando] = useState(true);
@@ -22,6 +24,10 @@ function Dashboard() {
   const carregarDados = async () => {
     setCarregando(true);
     try {
+      // Buscar configuração do usuário para pegar a meta semanal
+      const config = await SupabaseStudyService.obterConfiguracao();
+      const metaSemanalConfig = config?.metaSemanal || 420;
+      
       // Buscar dados das tabelas
       const progressos = await SupabaseStudyService.obterProgressoTarefas();
       const palavras = await SupabaseStudyService.obterVocabulario();
@@ -85,8 +91,18 @@ function Dashboard() {
         ultimoEstudo,
       });
       
-      // Meta semanal (simplificada)
+      // Meta semanal - calcular número da semana baseado na data de início
       const hoje = new Date();
+      
+      // Calcular semana do programa baseado na data de início
+      let numeroSemana = 1;
+      if (config?.dataInicio) {
+        const dataInicio = new Date(config.dataInicio);
+        const diffDias = Math.floor((hoje.getTime() - dataInicio.getTime()) / (1000 * 60 * 60 * 24));
+        numeroSemana = Math.max(1, Math.ceil((diffDias + 1) / 7));
+      }
+      
+      // Calcular início da semana atual do calendário (para filtrar progressos)
       const inicioDaSemana = new Date(hoje);
       inicioDaSemana.setDate(hoje.getDate() - hoje.getDay());
       const inicioSemanaStr = inicioDaSemana.toISOString().split('T')[0];
@@ -100,13 +116,13 @@ function Dashboard() {
       
       setMetaAtual({
         id: '1',
-        semana: 1,
-        metaMinutos: 420, // 7 horas
+        semana: numeroSemana,
+        metaMinutos: metaSemanalConfig,
         minutosRealizados: minutosRealizadosSemana,
-        cumprida: minutosRealizadosSemana >= 420,
+        cumprida: minutosRealizadosSemana >= metaSemanalConfig,
         diasRestantes: 7 - hoje.getDay(),
         minutosRealocados: 0,
-        status: minutosRealizadosSemana >= 420 ? 'cumprida' : 'em_andamento'
+        status: minutosRealizadosSemana >= metaSemanalConfig ? 'cumprida' : 'em_andamento'
       });
     } catch (error) {
       // Log apenas para debug - identifica problema real
@@ -177,8 +193,16 @@ function Dashboard() {
       const r6 = await supabase.from('fases').delete().eq('user_id', userId);
       console.log('[Reconfigurar] fases:', r6.error ? `ERRO: ${r6.error.message}` : `OK - ${r6.count || 0} linhas deletadas`);
 
+      console.log('[Reconfigurar] Deletando guia_estudos...');
+      const r7 = await supabase.from('guia_estudos').delete().eq('user_id', userId);
+      console.log('[Reconfigurar] guia_estudos:', r7.error ? `ERRO: ${r7.error.message}` : `OK - ${r7.count || 0} linhas deletadas`);
+
+      console.log('[Reconfigurar] Deletando rotina_semanal...');
+      const r8 = await supabase.from('rotina_semanal').delete().eq('user_id', userId);
+      console.log('[Reconfigurar] rotina_semanal:', r8.error ? `ERRO: ${r8.error.message}` : `OK - ${r8.count || 0} linhas deletadas`);
+
       // Verificar se houve erros
-      const erros = [r1, r2, r3, r4, r5, r6].filter(r => r.error);
+      const erros = [r1, r2, r3, r4, r5, r6, r7, r8].filter(r => r.error);
       if (erros.length > 0) {
         console.error('[Reconfigurar] Erros encontrados:', erros.map(e => e.error?.message));
         alert(`❌ Error deleting some data:\n${erros.map(e => e.error?.message).join('\n')}`);
@@ -295,7 +319,7 @@ function Dashboard() {
           <h2>📊 Week {metaAtual.semana} Goal</h2>
           <div className="meta-content">
             <div className="meta-info">
-              <p><strong>Goal:</strong> {metaAtual.metaMinutos} minutes (7 hours)</p>
+              <p><strong>Goal:</strong> {metaAtual.metaMinutos} minutes ({Math.round(metaAtual.metaMinutos / 60 * 10) / 10} hours)</p>
               <p><strong>Completed:</strong> {metaAtual.minutosRealizados} minutes</p>
               <p><strong>Remaining:</strong> {metaAtual.metaMinutos - metaAtual.minutosRealizados} minutes</p>
               {metaAtual.minutosRealocados > 0 && (
@@ -326,46 +350,26 @@ function Dashboard() {
       <div className="fases-progress">
         <h2>🎓 Progress by Phase</h2>
         <div className="fases-grid">
-          <div className={`fase-card ${stats.faseAtual === 1 ? 'active' : ''}`}>
-            <h3>Phase 1: Basic</h3>
-            <p>Months 1-4 • 120 hours</p>
-            <div className="fase-bar">
-              <div 
-                className="fase-fill" 
-                style={{ width: stats.faseAtual > 1 ? '100%' : stats.faseAtual === 1 ? `${stats.progressoFaseAtual}%` : '0%' }}
-              />
+          {fases.map((fase) => (
+            <div 
+              key={fase.numero} 
+              className={`fase-card ${stats.faseAtual === fase.numero ? 'active' : ''}`}
+            >
+              <h3>Phase {fase.numero}: {fase.nivel}</h3>
+              <p>Months {fase.mesInicio}-{fase.mesFim} • {fase.horasTotal} hours</p>
+              <div className="fase-bar">
+                <div 
+                  className="fase-fill" 
+                  style={{ 
+                    width: stats.faseAtual > fase.numero ? '100%' : 
+                           stats.faseAtual === fase.numero ? `${stats.progressoFaseAtual}%` : '0%' 
+                  }}
+                />
+              </div>
             </div>
-          </div>
-          
-          <div className={`fase-card ${stats.faseAtual === 2 ? 'active' : ''}`}>
-            <h3>Phase 2: Intermediate</h3>
-            <p>Months 5-8 • 120 hours</p>
-            <div className="fase-bar">
-              <div 
-                className="fase-fill" 
-                style={{ width: stats.faseAtual > 2 ? '100%' : stats.faseAtual === 2 ? `${stats.progressoFaseAtual}%` : '0%' }}
-              />
-            </div>
-          </div>
-          
-          <div className={`fase-card ${stats.faseAtual === 3 ? 'active' : ''}`}>
-            <h3>Phase 3: Advanced</h3>
-            <p>Months 9-12 • 125 hours</p>
-            <div className="fase-bar">
-              <div 
-                className="fase-fill" 
-                style={{ width: stats.faseAtual === 3 ? `${stats.progressoFaseAtual}%` : '0%' }}
-              />
-            </div>
-          </div>
-        </div>
+          ))}
       </div>
-
-      {/* Weekly Checks */}
-      <div className="checks-info">
-        <h2>✔️ Completed Weekly Checks</h2>
-        <p className="checks-count">{stats.checkpointsConcluidos} weeks evaluated</p>
-      </div>
+    </div>
 
       {/* Last Study */}
       {stats.ultimoEstudo && (
@@ -373,28 +377,6 @@ function Dashboard() {
           <p>📆 Last study: {new Date(stats.ultimoEstudo).toLocaleDateString('en-US')}</p>
         </div>
       )}
-
-      {/* Botão Reconfigurar */}
-      <div style={{ textAlign: 'center', marginTop: '2rem' }}>
-        <button 
-          onClick={handleReconfigurar}
-          style={{
-            padding: '0.75rem 1.5rem',
-            background: '#ff6b6b',
-            color: 'white',
-            border: 'none',
-            borderRadius: '10px',
-            fontSize: '1rem',
-            fontWeight: '600',
-            cursor: 'pointer',
-            transition: 'all 0.3s ease'
-          }}
-          onMouseOver={(e) => e.currentTarget.style.background = '#ff5252'}
-          onMouseOut={(e) => e.currentTarget.style.background = '#ff6b6b'}
-        >
-          ⚙️ Reconfigure Study Plan
-        </button>
-      </div>
     </div>
   );
 }

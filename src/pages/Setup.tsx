@@ -10,13 +10,18 @@ function Setup() {
   const { configurar } = useStudy();
   const navigate = useNavigate();
   
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [progressMessage, setProgressMessage] = useState('');
+  
   const [formData, setFormData] = useState<ConfigUsuario>({
     nome: '',
     metaDiaria: 60,
     metaSemanal: 420,
     diasEstudo: [DiaSemana.SEGUNDA, DiaSemana.TERCA, DiaSemana.QUARTA, DiaSemana.QUINTA, DiaSemana.SEXTA, DiaSemana.SABADO, DiaSemana.DOMINGO],
     dataInicio: new Date().toISOString().split('T')[0],
-    nivelInicial: NivelDificuldade.BASICO
+    nivelInicial: NivelDificuldade.BASICO,
+    duracaoPrograma: 365
   });
 
   // Calcular meta semanal automaticamente
@@ -57,22 +62,48 @@ function Setup() {
       return;
     }
     
-    // Configurar perfil do usuário
-    await configurar(formData);
+    setLoading(true);
+    setProgress(0);
     
-    // Criar guia inicial (12 meses) e rotina semanal para o aluno
     try {
+      // Passo 1: Salvar configuração (20%)
+      setProgressMessage('Saving your configuration...');
+      setProgress(20);
+      await configurar(formData);
+      
+      // Passo 2: Criar guia de estudos (40%)
+      setProgressMessage('Creating study guide...');
+      setProgress(40);
       const usuario = await SupabaseAuthService.getUsuarioAtual();
+      
       if (usuario) {
-        await professorService.criarGuiaInicial(usuario.id);
-        await professorService.criarRotinaSemanalInicial(usuario.id);
+        // Passo 3: Gerar cronograma personalizado (60%)
+        setProgressMessage('Generating personalized schedule...');
+        setProgress(60);
+        await professorService.criarGuiaInicial(usuario.id, formData.duracaoPrograma || 365);
+        
+        // Passo 4: Criar rotina semanal (80%)
+        setProgressMessage('Setting up weekly routine...');
+        setProgress(80);
+        await professorService.criarRotinaSemanalInicial(usuario.id, formData.diasEstudo);
       }
+      
+      // Passo 5: Finalizando (100%)
+      setProgressMessage('Ready to start! 🎉');
+      setProgress(100);
+      
+      // Aguardar um pouco para mostrar o 100%
+      setTimeout(() => {
+        navigate('/');
+      }, 500);
+      
     } catch (error) {
-      console.error('Erro ao criar guia inicial:', error);
-      // Não bloquear o setup se falhar, apenas logar
+      console.error('Erro ao configurar:', error);
+      alert('Error during setup. Please try again.');
+      setLoading(false);
+      setProgress(0);
+      setProgressMessage('');
     }
-    
-    navigate('/');
   };
 
   const diasSemana: { label: string; value: DiaSemana }[] = [
@@ -87,6 +118,20 @@ function Setup() {
 
   return (
     <div className="setup">
+      {loading && (
+        <div className="progress-overlay">
+          <div className="progress-container">
+            <h2>⚙️ Setting up your journey...</h2>
+            <div className="progress-bar-wrapper">
+              <div className="progress-bar" style={{ width: `${progress}%` }}>
+                <span className="progress-text">{progress}%</span>
+              </div>
+            </div>
+            <p className="progress-message">{progressMessage}</p>
+          </div>
+        </div>
+      )}
+      
       <div className="setup-container">
         <header className="setup-header">
           <h1>🎓 Welcome to English Study Tracker!</h1>
@@ -161,6 +206,22 @@ function Setup() {
           </div>
 
           <div className="form-group">
+            <label>⏱️ Program Duration (days)</label>
+            <input
+              type="number"
+              value={formData.duracaoPrograma}
+              onChange={(e) => setFormData({ ...formData, duracaoPrograma: Number(e.target.value) })}
+              min="30"
+              max="730"
+            />
+            <small>
+              {formData.duracaoPrograma} days = {Math.floor(formData.duracaoPrograma / 30)} month(s)
+              <br />
+              <strong>💡 Recommended: 90 days (3 months), 180 days (6 months), or 365 days (12 months)</strong>
+            </small>
+          </div>
+
+          <div className="form-group">
             <label>🎚️ Initial Level</label>
             <div className="nivel-buttons">
               <button
@@ -190,9 +251,9 @@ function Setup() {
           <div className="info-box">
             <h3>📚 About the program:</h3>
             <ul>
-              <li>✅ 12-month structured curriculum</li>
-              <li>✅ 365 days of pre-defined content</li>
-              <li>✅ 3 progressive phases (Basic → Intermediate → Advanced)</li>
+              <li>✅ Personalized curriculum for your level</li>
+              <li>✅ {formData.duracaoPrograma} days of pre-defined {formData.nivelInicial} content</li>
+              <li>✅ Single focused phase ({formData.nivelInicial} level)</li>
               <li>✅ Weekly check system</li>
               <li>✅ Vocabulary with flashcards</li>
               <li>✅ Integrated Pomodoro timer</li>

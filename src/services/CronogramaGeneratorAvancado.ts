@@ -24,81 +24,103 @@ function criarTarefa(
   };
 }
 
-export function gerarCronogramaAvancado(dataInicio: Date): DiaEstudo[] {
+export function gerarCronogramaAvancado(dataInicio: Date, duracaoDias: number = 365, metaDiaria: number = 60, diasEstudo: number[] = [1, 2, 3, 4, 5]): DiaEstudo[] {
   const dias: DiaEstudo[] = [];
   const dataBase = new Date(dataInicio);
   const nivel = NivelDificuldade.AVANCADO;
 
-  for (let i = 0; i < 365; i++) {
-    const numero = i + 1;
-    const mes = Math.ceil(numero / 30);
-    const semana = Math.ceil(numero / 7);
-    const fase = Math.ceil(mes / 4);
-    
+  let numero = 1;
+  let diaCorrente = 0;
+  
+  while (diaCorrente < duracaoDias) {
     const dataAtual = new Date(dataBase);
-    dataAtual.setDate(dataBase.getDate() + i);
-
-    let tarefas: Tarefa[] = [];
-    let tituloSemana = `Week ${semana} - Advanced English`;
-
-    // Padrão semanal com tarefas detalhadas
-    const diaSemana = numero % 7;
+    dataAtual.setDate(dataBase.getDate() + diaCorrente);
+    const diaSemanaAtual = dataAtual.getDay();
     
-    if (diaSemana === 1) {
-      // Segunda - Gramática Avançada
-      tarefas.push(criarTarefa('Complex Grammar', 'Study nuanced grammatical structures', TipoConteudo.GRAMATICA, nivel, 30, 1));
-      tarefas.push(criarTarefa('Analyze Usage', 'Analyze grammar usage in authentic texts', TipoConteudo.GRAMATICA, nivel, 30, 2));
+    if (diasEstudo.includes(diaSemanaAtual)) {
+      const aulasNoMes = diasEstudo.length * 4;
+      const mes = Math.ceil(numero / aulasNoMes);
+      const semana = Math.ceil(numero / diasEstudo.length);
+      const fase = 1;
+
+      let tarefas: Tarefa[] = [];
+      let tituloSemana = `Week ${semana} - Advanced English`;
+
+      const cicloDia = numero % 6;
+    
+      if (cicloDia === 1) {
+      // Gramática - 2 tarefas
+      const duracao1 = Math.round(metaDiaria * 0.5);
+      const duracao2 = metaDiaria - duracao1;
+      tarefas.push(criarTarefa('Complex Grammar', 'Study nuanced grammatical structures', TipoConteudo.GRAMATICA, nivel, duracao1, 1));
+      tarefas.push(criarTarefa('Analyze Usage', 'Analyze grammar usage in authentic texts', TipoConteudo.GRAMATICA, nivel, duracao2, 2));
       tituloSemana = `Week ${semana} - Advanced Grammar`;
-    } else if (diaSemana === 2) {
-      // Terça - Vocabulário Especializado
-      tarefas.push(criarTarefa('Field-Specific Vocabulary', 'Learn 20+ specialized terms', TipoConteudo.VOCABULARIO, nivel, 25, 1));
-      tarefas.push(criarTarefa('Academic Reading', 'Read materials using new vocabulary', TipoConteudo.VOCABULARIO, nivel, 25, 2));
-      tarefas.push(criarTarefa('Mind Mapping', 'Create concept maps and associations', TipoConteudo.VOCABULARIO, nivel, 10, 3));
+    } else if (cicloDia === 2) {
+      // Vocabulário - 3 tarefas
+      const duracao1 = Math.round(metaDiaria * 0.42);
+      const duracao2 = Math.round(metaDiaria * 0.42);
+      const duracao3 = metaDiaria - duracao1 - duracao2;
+      tarefas.push(criarTarefa('Field-Specific Vocabulary', 'Learn 20+ specialized terms', TipoConteudo.VOCABULARIO, nivel, duracao1, 1));
+      tarefas.push(criarTarefa('Academic Reading', 'Read materials using new vocabulary', TipoConteudo.VOCABULARIO, nivel, duracao2, 2));
+      tarefas.push(criarTarefa('Mind Mapping', 'Create concept maps and associations', TipoConteudo.VOCABULARIO, nivel, duracao3, 3));
       tituloSemana = `Week ${semana} - Specialized Vocabulary`;
-    } else if (diaSemana === 3) {
-      // Quarta - Listening Crítico
-      tarefas.push(criarTarefa('Academic Listening', 'Listen to lectures or debates', TipoConteudo.LISTENING, nivel, 30, 1));
-      tarefas.push(criarTarefa('Detailed Notes', 'Take comprehensive notes', TipoConteudo.LISTENING, nivel, 20, 2));
-      tarefas.push(criarTarefa('Language Analysis', 'Analyze language and rhetorical devices used', TipoConteudo.LISTENING, nivel, 10, 3));
-      tituloSemana = `Week ${semana} - Critical Listening`;
-    } else if (diaSemana === 4) {
-      // Quinta - Leitura Acadêmica
-      tarefas.push(criarTarefa('Academic Text', 'Read academic article or literature', TipoConteudo.READING, nivel, 40, 1));
-      tarefas.push(criarTarefa('Critical Analysis', 'Annotate and analyze structure', TipoConteudo.READING, nivel, 20, 2));
-      tituloSemana = `Week ${semana} - Academic Reading`;
-    } else if (diaSemana === 5) {
-      // Sexta - Speaking Avançado
-      tarefas.push(criarTarefa('Complex Topic Prep', 'Research complex topic thoroughly', TipoConteudo.SPEAKING, nivel, 20, 1));
-      tarefas.push(criarTarefa('Presentation', 'Record detailed presentation or discussion', TipoConteudo.SPEAKING, nivel, 30, 2));
-      tarefas.push(criarTarefa('Self-Critique', 'Detailed analysis of performance', TipoConteudo.SPEAKING, nivel, 10, 3));
-      tituloSemana = `Week ${semana} - Advanced Speaking`;
-    } else if (diaSemana === 6) {
-      // Sábado - Escrita Profissional
-      tarefas.push(criarTarefa('Plan Structure', 'Outline detailed essay or article', TipoConteudo.WRITING, nivel, 20, 1));
-      tarefas.push(criarTarefa('Professional Writing', 'Write essay, report, or article', TipoConteudo.WRITING, nivel, 40, 2));
-      tituloSemana = `Week ${semana} - Professional Writing`;
+    } else if (cicloDia === 3) {
+      // Listening - 3 tarefas
+      const duracao1 = Math.round(metaDiaria * 0.50);
+      const duracao2 = Math.round(metaDiaria * 0.33);
+      const duracao3 = metaDiaria - duracao1 - duracao2;
+      tarefas.push(criarTarefa('Academic Listening', 'Listen to lectures or documentaries', TipoConteudo.LISTENING, nivel, duracao1, 1));
+      tarefas.push(criarTarefa('Critical Analysis', 'Analyze arguments and perspectives', TipoConteudo.LISTENING, nivel, duracao2, 2));
+      tarefas.push(criarTarefa('Note Organization', 'Create structured notes', TipoConteudo.LISTENING, nivel, duracao3, 3));
+      tituloSemana = `Week ${semana} - Academic Listening`;
+    } else if (cicloDia === 4) {
+      // Reading - 3 tarefas
+      const duracao1 = Math.round(metaDiaria * 0.50);
+      const duracao2 = Math.round(metaDiaria * 0.33);
+      const duracao3 = metaDiaria - duracao1 - duracao2;
+      tarefas.push(criarTarefa('Complex Text', 'Read academic or professional text', TipoConteudo.READING, nivel, duracao1, 1));
+      tarefas.push(criarTarefa('Deep Analysis', 'Analyze style, tone, and arguments', TipoConteudo.READING, nivel, duracao2, 2));
+      tarefas.push(criarTarefa('Research Notes', 'Document insights and references', TipoConteudo.READING, nivel, duracao3, 3));
+      tituloSemana = `Week ${semana} - Critical Reading`;
+    } else if (cicloDia === 5) {
+      // Speaking - 3 tarefas
+      const duracao1 = Math.round(metaDiaria * 0.33);
+      const duracao2 = Math.round(metaDiaria * 0.50);
+      const duracao3 = metaDiaria - duracao1 - duracao2;
+      tarefas.push(criarTarefa('Presentation Prep', 'Prepare structured presentation', TipoConteudo.SPEAKING, nivel, duracao1, 1));
+      tarefas.push(criarTarefa('Advanced Speaking', 'Record detailed presentation or debate', TipoConteudo.SPEAKING, nivel, duracao2, 2));
+      tarefas.push(criarTarefa('Professional Feedback', 'Self-evaluate like a professional', TipoConteudo.SPEAKING, nivel, duracao3, 3));
+      tituloSemana = `Week ${semana} - Professional Speaking`;
     } else {
-      // Domingo - Integração
-      tarefas.push(criarTarefa('Comprehensive Review', 'Review all weekly content', TipoConteudo.REVISAO, nivel, 30, 1));
-      tarefas.push(criarTarefa('Integrated Task', 'Complete multi-skill integration task', TipoConteudo.REVISAO, nivel, 20, 2));
-      tarefas.push(criarTarefa('Reflection', 'Reflect on progress and set goals', TipoConteudo.REVISAO, nivel, 10, 3));
-      tituloSemana = `Week ${semana} - Integration & Mastery`;
+      // Writing - 3 tarefas
+      const duracao1 = Math.round(metaDiaria * 0.33);
+      const duracao2 = Math.round(metaDiaria * 0.50);
+      const duracao3 = metaDiaria - duracao1 - duracao2;
+      tarefas.push(criarTarefa('Research & Outline', 'Research topic and create detailed outline', TipoConteudo.WRITING, nivel, duracao1, 1));
+      tarefas.push(criarTarefa('Academic Writing', 'Write academic essay or professional article', TipoConteudo.WRITING, nivel, duracao2, 2));
+      tarefas.push(criarTarefa('Peer Review', 'Review with critical eye', TipoConteudo.WRITING, nivel, duracao3, 3));
+      tituloSemana = `Week ${semana} - Advanced Writing`;
     }
 
-    const tempoTotal = tarefas.reduce((acc, t) => acc + t.duracaoEstimada, 0);
+      const tempoTotal = tarefas.reduce((acc, t) => acc + t.duracaoEstimada, 0);
 
-    dias.push({
-      id: `dia-${numero}`,
-      numero,
-      mes,
-      semana,
-      fase,
-      data: dataAtual.toISOString().split('T')[0],
-      tarefas,
-      tempoTotal,
-      concluido: false,
-      tituloSemana
-    });
+      dias.push({
+        id: `dia-${numero}`,
+        numero,
+        mes,
+        semana,
+        fase,
+        data: dataAtual.toISOString().split('T')[0],
+        tarefas,
+        tempoTotal,
+        concluido: false,
+        tituloSemana
+      });
+      
+      numero++;
+    }
+    
+    diaCorrente++;
   }
 
   return dias;

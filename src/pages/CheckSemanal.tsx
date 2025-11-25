@@ -178,8 +178,12 @@ function CheckSemanal() {
     }
   };
 
+  // Meta semanal do usuário (padrão 420 se não configurado)
+  const metaSemanal = config?.metaSemanal || 420;
+  const metaSemanalhoras = Math.round(metaSemanal / 60);
+  
   const progressoPresenca = presenca;
-  const progressoMeta = Math.round((minutosRealizados / 420) * 100);
+  const progressoMeta = Math.round((minutosRealizados / metaSemanal) * 100);
 
   return (
     <div className="check-semanal">
@@ -250,7 +254,7 @@ function CheckSemanal() {
               placeholder="Ex: 420"
               style={{ backgroundColor: '#f0f0f0', cursor: 'not-allowed' }}
             />
-            <small>Goal: 420 minutes (7 hours/week)</small>
+            <small>Goal: {metaSemanal} minutes ({metaSemanalhoras} hours/week)</small>
             
             <div className="meta-bar">
               <div 
@@ -261,11 +265,11 @@ function CheckSemanal() {
               </div>
             </div>
 
-            {minutosRealizados >= 420 ? (
+            {minutosRealizados >= metaSemanal ? (
               <p className="meta-status success">✅ Goal achieved! Congratulations!</p>
             ) : (
               <p className="meta-status warning">
-                ⚠️ {420 - minutosRealizados} minutes remaining to reach the goal
+                ⚠️ {metaSemanal - minutosRealizados} minutes remaining to reach the goal
               </p>
             )}
           </div>

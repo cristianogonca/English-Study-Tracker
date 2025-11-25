@@ -163,12 +163,12 @@ export default function ProfessorAlunos() {
                 >
                   📚 Study Guide
                 </button>
-                <button
+                {/* <button
                   className="btn-action btn-rotina"
                   onClick={() => navigate(`/professor/rotina/${aluno.id}`)}
                 >
                   🔄 Weekly Routine
-                </button>
+                </button> */}
               </div>
             </div>
           ))}

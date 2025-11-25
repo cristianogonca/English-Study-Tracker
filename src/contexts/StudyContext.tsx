@@ -2,7 +2,7 @@ import { createContext, useContext, useState, useEffect, ReactNode } from 'react
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import SupabaseStudyService from '../services/SupabaseStudyService';
 import { gerarCronogramaCompleto } from '../services/CronogramaGenerator';
-import { gerarFases } from '../services/FasesGenerator';
+import { gerarFasePersonalizada } from '../services/FasesGeneratorPersonalizado';
 import { supabase } from '../lib/supabase';
 import {
   DiaEstudo,
@@ -67,12 +67,12 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
             
             if (cronogramaCarregado.length === 0 || !dia1 || !dia1.data || dia1.data.split('T')[0] !== dataInicioFormatada) {
               console.log('[StudyProvider] Cronograma inválido ou desatualizado. Regenerando...');
-              const cronogramaNovo = gerarCronogramaCompleto(dataInicioFormatada, data.nivel_inicial);
+              const duracaoPrograma = data.duracao_programa || 365;
+              const cronogramaNovo = gerarCronogramaCompleto(dataInicioFormatada, data.nivel_inicial, duracaoPrograma);
               await SupabaseStudyService.salvarCronograma(cronogramaNovo);
               
-              const fasesNovas = gerarFases();
+              const fasesNovas = gerarFasePersonalizada(data.nivel_inicial, duracaoPrograma);
               await SupabaseStudyService.salvarFases(fasesNovas);
-              
               cronogramaFinal = cronogramaNovo;
               fasesFinal = fasesNovas;
             }
@@ -91,6 +91,7 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
               diasEstudo: data.dias_estudo,
               dataInicio: data.data_inicio,
               nivelInicial: data.nivel_inicial,
+              duracaoPrograma: data.duracao_programa || 365
             });
             setIsConfigured(true);
             setCronograma(cronogramaFinal);
@@ -168,12 +169,14 @@ export const StudyProvider = ({ children }: { children: ReactNode }) => {
     console.log('[StudyProvider] configurar() chamado com:', novaConfig);
     await SupabaseStudyService.salvarConfiguracao(novaConfig);
     
-    const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio, novaConfig.nivelInicial);
+    const duracaoPrograma = novaConfig.duracaoPrograma || 365;
+    const metaDiaria = novaConfig.metaDiaria || 60;
+    const diasEstudo = novaConfig.diasEstudo || [1, 2, 3, 4, 5];
+    const cronogramaInicial = gerarCronogramaCompleto(novaConfig.dataInicio, novaConfig.nivelInicial, duracaoPrograma, metaDiaria, diasEstudo);
     await SupabaseStudyService.salvarCronograma(cronogramaInicial);
     
-    const fasesIniciais = gerarFases();
+    const fasesIniciais = gerarFasePersonalizada(novaConfig.nivelInicial, duracaoPrograma, metaDiaria);
     await SupabaseStudyService.salvarFases(fasesIniciais);
-    
     // Atualizar estados locais diretamente (não recarregar tudo)
     setConfig(novaConfig);
     setIsConfigured(true);
