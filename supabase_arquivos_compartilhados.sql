@@ -1,74 +1,66 @@
 -- ====================================================================
--- SISTEMA DE ARQUIVOS COMPARTILHADOS (PROFESSOR -> ALUNO)
+-- SISTEMA DE ARQUIVOS COMPARTILHADOS (BIDIRECIONAL)
 -- ====================================================================
 
+-- 0. Dropar tabela se existir (para recriar com estrutura correta)
+DROP TABLE IF EXISTS public.arquivos_compartilhados CASCADE;
+
 -- 1. Criar tabela de arquivos compartilhados
-CREATE TABLE IF NOT EXISTS public.arquivos_compartilhados (
+CREATE TABLE public.arquivos_compartilhados (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-    professor_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-    aluno_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    remetente_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+    destinatario_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
     nome_arquivo TEXT NOT NULL,
     tamanho_bytes BIGINT NOT NULL,
     tipo_arquivo TEXT NOT NULL,
     caminho_storage TEXT NOT NULL,
     data_upload TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
-    baixado BOOLEAN DEFAULT FALSE,
-    data_baixado TIMESTAMP WITH TIME ZONE,
     observacao TEXT
 );
 
 -- 2. Criar índices para performance
-CREATE INDEX idx_arquivos_aluno ON public.arquivos_compartilhados(aluno_id);
-CREATE INDEX idx_arquivos_professor ON public.arquivos_compartilhados(professor_id);
-CREATE INDEX idx_arquivos_baixado ON public.arquivos_compartilhados(baixado);
+CREATE INDEX idx_arquivos_remetente ON public.arquivos_compartilhados(remetente_id);
+CREATE INDEX idx_arquivos_destinatario ON public.arquivos_compartilhados(destinatario_id);
 
 -- 3. Habilitar RLS
 ALTER TABLE public.arquivos_compartilhados ENABLE ROW LEVEL SECURITY;
 
 -- 4. Políticas de segurança
 
--- Qualquer usuário autenticado pode inserir arquivos (controle será feito no frontend)
+-- Qualquer usuário autenticado pode inserir arquivos
 CREATE POLICY "Usuario pode fazer upload de arquivos"
 ON public.arquivos_compartilhados
 FOR INSERT
 TO authenticated
-WITH CHECK (professor_id = auth.uid());
+WITH CHECK (remetente_id = auth.uid());
 
 -- Usuario pode ver arquivos que enviou
 CREATE POLICY "Usuario pode ver seus arquivos enviados"
 ON public.arquivos_compartilhados
 FOR SELECT
 TO authenticated
-USING (professor_id = auth.uid());
+USING (remetente_id = auth.uid());
 
 -- Usuario pode deletar arquivos que enviou
 CREATE POLICY "Usuario pode deletar seus arquivos"
 ON public.arquivos_compartilhados
 FOR DELETE
 TO authenticated
-USING (professor_id = auth.uid());
+USING (remetente_id = auth.uid());
 
 -- Usuario pode ver arquivos compartilhados com ele
 CREATE POLICY "Usuario pode ver arquivos recebidos"
 ON public.arquivos_compartilhados
 FOR SELECT
 TO authenticated
-USING (aluno_id = auth.uid());
-
--- Usuario pode atualizar status de "baixado"
-CREATE POLICY "Usuario pode marcar arquivo como baixado"
-ON public.arquivos_compartilhados
-FOR UPDATE
-TO authenticated
-USING (aluno_id = auth.uid())
-WITH CHECK (aluno_id = auth.uid());
+USING (destinatario_id = auth.uid());
 
 -- Usuario pode deletar arquivo recebido
 CREATE POLICY "Usuario pode deletar arquivo recebido"
 ON public.arquivos_compartilhados
 FOR DELETE
 TO authenticated
-USING (aluno_id = auth.uid());
+USING (destinatario_id = auth.uid());
 
 -- 5. Criar bucket de storage (executar no dashboard do Supabase)
 -- Nome do bucket: arquivos-compartilhados

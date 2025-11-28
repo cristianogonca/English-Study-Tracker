@@ -208,6 +208,11 @@
   background: #fffbf0;
 }
 
+.arquivo-card.recebido {
+  background: #fffbf0;
+  border-color: #ffc107;
+}
+
 .arquivo-icone {
   font-size: 3rem;
   line-height: 1;

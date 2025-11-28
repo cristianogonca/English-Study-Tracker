@@ -4,7 +4,14 @@ import { useStudy } from '../contexts/StudyContext';
 import { ConfigUsuario, DiaSemana, NivelDificuldade } from '../types';
 import SupabaseAuthService from '../services/SupabaseAuthService';
 import { professorService } from '../services/SupabaseProfessorService';
+import { supabase } from '../lib/supabase';
 import './Setup.css';
+
+interface Professor {
+  id: string;
+  nome: string;
+  email: string;
+}
 
 function Setup() {
   const { configurar } = useStudy();
@@ -13,6 +20,8 @@ function Setup() {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [progressMessage, setProgressMessage] = useState('');
+  const [professores, setProfessores] = useState<Professor[]>([]);
+  const [professorSelecionado, setProfessorSelecionado] = useState('');
   
   const [formData, setFormData] = useState<ConfigUsuario>({
     nome: '',
@@ -24,11 +33,50 @@ function Setup() {
     duracaoPrograma: 365
   });
 
+  // Carregar professores disponíveis
+  useEffect(() => {
+    carregarProfessores();
+  }, []);
+
   // Calcular meta semanal automaticamente
   useEffect(() => {
     const metaSemanal = formData.metaDiaria * formData.diasEstudo.length;
     setFormData(prev => ({ ...prev, metaSemanal }));
   }, [formData.metaDiaria, formData.diasEstudo.length]);
+
+  const carregarProfessores = async () => {
+    try {
+      console.log('Carregando professores de users_profile...');
+      
+      // Buscar todos os registros de users_profile (todos são professores)
+      const { data: profiles, error } = await supabase
+        .from('users_profile')
+        .select('id, nome, role')
+        .order('nome');
+
+      console.log('Resultado da busca:', { data: profiles, error });
+
+      if (error) {
+        console.error('Erro ao carregar professores:', error);
+        return;
+      }
+
+      if (profiles && profiles.length > 0) {
+        const profsFormatados = profiles.map(p => ({
+          id: p.id,
+          nome: p.nome || 'Professor',
+          email: '' // Não tem email na tabela
+        }));
+        
+        console.log('Professores formatados:', profsFormatados);
+        setProfessores(profsFormatados);
+      } else {
+        console.warn('Nenhum professor cadastrado ainda. Dados:', profiles);
+      }
+    } catch (error) {
+      console.error('Erro ao buscar professores:', error);
+    }
+  };
 
   const toggleDia = (dia: DiaSemana) => {
     if (formData.diasEstudo.includes(dia)) {
@@ -61,6 +109,10 @@ function Setup() {
       alert('⚠️ Select at least one study day');
       return;
     }
+    if (!professorSelecionado) {
+      alert('⚠️ Please select a teacher');
+      return;
+    }
     
     setLoading(true);
     setProgress(0);
@@ -77,12 +129,24 @@ function Setup() {
       const usuario = await SupabaseAuthService.getUsuarioAtual();
       
       if (usuario) {
-        // Passo 3: Gerar cronograma personalizado (60%)
+        // Passo 3: Salvar professor_id em user_configs (50%)
+        if (professorSelecionado) {
+          setProgressMessage('Linking with your teacher...');
+          setProgress(50);
+          
+          // Salvar na tabela user_configs
+          await supabase
+            .from('user_configs')
+            .update({ professor_id: professorSelecionado })
+            .eq('user_id', usuario.id);
+        }
+        
+        // Passo 4: Gerar cronograma personalizado (60%)
         setProgressMessage('Generating personalized schedule...');
         setProgress(60);
         await professorService.criarGuiaInicial(usuario.id, formData.duracaoPrograma || 365);
         
-        // Passo 4: Criar rotina semanal (80%)
+        // Passo 5: Criar rotina semanal (80%)
         setProgressMessage('Setting up weekly routine...');
         setProgress(80);
         await professorService.criarRotinaSemanalInicial(usuario.id, formData.diasEstudo);
@@ -148,6 +212,27 @@ function Setup() {
               placeholder="Enter your name"
               required
             />
+          </div>
+
+          <div className="form-group">
+            <label>👨‍🏫 Select Your Teacher *</label>
+            <select
+              value={professorSelecionado}
+              onChange={(e) => setProfessorSelecionado(e.target.value)}
+              required
+            >
+              <option value="">-- Select a teacher --</option>
+              {professores.map(prof => (
+                <option key={prof.id} value={prof.id}>
+                  {prof.nome}
+                </option>
+              ))}
+            </select>
+            <small>
+              {professores.length === 0 
+                ? '⚠️ No teachers found. Please contact support.' 
+                : `${professores.length} teacher(s) available`}
+            </small>
           </div>
 
           <div className="form-group">

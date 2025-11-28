@@ -5,7 +5,7 @@ const BUCKET_NAME = 'arquivos-compartilhados';
 
 export class ArquivosService {
   /**
-   * Faz upload de arquivo do professor para aluno
+   * Faz upload de arquivo (bidirecional: professor <-> aluno)
    */
   static async uploadArquivo(upload: ArquivoUpload): Promise<{ success: boolean; error?: string; arquivo?: ArquivoCompartilhado }> {
     try {
@@ -15,24 +15,12 @@ export class ArquivosService {
         return { success: false, error: 'Usuário não autenticado' };
       }
 
-      // 2. Verificar se o professor tem relação com o aluno
-      const { data: relacao, error: relacaoError } = await supabase
-        .from('usuarios_professor_aluno')
-        .select('*')
-        .eq('professor_id', user.id)
-        .eq('aluno_id', upload.aluno_id)
-        .single();
-
-      if (relacaoError || !relacao) {
-        return { success: false, error: 'Você não tem permissão para compartilhar arquivos com este aluno' };
-      }
-
-      // 3. Gerar nome único para o arquivo
+      // 2. Gerar nome único para o arquivo
       const timestamp = Date.now();
       const nomeArquivoSeguro = upload.arquivo.name.replace(/[^a-zA-Z0-9.-]/g, '_');
-      const caminhoStorage = `${user.id}/${upload.aluno_id}/${timestamp}_${nomeArquivoSeguro}`;
+      const caminhoStorage = `${user.id}/${upload.destinatario_id}/${timestamp}_${nomeArquivoSeguro}`;
 
-      // 4. Fazer upload do arquivo para o storage
+      // 3. Fazer upload do arquivo para o storage
       const { data: storageData, error: storageError } = await supabase.storage
         .from(BUCKET_NAME)
         .upload(caminhoStorage, upload.arquivo, {
@@ -45,12 +33,12 @@ export class ArquivosService {
         return { success: false, error: `Erro ao fazer upload: ${storageError.message}` };
       }
 
-      // 5. Registrar na tabela de arquivos compartilhados
+      // 4. Registrar na tabela de arquivos compartilhados
       const { data: arquivoData, error: dbError } = await supabase
         .from('arquivos_compartilhados')
         .insert({
-          professor_id: user.id,
-          aluno_id: upload.aluno_id,
+          remetente_id: user.id,
+          destinatario_id: upload.destinatario_id,
           nome_arquivo: upload.arquivo.name,
           tamanho_bytes: upload.arquivo.size,
           tipo_arquivo: upload.arquivo.type || 'application/octet-stream',
@@ -84,41 +72,53 @@ export class ArquivosService {
         return { success: false, error: 'Usuário não autenticado' };
       }
 
-      // Verificar se é professor ou aluno
-      const { data: perfil } = await supabase
-        .from('perfis')
-        .select('role')
-        .eq('id', user.id)
-        .single();
-
-      let query = supabase
+      // Buscar arquivos sem joins
+      const { data: arquivos, error } = await supabase
         .from('arquivos_compartilhados')
-        .select(`
-          *,
-          professor:professor_id (id, nome),
-          aluno:aluno_id (id, nome)
-        `)
+        .select('*')
+        .or(`remetente_id.eq.${user.id},destinatario_id.eq.${user.id}`)
         .order('data_upload', { ascending: false });
-
-      if (perfil?.role === 'professor') {
-        query = query.eq('professor_id', user.id);
-      } else {
-        query = query.eq('aluno_id', user.id);
-      }
-
-      const { data: arquivos, error } = await query;
 
       if (error) {
         console.error('Erro ao listar arquivos:', error);
         return { success: false, error: error.message };
       }
 
+      if (!arquivos || arquivos.length === 0) {
+        return { success: true, arquivos: [] };
+      }
+
+      // Buscar TODOS os alunos e professores (não apenas os que têm arquivos)
+      const { data: alunos } = await supabase
+        .from('user_configs')
+        .select('user_id, nome');
+
+      const { data: professores } = await supabase
+        .from('users_profile')
+        .select('id, nome');
+
+      console.log('Alunos encontrados:', alunos);
+      console.log('Professores encontrados:', professores);
+
+      // Mapear nomes (unificar alunos e professores)
+      const nomesMap = new Map();
+      (alunos || []).forEach((a: any) => {
+        nomesMap.set(a.user_id, a.nome || 'Desconhecido');
+      });
+      (professores || []).forEach((p: any) => {
+        nomesMap.set(p.id, p.nome || 'Desconhecido');
+      });
+
+      console.log('Mapa de nomes:', nomesMap);
+
       // Processar dados para formato esperado
-      const arquivosProcessados = (arquivos || []).map((arq: any) => ({
+      const arquivosProcessados = arquivos.map((arq: any) => ({
         ...arq,
-        professor_nome: arq.professor?.nome || 'Desconhecido',
-        aluno_nome: arq.aluno?.nome || 'Desconhecido'
+        remetente_nome: nomesMap.get(arq.remetente_id) || 'Desconhecido',
+        destinatario_nome: nomesMap.get(arq.destinatario_id) || 'Desconhecido'
       }));
+
+      console.log('Arquivos processados:', arquivosProcessados);
 
       return { success: true, arquivos: arquivosProcessados };
     } catch (error: any) {
@@ -148,8 +148,8 @@ export class ArquivosService {
         return { success: false, error: 'Arquivo não encontrado' };
       }
 
-      // 2. Verificar permissão (aluno deve ser o destinatário ou professor deve ser o remetente)
-      if (arquivo.aluno_id !== user.id && arquivo.professor_id !== user.id) {
+      // 2. Verificar permissão (destinatário deve ser quem está baixando ou remetente)
+      if (arquivo.destinatario_id !== user.id && arquivo.remetente_id !== user.id) {
         return { success: false, error: 'Você não tem permissão para baixar este arquivo' };
       }
 
@@ -161,17 +161,6 @@ export class ArquivosService {
       if (storageError || !blob) {
         console.error('Erro ao baixar arquivo:', storageError);
         return { success: false, error: 'Erro ao baixar arquivo do storage' };
-      }
-
-      // 4. Se for aluno baixando, marcar como baixado
-      if (arquivo.aluno_id === user.id) {
-        await supabase
-          .from('arquivos_compartilhados')
-          .update({
-            baixado: true,
-            data_baixado: new Date().toISOString()
-          })
-          .eq('id', arquivoId);
       }
 
       return {
@@ -187,8 +176,8 @@ export class ArquivosService {
 
   /**
    * Deleta arquivo (tanto do storage quanto do banco)
-   * Professor pode deletar qualquer arquivo que enviou
-   * Aluno pode deletar arquivo após baixar
+   * Remetente pode deletar qualquer arquivo que enviou
+   * Destinatário pode deletar arquivo recebido
    */
   static async deletarArquivo(arquivoId: string): Promise<{ success: boolean; error?: string }> {
     try {
@@ -209,10 +198,10 @@ export class ArquivosService {
       }
 
       // 2. Verificar permissão
-      const isProfessor = arquivo.professor_id === user.id;
-      const isAluno = arquivo.aluno_id === user.id;
+      const isRemetente = arquivo.remetente_id === user.id;
+      const isDestinatario = arquivo.destinatario_id === user.id;
 
-      if (!isProfessor && !isAluno) {
+      if (!isRemetente && !isDestinatario) {
         return { success: false, error: 'Você não tem permissão para deletar este arquivo' };
       }
 

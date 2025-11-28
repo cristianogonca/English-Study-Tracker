@@ -15,6 +15,7 @@ export function ProfessorArquivos() {
   const [arquivos, setArquivos] = useState<ArquivoCompartilhado[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
+  const [userId, setUserId] = useState('');
 
   // Form state
   const [alunoSelecionado, setAlunoSelecionado] = useState('');
@@ -24,7 +25,6 @@ export function ProfessorArquivos() {
 
   // Filtros
   const [filtroAluno, setFiltroAluno] = useState('');
-  const [filtroBaixado, setFiltroBaixado] = useState<'todos' | 'baixados' | 'pendentes'>('todos');
 
   useEffect(() => {
     carregarDados();
@@ -40,32 +40,30 @@ export function ProfessorArquivos() {
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
+      setUserId(user.id);
 
-      const { data, error } = await supabase
-        .from('usuarios_professor_aluno')
-        .select(`
-          aluno_id,
-          perfis!usuarios_professor_aluno_aluno_id_fkey (
-            id,
-            nome,
-            email
-          )
-        `)
-        .eq('professor_id', user.id);
+      // Buscar alunos da view professor_alunos_view
+      const { data: alunos, error } = await supabase
+        .from('professor_alunos_view')
+        .select('id, nome, email')
+        .order('nome');
 
       if (error) {
         console.error('Erro ao carregar alunos:', error);
         return;
       }
 
-      const alunosFormatados = (data || [])
+      console.log('Alunos carregados da view:', alunos);
+
+      const alunosFormatados = (alunos || [])
         .map((item: any) => ({
-          id: item.perfis.id,
-          nome: item.perfis.nome,
-          email: item.perfis.email
+          id: item.id,
+          nome: item.nome || item.email,
+          email: item.email
         }))
         .filter((aluno: Aluno) => aluno.id && aluno.nome);
 
+      console.log('Alunos formatados:', alunosFormatados);
       setAlunos(alunosFormatados);
     } catch (error) {
       console.error('Erro ao carregar alunos:', error);
@@ -108,7 +106,7 @@ export function ProfessorArquivos() {
     setMensagem(null);
 
     const result = await ArquivosService.uploadArquivo({
-      aluno_id: alunoSelecionado,
+      destinatario_id: alunoSelecionado,
       arquivo: arquivoSelecionado,
       observacao: observacao.trim() || undefined
     });
@@ -157,13 +155,15 @@ export function ProfessorArquivos() {
     }
   };
 
-  const arquivosFiltrados = arquivos.filter(arq => {
-    const matchAluno = !filtroAluno || arq.aluno_id === filtroAluno;
-    const matchBaixado = 
-      filtroBaixado === 'todos' ||
-      (filtroBaixado === 'baixados' && arq.baixado) ||
-      (filtroBaixado === 'pendentes' && !arq.baixado);
-    return matchAluno && matchBaixado;
+  const arquivosEnviados = arquivos.filter(arq => arq.remetente_id === userId);
+  const arquivosRecebidos = arquivos.filter(arq => arq.destinatario_id === userId);
+
+  const arquivosEnviadosFiltrados = arquivosEnviados.filter(arq => {
+    return !filtroAluno || arq.destinatario_id === filtroAluno;
+  });
+
+  const arquivosRecebidosFiltrados = arquivosRecebidos.filter(arq => {
+    return !filtroAluno || arq.remetente_id === filtroAluno;
   });
 
   if (loading) {
@@ -238,10 +238,10 @@ export function ProfessorArquivos() {
         </form>
       </div>
 
-      {/* Lista de Arquivos */}
+      {/* Lista de Arquivos Enviados */}
       <div className="arquivos-section">
         <div className="arquivos-header">
-          <h2>Arquivos Enviados ({arquivosFiltrados.length})</h2>
+          <h2>📤 Arquivos Enviados ({arquivosEnviadosFiltrados.length})</h2>
           <div className="filtros">
             <select value={filtroAluno} onChange={(e) => setFiltroAluno(e.target.value)}>
               <option value="">Todos os alunos</option>
@@ -249,27 +249,21 @@ export function ProfessorArquivos() {
                 <option key={aluno.id} value={aluno.id}>{aluno.nome}</option>
               ))}
             </select>
-
-            <select value={filtroBaixado} onChange={(e) => setFiltroBaixado(e.target.value as any)}>
-              <option value="todos">Todos</option>
-              <option value="pendentes">Pendentes</option>
-              <option value="baixados">Baixados</option>
-            </select>
           </div>
         </div>
 
-        {arquivosFiltrados.length === 0 ? (
-          <p className="vazio">Nenhum arquivo encontrado.</p>
+        {arquivosEnviadosFiltrados.length === 0 ? (
+          <p className="vazio">Nenhum arquivo enviado.</p>
         ) : (
           <div className="arquivos-lista">
-            {arquivosFiltrados.map(arquivo => (
-              <div key={arquivo.id} className={`arquivo-card ${arquivo.baixado ? 'baixado' : 'pendente'}`}>
+            {arquivosEnviadosFiltrados.map(arquivo => (
+              <div key={arquivo.id} className="arquivo-card">
                 <div className="arquivo-icone">
                   {ArquivosService.getIconePorTipo(arquivo.tipo_arquivo)}
                 </div>
                 <div className="arquivo-info">
                   <h3>{arquivo.nome_arquivo}</h3>
-                  <p className="aluno">👤 {arquivo.aluno_nome}</p>
+                  <p className="aluno">👤 Para: {arquivo.destinatario_nome}</p>
                   <p className="detalhes">
                     📏 {ArquivosService.formatarTamanho(arquivo.tamanho_bytes)} •
                     📅 {new Date(arquivo.data_upload).toLocaleDateString('pt-BR')} às {new Date(arquivo.data_upload).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
@@ -277,13 +271,6 @@ export function ProfessorArquivos() {
                   {arquivo.observacao && (
                     <p className="observacao">💬 {arquivo.observacao}</p>
                   )}
-                  <p className="status">
-                    {arquivo.baixado ? (
-                      <span className="badge baixado">✅ Baixado em {new Date(arquivo.data_baixado!).toLocaleDateString('pt-BR')}</span>
-                    ) : (
-                      <span className="badge pendente">⏳ Pendente</span>
-                    )}
-                  </p>
                 </div>
                 <div className="arquivo-acoes">
                   <button
@@ -299,6 +286,55 @@ export function ProfessorArquivos() {
                     title="Deletar arquivo"
                   >
                     🗑️ Deletar
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Lista de Arquivos Recebidos */}
+      <div className="arquivos-section">
+        <div className="arquivos-header">
+          <h2>📥 Arquivos Recebidos ({arquivosRecebidosFiltrados.length})</h2>
+          <div className="filtros">
+            <select value={filtroAluno} onChange={(e) => setFiltroAluno(e.target.value)}>
+              <option value="">Todos os alunos</option>
+              {alunos.map(aluno => (
+                <option key={aluno.id} value={aluno.id}>{aluno.nome}</option>
+              ))}
+            </select>
+          </div>
+        </div>
+
+        {arquivosRecebidosFiltrados.length === 0 ? (
+          <p className="vazio">Nenhum arquivo recebido.</p>
+        ) : (
+          <div className="arquivos-lista">
+            {arquivosRecebidosFiltrados.map(arquivo => (
+              <div key={arquivo.id} className="arquivo-card recebido">
+                <div className="arquivo-icone">
+                  {ArquivosService.getIconePorTipo(arquivo.tipo_arquivo)}
+                </div>
+                <div className="arquivo-info">
+                  <h3>{arquivo.nome_arquivo}</h3>
+                  <p className="aluno">👤 De: {arquivo.remetente_nome}</p>
+                  <p className="detalhes">
+                    📏 {ArquivosService.formatarTamanho(arquivo.tamanho_bytes)} •
+                    📅 {new Date(arquivo.data_upload).toLocaleDateString('pt-BR')} às {new Date(arquivo.data_upload).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' })}
+                  </p>
+                  {arquivo.observacao && (
+                    <p className="observacao">💬 {arquivo.observacao}</p>
+                  )}
+                </div>
+                <div className="arquivo-acoes">
+                  <button
+                    className="btn-secundario"
+                    onClick={() => handleBaixar(arquivo.id, arquivo.nome_arquivo)}
+                    title="Baixar arquivo (será deletado automaticamente)"
+                  >
+                    ⬇️ Baixar
                   </button>
                 </div>
               </div>

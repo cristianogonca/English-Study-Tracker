@@ -97,7 +97,7 @@ function Navigation() {
     { path: '/cronograma', label: 'Schedule', icon: '📅' },
     { path: '/guia', label: 'Study Guide', icon: '📖' },
     { path: '/provas', label: 'Tests', icon: '📝' },
-    { path: '/aluno/arquivos', label: 'Files', icon: '📁' }
+    { path: '/aluno/arquivos', label: 'Share Files', icon: '📁' }
   ];
 
   const linksProfessor = [
