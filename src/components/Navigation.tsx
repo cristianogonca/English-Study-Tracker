@@ -96,12 +96,14 @@ function Navigation() {
     { path: '/vocabulario', label: 'Vocabulary', icon: '📚' },
     { path: '/cronograma', label: 'Schedule', icon: '📅' },
     { path: '/guia', label: 'Study Guide', icon: '📖' },
-    { path: '/provas', label: 'Tests', icon: '📝' }
+    { path: '/provas', label: 'Tests', icon: '📝' },
+    { path: '/aluno/arquivos', label: 'Files', icon: '📁' }
   ];
 
   const linksProfessor = [
     { path: '/professor', label: 'My Students', icon: '👨‍🏫' },
-    { path: '/professor/provas', label: 'Tests', icon: '📝' }
+    { path: '/professor/provas', label: 'Tests', icon: '📝' },
+    { path: '/professor/arquivos', label: 'Share Files', icon: '📁' }
   ];
 
   // Não renderiza links até saber o role

@@ -20,6 +20,8 @@ import ProfessorRotina from './pages/ProfessorRotina';
 import ProfessorProvasNovo from './pages/ProfessorProvasNovo';
 import AlunoProvasNovo from './pages/AlunoProvasNovo';
 import CorrigirProva from './pages/CorrigirProva';
+import { ProfessorArquivos } from './pages/ProfessorArquivos';
+import { AlunoArquivos } from './pages/AlunoArquivos';
 import Navigation from './components/Navigation';
 
 function AppRoutes() {
@@ -100,6 +102,11 @@ function AppRoutes() {
           (role === 'professor' || role === 'admin') ? <CorrigirProva /> :
           <Navigate to="/" />
         )} />
+        <Route path="/professor/arquivos" element={(
+          !logado ? <Navigate to="/login" /> :
+          (role === 'professor' || role === 'admin') ? <ProfessorArquivos /> :
+          <Navigate to="/" />
+        )} />
         
         {/* Rotas de Aluno */}
         <Route path="/" element={(
@@ -143,6 +150,11 @@ function AppRoutes() {
           !logado ? <Navigate to="/login" /> :
           !isConfigured ? <Navigate to="/setup" /> :
           <AlunoProvasNovo />
+        )} />
+        <Route path="/aluno/arquivos" element={(
+          !logado ? <Navigate to="/login" /> :
+          !isConfigured ? <Navigate to="/setup" /> :
+          <AlunoArquivos />
         )} />
       </Routes>
     </BrowserRouter>
